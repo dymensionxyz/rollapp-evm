@@ -7,7 +7,7 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	"github.com/dymensionxyz/rollapp-evm/app"
-	"github.com/dymensionxyz/rollapp-evm/cmd/rollappd/cmd"
+	"github.com/dymensionxyz/rollapp-evm/cmd/rollapp-evm/cmd"
 )
 
 func main() {

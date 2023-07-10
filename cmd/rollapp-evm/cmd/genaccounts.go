@@ -18,6 +18,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	ethtutil "github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v12/crypto/hd"
+	ethermint "github.com/evmos/evmos/v12/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 const (
@@ -39,7 +44,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 `,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())
 			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
@@ -120,7 +125,10 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					return errors.New("invalid vesting parameters; must supply start and end time or end time")
 				}
 			} else {
-				genAccount = baseAccount
+				genAccount = &ethermint.EthAccount{
+					BaseAccount: baseAccount,
+					CodeHash:    ethtutil.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
+				}
 			}
 
 			if err := genAccount.Validate(); err != nil {

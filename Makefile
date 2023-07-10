@@ -23,7 +23,7 @@ export GO111MODULE = on
 
 # process linker flags
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=rollappd \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=rollapp-evm \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION)
@@ -43,13 +43,13 @@ all: install
 install:
 	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
-	@echo "--> installing rollappd"
-	@go install $(BUILD_FLAGS) -v -mod=readonly ./cmd/rollappd
+	@echo "--> installing rollapp-evm"
+	@go install $(BUILD_FLAGS) -v -mod=readonly ./cmd/rollapp-evm
 
 
 .PHONY: build
 build: ## Compiles the rollapd binary
-	go build  -o build/rollappd $(BUILD_FLAGS) ./cmd/rollappd
+	go build  -o build/rollapp-evm $(BUILD_FLAGS) ./cmd/rollapp-evm
 
 
 .PHONY: clean

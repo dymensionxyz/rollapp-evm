@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -9,8 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v12/crypto/hd"
 
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -19,7 +20,6 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -34,14 +34,19 @@ import (
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	"github.com/dymensionxyz/rollapp-evm/app"
 	"github.com/dymensionxyz/rollapp-evm/app/params"
+
+	ethermintclient "github.com/evmos/evmos/v12/client"
+
+	evmserver "github.com/evmos/evmos/v12/server"
+	evmconfig "github.com/evmos/evmos/v12/server/config"
 )
 
 const rollappAscii = `
-██████   ██████  ██      ██       █████  ██████  ██████  
-██   ██ ██    ██ ██      ██      ██   ██ ██   ██ ██   ██ 
-██████  ██    ██ ██      ██      ███████ ██████  ██████  
-██   ██ ██    ██ ██      ██      ██   ██ ██      ██      
-██   ██  ██████  ███████ ███████ ██   ██ ██      ██                     
+███████ ██    ██ ███    ███     ██████   ██████  ██      ██       █████  ██████  ██████  
+██      ██    ██ ████  ████     ██   ██ ██    ██ ██      ██      ██   ██ ██   ██ ██   ██ 
+█████   ██    ██ ██ ████ ██     ██████  ██    ██ ██      ██      ███████ ██████  ██████  
+██       ██  ██  ██  ██  ██     ██   ██ ██    ██ ██      ██      ██   ██ ██      ██      
+███████   ████   ██      ██     ██   ██  ██████  ███████ ███████ ██   ██ ██      ██                                                                                                                                                            
 `
 
 // NewRootCmd creates a new root rollappd command. It is called once in the main function.
@@ -58,6 +63,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(app.DefaultNodeHome).
+		WithKeyringOptions(hd.EthSecp256k1Option()).
 		WithViper("ROLLAPP")
 
 	rootCmd := &cobra.Command{
@@ -121,10 +127,14 @@ func initTendermintConfig() *tmcfg.Config {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	// customAppTemplate := serverconfig.DefaultConfigTemplate
-	// srvCfg := serverconfig.DefaultConfig()
-	// srvCfg.MinGasPrices = "0udym"
-	return "", nil
+	customAppTemplate, customAppConfig := evmconfig.AppConfig("")
+
+	srvCfg, ok := customAppConfig.(evmconfig.Config)
+	if !ok {
+		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+	}
+
+	return customAppTemplate, srvCfg
 }
 
 func initRootCmd(
@@ -134,6 +144,7 @@ func initRootCmd(
 	// Set config
 	sdkconfig := sdk.GetConfig()
 	utils.SetPrefixes(sdkconfig, app.AccountAddressPrefix)
+	utils.SetBip44CoinType(sdkconfig)
 	sdkconfig.Seal()
 
 	ac := appCreator{
@@ -158,7 +169,7 @@ func initRootCmd(
 		config.Cmd(),
 	)
 
-	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, nil)
 	rootCmd.AddCommand(StartCmd(ac.newApp, app.DefaultNodeHome))
 
 	// add keybase, auxiliary RPC, query, and tx child commands
@@ -166,8 +177,10 @@ func initRootCmd(
 		rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(app.DefaultNodeHome),
+		ethermintclient.KeyCommands(app.DefaultNodeHome),
 	)
+
+	rootCmd.AddCommand(evmserver.NewIndexTxCmd())
 }
 
 // queryCommand returns the sub-command to send queries to the app
@@ -221,10 +234,6 @@ func txCommand() *cobra.Command {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
-}
-
-func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
 }
 
 type appCreator struct {

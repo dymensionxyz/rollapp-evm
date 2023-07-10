@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmcrypto "github.com/tendermint/tendermint/crypto/encoding"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -92,6 +94,7 @@ import (
 	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
 
 	rollappparams "github.com/dymensionxyz/rollapp-evm/app/params"
+	srvflags "github.com/evmos/evmos/v12/server/flags"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -128,7 +131,7 @@ import (
 
 const (
 	AccountAddressPrefix = "ethm"
-	Name                 = "rollapp-evm"
+	Name                 = "rollapp_evm"
 )
 
 var (
@@ -434,7 +437,7 @@ func NewRollapp(
 	)
 
 	// ... other modules keepers
-	tracer := cast.ToString(appOpts.Get(flags.EVMTracer))
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
@@ -525,7 +528,7 @@ func NewRollapp(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/**** Module Options ****/
@@ -673,7 +676,7 @@ func NewRollapp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 
-	maxGasWanted := cast.ToUint64(appOpts.Get(flags.EVMMaxTxGasWanted))
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 	app.setPostHandler()
 
