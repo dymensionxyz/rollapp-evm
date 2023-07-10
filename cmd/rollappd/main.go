@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/dymensionxyz/rollapp/app"
-	"github.com/dymensionxyz/rollapp/cmd/rollappd/cmd"
+	"github.com/dymensionxyz/rollapp-evm/app"
+	"github.com/dymensionxyz/rollapp-evm/cmd/rollappd/cmd"
 )
 
 func main() {

@@ -32,8 +32,8 @@ import (
 	"github.com/dymensionxyz/dymension-rdk/utils"
 	sequencercli "github.com/dymensionxyz/dymension-rdk/x/sequencers/client/cli"
 	dymintconf "github.com/dymensionxyz/dymint/config"
-	"github.com/dymensionxyz/rollapp/app"
-	"github.com/dymensionxyz/rollapp/app/params"
+	"github.com/dymensionxyz/rollapp-evm/app"
+	"github.com/dymensionxyz/rollapp-evm/app/params"
 )
 
 const rollappAscii = `
