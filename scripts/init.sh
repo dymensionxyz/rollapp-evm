@@ -5,7 +5,7 @@ EXECUTABLE="rollapp-evm"
 ROLLAPP_CHAIN_DIR="$HOME/.rollapp_evm"
 DENOM="urax"
 MONIKER="rollapp-sequencer"
-ROLLAPP_CHAIN_ID="demo-dymension-rollapp"
+ROLLAPP_CHAIN_ID="evmrollapp_1234-1"
 
 KEY_NAME_ROLLAPP="rol-user"
 

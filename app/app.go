@@ -127,6 +127,10 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
+
+	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
 const (
@@ -193,7 +197,6 @@ var (
 		params.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		ibc.AppModuleBasic{},
-		ibctransfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// Ethermint modules
 		evm.AppModuleBasic{},
@@ -390,7 +393,7 @@ func NewRollapp(
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
 		app.GetSubspace(banktypes.ModuleName),
-		app.BlockedModuleAccountAddrs(),
+		app.BlockedAddrs(),
 	)
 
 	stakingKeeper := stakingkeeper.NewKeeper(
@@ -637,6 +640,9 @@ func NewRollapp(
 		minttypes.ModuleName,
 		ibchost.ModuleName,
 		genutiltypes.ModuleName,
+		erc20types.ModuleName,
+		claimstypes.ModuleName,
+
 		paramstypes.ModuleName,
 		epochstypes.ModuleName,
 		upgradetypes.ModuleName,
