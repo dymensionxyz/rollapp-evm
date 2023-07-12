@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/pprof"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,6 +32,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/dymensionxyz/dymension-rdk/utils"
+	rdklogger "github.com/dymensionxyz/dymension-rdk/utils/logger"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	dymintconv "github.com/dymensionxyz/dymint/conv"
 	dymintnode "github.com/dymensionxyz/dymint/node"
@@ -133,6 +135,18 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
+			/* ------------------------------ setup logging ----------------------------- */
+			log_path := serverCtx.Viper.GetString(rdklogger.FlagLogFile)
+			log_level := serverCtx.Viper.GetString(rdklogger.FlagLogLevel)
+			maxLogSize, err := strconv.Atoi(serverCtx.Viper.GetString(rdklogger.FlagMaxLogSize))
+			if err != nil {
+				return err
+			}
+			if maxLogSize <= 0 {
+				return fmt.Errorf("max log size <=0 not supported")
+			}
+			serverCtx.Logger = rdklogger.NewLogger(log_path, maxLogSize, log_level, map[string]string{})
+
 			dymconfig := dymintconf.DefaultConfig("", "")
 			err = dymconfig.GetViperConfig(cmd, serverCtx.Viper.GetString(flags.FlagHome))
 			if err != nil {
@@ -210,8 +224,8 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().String(srvflags.EVMTracer, config.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
 	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, config.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
 
-	// add support for all Tendermint-specific command line options
 	dymintconf.AddNodeFlags(cmd)
+	rdklogger.AddLogFlags(cmd)
 	return cmd
 }
 
