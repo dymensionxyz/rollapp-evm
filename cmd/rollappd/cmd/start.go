@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/pprof"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,10 +32,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/dymensionxyz/dymension-rdk/utils"
+	rdklogger "github.com/dymensionxyz/dymension-rdk/utils/logger"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	dymintconv "github.com/dymensionxyz/dymint/conv"
 	dymintnode "github.com/dymensionxyz/dymint/node"
 	dymintrpc "github.com/dymensionxyz/dymint/rpc"
+
+	"github.com/evmos/evmos/v12/indexer"
+	ethserver "github.com/evmos/evmos/v12/server"
+	"github.com/evmos/evmos/v12/server/config"
+	ethconfig "github.com/evmos/evmos/v12/server/config"
+	srvflags "github.com/evmos/evmos/v12/server/flags"
+	ethermint "github.com/evmos/evmos/v12/types"
 )
 
 const (
@@ -126,6 +135,18 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
+			/* ------------------------------ setup logging ----------------------------- */
+			log_path := serverCtx.Viper.GetString(rdklogger.FlagLogFile)
+			log_level := serverCtx.Viper.GetString(rdklogger.FlagLogLevel)
+			maxLogSize, err := strconv.Atoi(serverCtx.Viper.GetString(rdklogger.FlagMaxLogSize))
+			if err != nil {
+				return err
+			}
+			if maxLogSize <= 0 {
+				return fmt.Errorf("max log size <=0 not supported")
+			}
+			serverCtx.Logger = rdklogger.NewLogger(log_path, maxLogSize, log_level, map[string]string{})
+
 			dymconfig := dymintconf.DefaultConfig("", "")
 			err = dymconfig.GetViperConfig(cmd, serverCtx.Viper.GetString(flags.FlagHome))
 			if err != nil {
@@ -183,8 +204,28 @@ which accepts a path for the resulting pprof file.
 
 	cmd.Flags().Bool(FlagDisableIAVLFastNode, false, "Disable fast node for IAVL tree")
 
-	// add support for all Tendermint-specific command line options
+	cmd.Flags().Bool(srvflags.JSONRPCEnable, true, "Define if the JSON-RPC server should be enabled")
+	cmd.Flags().StringSlice(srvflags.JSONRPCAPI, config.GetDefaultAPINamespaces(), "Defines a list of JSON-RPC namespaces that should be enabled")
+	cmd.Flags().String(srvflags.JSONRPCAddress, config.DefaultJSONRPCAddress, "the JSON-RPC server address to listen on")
+	cmd.Flags().String(srvflags.JSONWsAddress, config.DefaultJSONRPCWsAddress, "the JSON-RPC WS server address to listen on")
+	cmd.Flags().Uint64(srvflags.JSONRPCGasCap, config.DefaultGasCap, "Sets a cap on gas that can be used in eth_call/estimateGas unit is aevmos (0=infinite)")     //nolint:lll
+	cmd.Flags().Float64(srvflags.JSONRPCTxFeeCap, config.DefaultTxFeeCap, "Sets a cap on transaction fee that can be sent via the RPC APIs (1 = default 1 evmos)") //nolint:lll
+	cmd.Flags().Int32(srvflags.JSONRPCFilterCap, config.DefaultFilterCap, "Sets the global cap for total number of filters that can be created")
+	cmd.Flags().Duration(srvflags.JSONRPCEVMTimeout, config.DefaultEVMTimeout, "Sets a timeout used for eth_call (0=infinite)")
+	cmd.Flags().Duration(srvflags.JSONRPCHTTPTimeout, config.DefaultHTTPTimeout, "Sets a read/write timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Duration(srvflags.JSONRPCHTTPIdleTimeout, config.DefaultHTTPIdleTimeout, "Sets a idle timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Bool(srvflags.JSONRPCAllowUnprotectedTxs, config.DefaultAllowUnprotectedTxs, "Allow for unprotected (non EIP155 signed) transactions to be submitted via the node's RPC when the global parameter is disabled") //nolint:lll
+	cmd.Flags().Int32(srvflags.JSONRPCLogsCap, config.DefaultLogsCap, "Sets the max number of results can be returned from single `eth_getLogs` query")
+	cmd.Flags().Int32(srvflags.JSONRPCBlockRangeCap, config.DefaultBlockRangeCap, "Sets the max block range allowed for `eth_getLogs` query")
+	cmd.Flags().Int(srvflags.JSONRPCMaxOpenConnections, config.DefaultMaxOpenConnections, "Sets the maximum number of simultaneous connections for the server listener") //nolint:lll
+	cmd.Flags().Bool(srvflags.JSONRPCEnableIndexer, false, "Enable the custom tx indexer for json-rpc")
+	cmd.Flags().Bool(srvflags.JSONRPCEnableMetrics, false, "Define if EVM rpc metrics server should be enabled")
+
+	cmd.Flags().String(srvflags.EVMTracer, config.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
+	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, config.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
+
 	dymintconf.AddNodeFlags(cmd)
+	rdklogger.AddLogFlags(cmd)
 	return cmd
 }
 
@@ -203,7 +244,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
-	config, err := serverconfig.GetConfig(ctx.Viper)
+	config, err := ethconfig.GetConfig(ctx.Viper)
 	if err != nil {
 		return err
 	}
@@ -259,8 +300,8 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
-	server := dymintrpc.NewServer(tmNode, cfg.RPC, ctx.Logger)
-	err = server.Start()
+	dymserver := dymintrpc.NewServer(tmNode, cfg.RPC, ctx.Logger)
+	err = dymserver.Start()
 	if err != nil {
 		return err
 	}
@@ -272,8 +313,8 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	// Add the tx service to the gRPC router. We only need to register this
 	// service if API or gRPC is enabled, and avoid doing so in the general
 	// case, because it spawns a new local tendermint RPC client.
-	if (config.API.Enable || config.GRPC.Enable) && tmNode != nil {
-		clientCtx = clientCtx.WithClient(server.Client())
+	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable) && tmNode != nil {
+		clientCtx = clientCtx.WithClient(dymserver.Client())
 
 		app.RegisterTxService(clientCtx)
 		app.RegisterTendermintService(clientCtx)
@@ -287,9 +328,34 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	if err != nil {
 		return err
 	}
+	/* --------------------------- Adding EVM indexer --------------------------- */
+	var idxer ethermint.EVMTxIndexer
+	if config.JSONRPC.EnableIndexer {
+		idxDB, err := ethserver.OpenIndexerDB(home, server.GetAppDBBackend(ctx.Viper))
+		if err != nil {
+			ctx.Logger.Error("failed to open evm indexer DB", "error", err.Error())
+			return err
+		}
+		idxLogger := ctx.Logger.With("module", "evmindex")
+		idxer = indexer.NewKVIndexer(idxDB, idxLogger, clientCtx)
+		indexerService := ethserver.NewEVMIndexerService(idxer, clientCtx.Client)
+		indexerService.SetLogger(idxLogger)
 
-	var apiSrv *api.Server
-	if config.API.Enable {
+		errCh := make(chan error)
+		go func() {
+			if err := indexerService.Start(); err != nil {
+				errCh <- err
+			}
+		}()
+
+		select {
+		case err := <-errCh:
+			return err
+		case <-time.After(types.ServerStartTime): // assume server started successfully
+		}
+	}
+
+	if config.API.Enable || config.JSONRPC.Enable {
 		genDoc, err := genDocProvider()
 		if err != nil {
 			return err
@@ -332,7 +398,10 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 			clientCtx = clientCtx.WithGRPCClient(grpcClient)
 			ctx.Logger.Debug("grpc client assigned to client context", "target", grpcAddress)
 		}
+	}
 
+	var apiSrv *api.Server
+	if config.API.Enable {
 		apiSrv = api.New(clientCtx, ctx.Logger.With("module", "api-server"))
 		app.RegisterAPIRoutes(apiSrv, config.API)
 		if config.Telemetry.Enabled {
@@ -341,7 +410,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		errCh := make(chan error)
 
 		go func() {
-			if err := apiSrv.Start(config); err != nil {
+			if err := apiSrv.Start(config.Config); err != nil {
 				errCh <- err
 			}
 		}()
@@ -352,6 +421,8 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 
 		case <-time.After(types.ServerStartTime): // assume server started successfully
 		}
+
+		defer apiSrv.Close()
 	}
 
 	var (
@@ -366,7 +437,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}
 		defer grpcSrv.Stop()
 		if config.GRPCWeb.Enable {
-			grpcWebSrv, err = servergrpc.StartGRPCWeb(grpcSrv, config)
+			grpcWebSrv, err = servergrpc.StartGRPCWeb(grpcSrv, config.Config)
 			if err != nil {
 				ctx.Logger.Error("failed to start grpc-web http server: ", "error", err)
 				return err
@@ -377,6 +448,40 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 				}
 			}()
 		}
+	}
+
+	var (
+		httpSrv     *http.Server
+		httpSrvDone chan struct{}
+	)
+
+	if config.JSONRPC.Enable {
+		genDoc, err := genDocProvider()
+		if err != nil {
+			return err
+		}
+
+		clientCtx := clientCtx.WithChainID(genDoc.ChainID)
+
+		tmEndpoint := "/websocket"
+		tmRPCAddr := cfg.RPC.ListenAddress
+		httpSrv, httpSrvDone, err = ethserver.StartJSONRPC(ctx, clientCtx, tmRPCAddr, tmEndpoint, &config, idxer)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancelFn()
+			if err := httpSrv.Shutdown(shutdownCtx); err != nil {
+				ctx.Logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
+			} else {
+				ctx.Logger.Info("HTTP server shut down, waiting 5 sec")
+				select {
+				case <-time.Tick(5 * time.Second):
+				case <-httpSrvDone:
+				}
+			}
+		}()
 	}
 
 	var rosettaSrv crgserver.Server
@@ -447,7 +552,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	return utils.WaitForQuitSignals()
 }
 
-func startTelemetry(cfg serverconfig.Config) (*telemetry.Metrics, error) {
+func startTelemetry(cfg ethconfig.Config) (*telemetry.Metrics, error) {
 	if !cfg.Telemetry.Enabled {
 		return nil, nil
 	}
