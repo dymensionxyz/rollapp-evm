@@ -1,13 +1,14 @@
-<h1 align="center">Dymension Rollapp</h1>
+<h1 align="center">Dymension EVM Rollapp</h1>
 
-# Rollappd - A template RollApp chain
+# Rollapp-evm - A template EVM RollApp chain
 
-This repository hosts `rollappd`, a template implementation of a dymension rollapp.
+This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
 
-`rollappd` is an example of a working RollApp using `dymension-RDK` and `dymint`.
+`rollapp-evm` is an example of a working RollApp using `dymension-RDK` and `dymint`.
 
 It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/simapp) as a reference, but with the following changes:
 - minimal app setup
+- wired with EVM and ERC20 modules by [Evmos](https://github.com/evmos/evmos)
 - wired IBC for [ICS 20 Fungible Token Transfers](https://github.com/cosmos/ibc/tree/main/spec/app/ics-020-fungible-token-transfer)
 - Uses `dymint` for block sequencing and replacing `tendermint`
 - Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic 
@@ -23,7 +24,7 @@ Get started with [building RollApps](https://docs.dymension.xyz/develop/get-star
 
 ## Installing / Getting started
 
-Build and install the ```rollappd``` binary:
+Build and install the ```rollapp-evm``` binary:
 
 ```shell
 make install
@@ -40,7 +41,7 @@ sh scripts/init.sh
 ### Run rollapp
 
 ```shell
-rollappd start
+rollapp-evm start
 ```
 
 You should have a running local rollapp!
@@ -56,8 +57,8 @@ Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/devel
 create sequencer key using `dymd`
 
 ```shell
-dymd keys add sequencer --keyring-dir ~/.rollapp/sequencer_keys --keyring-backend test
-SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp/sequencer_keys`
+dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
+SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 ```
 
 fund the sequencer account
@@ -80,7 +81,7 @@ sh scripts/settlement/register_sequencer_to_hub.sh
 
 ### Configure the rollapp
 
-Modify `dymint.toml` in the chain directory (`~/.rollapp/config`)
+Modify `dymint.toml` in the chain directory (`~/.rollapp_evm_evm/config`)
 set:
 
 ```shell
@@ -90,7 +91,7 @@ settlement_layer = "dymension"
 ### Run rollapp
 
 ```shell
-rollappd start
+rollapp-evm start
 ```
 
 ## Developers guide
