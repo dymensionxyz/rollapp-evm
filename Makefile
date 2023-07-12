@@ -40,16 +40,17 @@ BUILD_FLAGS := -ldflags '$(ldflags)'
 all: install
 
 .PHONY: install
-install:
-	@echo "--> Ensure dependencies have not been modified"
-	@go mod verify
+install: build
 	@echo "--> installing rollapp-evm"
-	@go install $(BUILD_FLAGS) -v -mod=readonly ./cmd/rollapp-evm
+	mv build/rollapp-evm $(GOPATH)/bin/rollapp-evm
 
 
 .PHONY: build
-build: ## Compiles the rollapd binary
-	go build  -o build/rollapp-evm $(BUILD_FLAGS) ./cmd/rollapp-evm
+build: go.sum ## Compiles the rollapd binary
+	@echo "--> Ensure dependencies have not been modified"
+	@go mod verify
+	@echo "--> building rollapp-evm"
+	@go build  -o build/rollapp-evm $(BUILD_FLAGS) ./cmd/rollappd
 
 
 .PHONY: clean
