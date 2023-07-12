@@ -19,7 +19,6 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -91,9 +90,10 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			if err != nil {
 				return err
 			}
+			serverCtx := server.GetServerContextFromCmd(cmd)
 
 			//create dymint toml config file
-			home := server.GetServerContextFromCmd(cmd).Viper.GetString(tmcli.HomeFlag)
+			home := serverCtx.Viper.GetString(tmcli.HomeFlag)
 			chainID := client.GetClientContextFromCmd(cmd).ChainID
 			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home, chainID))
 
@@ -102,7 +102,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	}
 
 	initRootCmd(rootCmd, encodingConfig)
-
 	return rootCmd, encodingConfig
 }
 
@@ -158,7 +157,7 @@ func initRootCmd(
 		config.Cmd(),
 	)
 
-	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, nil)
 	rootCmd.AddCommand(StartCmd(ac.newApp, app.DefaultNodeHome))
 
 	// add keybase, auxiliary RPC, query, and tx child commands
@@ -221,10 +220,6 @@ func txCommand() *cobra.Command {
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
-}
-
-func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
 }
 
 type appCreator struct {
