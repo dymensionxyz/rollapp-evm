@@ -14,12 +14,20 @@ set_denom() {
   jq --arg denom $denom '.app_state.mint.params.mint_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq --arg denom $denom '.app_state.staking.params.bond_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq --arg denom $denom '.app_state.gov.deposit_params.min_deposit[0].denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  
+  jq --arg denom $denom '.app_state.evm.params.evm_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq --arg denom $denom '.app_state.claims.params.claims_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+}
+
+set_EVM_params() {
+  jq '.consensus_params["block"]["max_gas"] = "40000000"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
 
 # ---------------------------- initial parameters ---------------------------- #
 # Assuming 1,000,000 tokens
 #half is staked
-TOKEN_AMOUNT="1000000000000$DENOM"
+TOKEN_AMOUNT="1000000000000000000000000$DENOM"
 
 CONFIG_DIRECTORY="$ROLLAPP_CHAIN_DIR/config"
 GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
@@ -50,16 +58,16 @@ fi
 $EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
 
 # ------------------------------- client config ------------------------------ #
-$EXECUTABLE config keyring-backend test
 $EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID"
 
 # -------------------------------- app config -------------------------------- #
 sed -i'' -e "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$DENOM\"/" "$APP_CONFIG_FILE"
 set_denom "$DENOM"
+set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
 $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
-$EXECUTABLE gentx_seq --pubkey "$($EXECUTABLE dymint show-sequencer)" --from "$KEY_NAME_ROLLAPP"
+$EXECUTABLE gentx_seq --pubkey "$($EXECUTABLE dymint show-sequencer)" --from "$KEY_NAME_ROLLAPP" --keyring-backend test
 $EXECUTABLE validate-genesis
