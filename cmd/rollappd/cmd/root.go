@@ -134,6 +134,10 @@ func initAppConfig() (string, interface{}) {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
 
+	//Changing the default address to global instead of localhost
+	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
+	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
+
 	return customAppTemplate, srvCfg
 }
 
