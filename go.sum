@@ -333,6 +333,8 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
+github.com/celestiaorg/go-cnc v0.4.2 h1:7ixf3tevMB7Lvz2mbyRG0ZOK+8qoPm7wNhdgpi8VreU=
+github.com/celestiaorg/go-cnc v0.4.2/go.mod h1:zYzvHudSd1iNPuHBMyvZ1YvWou5aT9JXgtch9Tkaf70=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
@@ -495,8 +497,6 @@ github.com/dymensionxyz/dymint v0.5.0-rc3 h1:vnyiXFbwijdCpMMw9g5DGVOBtvrGZ9JG4Go
 github.com/dymensionxyz/dymint v0.5.0-rc3/go.mod h1:CmAAh9f4NoFMLQ1/8lwagUlaFWmkENE7K7+3pHMk238=
 github.com/dymensionxyz/evmos/v12 v12.1.5-dymension h1:1cN2ZnJOiF9kSaU83tnTvirnDBd/gpHZWh0/ZDPDM5g=
 github.com/dymensionxyz/evmos/v12 v12.1.5-dymension/go.mod h1:6yxmaNvnFuQJwnuZanCrldigA5GbqO4bWPfc6Ne4joM=
-github.com/dymensionxyz/go-cnc v0.2.2 h1:C7WUFJ+PkkB62HPegBJJL+YlQExqvYudTTRdNiCNIDk=
-github.com/dymensionxyz/go-cnc v0.2.2/go.mod h1:CZBVUhQnJnAVcfQnnEAqREF+PNWr97m/BhJ5fp1K44Q=
 github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc0.0.20230619115257-1a1038e16d71 h1:T04fab8CTYu+FR6mAC/nYB78WtHM4YsI99ikrYydncM=
 github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc0.0.20230619115257-1a1038e16d71/go.mod h1:CY3zh2HLfetRiW8LY6kVHMATe90Wj/UOoY8T6cuB0is=
 github.com/dymensionxyz/rollapp v0.0.0-20230724112726-f9219f1e8984 h1:b8U9zGkQBNf4iosdKlSyXFXvLVeDDwA1HY1PoRHDnBQ=
