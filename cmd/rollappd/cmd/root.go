@@ -29,11 +29,12 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
-	"github.com/dymensionxyz/dymension-rdk/utils"
+	rdk_utils "github.com/dymensionxyz/dymension-rdk/utils"
 	sequencercli "github.com/dymensionxyz/dymension-rdk/x/sequencers/client/cli"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	"github.com/dymensionxyz/rollapp-evm/app"
 	"github.com/dymensionxyz/rollapp-evm/app/params"
+	"github.com/dymensionxyz/rollapp-evm/utils"
 
 	ethermintclient "github.com/evmos/evmos/v12/client"
 
@@ -147,7 +148,7 @@ func initRootCmd(
 ) {
 	// Set config
 	sdkconfig := sdk.GetConfig()
-	utils.SetPrefixes(sdkconfig, app.AccountAddressPrefix)
+	rdk_utils.SetPrefixes(sdkconfig, app.AccountAddressPrefix)
 	utils.SetBip44CoinType(sdkconfig)
 	sdkconfig.Seal()
 
