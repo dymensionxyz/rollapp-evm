@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ROLLAPP_CHAIN_ID="rollappEVM_1234-1"
-KEYRING_PATH="$HOME/.rollapp/sequencer_keys"
-KEY_NAME_SEQUENCER="sequencer"
+KEYRING_PATH="$HOME/.rollapp_evm/sequencer_keys"
+KEY_NAME_SEQUENCER="sequencer
 
 MAX_SEQUENCERS=5
 
