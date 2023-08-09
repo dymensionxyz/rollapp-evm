@@ -81,7 +81,7 @@ sh scripts/settlement/register_sequencer_to_hub.sh
 
 ### Configure the rollapp
 
-Modify `dymint.toml` in the chain directory (`~/.rollapp_evm_evm/config`)
+Modify `dymint.toml` in the chain directory (`~/.rollapp_evm/config`)
 set:
 
 ```shell
