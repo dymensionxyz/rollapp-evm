@@ -494,8 +494,8 @@ github.com/dymensionxyz/dymension-rdk v0.4.0-rc4 h1:EiJqXDJzFURJJ4sBQQznUTa7FWg8
 github.com/dymensionxyz/dymension-rdk v0.4.0-rc4/go.mod h1:WnVuK8nbDkuHFfTZfboIEZBu49h2c/3chJC7TKSJc5c=
 github.com/dymensionxyz/dymint v0.5.0-rc4 h1:wx6Be6O8rtOf+klDAMwv+tbfiJiyKEqiK69f9114KoE=
 github.com/dymensionxyz/dymint v0.5.0-rc4/go.mod h1:wwYbbeqhzANMDbpAaZLTTpypDvfQmt0+WuIiaT3xWQk=
-github.com/dymensionxyz/evmos/v12 v12.1.5-dymension h1:1cN2ZnJOiF9kSaU83tnTvirnDBd/gpHZWh0/ZDPDM5g=
-github.com/dymensionxyz/evmos/v12 v12.1.5-dymension/go.mod h1:6yxmaNvnFuQJwnuZanCrldigA5GbqO4bWPfc6Ne4joM=
+github.com/dymensionxyz/evmos/v12 v12.1.5-dymension-v0.1 h1:vE3uEiCCSaBN9D5dzdrYUo/uwlU45l9ebCIlYQPoaXk=
+github.com/dymensionxyz/evmos/v12 v12.1.5-dymension-v0.1/go.mod h1:6yxmaNvnFuQJwnuZanCrldigA5GbqO4bWPfc6Ne4joM=
 github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc0.0.20230619115257-1a1038e16d71 h1:T04fab8CTYu+FR6mAC/nYB78WtHM4YsI99ikrYydncM=
 github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc0.0.20230619115257-1a1038e16d71/go.mod h1:CY3zh2HLfetRiW8LY6kVHMATe90Wj/UOoY8T6cuB0is=
 github.com/dymensionxyz/rollapp v0.0.0-20230724112726-f9219f1e8984 h1:b8U9zGkQBNf4iosdKlSyXFXvLVeDDwA1HY1PoRHDnBQ=
