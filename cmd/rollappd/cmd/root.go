@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
 
@@ -134,6 +135,11 @@ func initAppConfig() (string, interface{}) {
 	if !ok {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
+
+	//Default pruning for a rollapp, represent 2 weeks of states kept while pruning in intervals of 10 minutes
+	srvCfg.Pruning = pruningtypes.PruningOptionCustom
+	srvCfg.PruningInterval = "18000"
+	srvCfg.PruningKeepRecent = "6048000"
 
 	//Changing the default address to global instead of localhost
 	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
