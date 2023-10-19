@@ -453,7 +453,7 @@ func NewRollapp(
 	)
 
 	// Create IBC Keeper
-	app.IBCKeeper = ibckeeper.NewKeeperWithDymint(
+	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
 	)
 
