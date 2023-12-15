@@ -27,7 +27,7 @@ jobs:
           cd cmd/rollappd
           go build .
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: rollappd ${{ matrix.targetos }} ${{ matrix.arch }} Go ${{ matrix.go-version }}
           path: cmd/rollappd/rollappd
