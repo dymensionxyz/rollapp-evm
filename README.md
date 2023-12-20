@@ -16,11 +16,11 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 ## Overview
 
-**Note**: Requires [Go 1.19](https://go.dev/)
+**Note**: Requires [Go 1.19](https://go.dev/dl/)
 
 ## Quick guide
 
-Get started with [building RollApps](https://docs.dymension.xyz/develop/get-started/setup)
+Get started with [building RollApps](https://docs.dymension.xyz/build/roller)
 
 ## Installing / Getting started
 
@@ -59,7 +59,7 @@ You should have a running local rollapp!
 
 ### Run local dymension hub node
 
-Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/develop/get-started/run-base-layers) to run local dymension hub node
+Follow the instructions on [Dymension Hub Docs](https://docs.dymension.xyz/validate/dymension-hub/join-network) to run local dymension hub node.
 
 ### Create sequencer keys
 
