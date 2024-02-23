@@ -310,7 +310,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20240212135616-6c0aa8eab048
 	github.com/cosmos/iavl => github.com/celestiaorg/iavl v0.0.0-20230105192234-715b65a7ecf1
 
-	github.com/dymension/dymint => github.com/dymensionxyz/dymint v0.6.1-beta.0.20240223085615-7e17edee0707
+	github.com/dymension/dymint => github.com/dymensionxyz/dymint v0.6.1-beta.0.20240223211121-ba3acb03e103
 
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
