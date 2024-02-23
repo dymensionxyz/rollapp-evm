@@ -6,7 +6,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.15
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v0.4.0-rc6
-	github.com/dymensionxyz/dymint v0.6.1-beta-fraudproofs-0.0.1.0.20240212082617-1671f80e1159
+	github.com/dymensionxyz/dymint v0.6.1-beta.0.20240223211121-ba3acb03e103
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
@@ -309,8 +309,6 @@ replace (
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.0.12-avail-1.4.0-rc1-5e286e3
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20240212135616-6c0aa8eab048
 	github.com/cosmos/iavl => github.com/celestiaorg/iavl v0.0.0-20230105192234-715b65a7ecf1
-
-	github.com/dymension/dymint => github.com/dymensionxyz/dymint v0.6.1-beta.0.20240223211121-ba3acb03e103
 
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
