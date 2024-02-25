@@ -107,6 +107,7 @@ require (
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
@@ -170,6 +171,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/klauspost/reedsolomon v1.11.8 // indirect
 	github.com/koron/go-ssdp v0.0.4 // indirect
+	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/libp2p/go-cidranger v1.1.0 // indirect
@@ -264,6 +266,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
+	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vedhavyas/go-subkey v1.0.3 // indirect
 	github.com/whyrusleeping/go-keyspace v0.0.0-20160322163242-5b898ac5add1 // indirect
@@ -309,6 +312,8 @@ replace (
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.0.12-avail-1.4.0-rc1-5e286e3
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20240212135616-6c0aa8eab048
 	github.com/cosmos/iavl => github.com/celestiaorg/iavl v0.0.0-20230105192234-715b65a7ecf1
+
+	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v0.6.1-beta.0.20240225000003-191e6be2a8f5
 
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
