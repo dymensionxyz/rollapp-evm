@@ -1,7 +1,7 @@
 #!/bin/bash
 
 KEYRING_PATH="$HOME/.rollapp_evm/sequencer_keys"
-KEY_NAME_SEQUENCER="sequencer
+KEY_NAME_SEQUENCER="sequencer"
 
 MAX_SEQUENCERS=5
 
@@ -10,4 +10,5 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" '{"Addresse
   --from "$KEY_NAME_SEQUENCER" \
   --keyring-backend test \
   --keyring-dir "$KEYRING_PATH" \
-  --broadcast-mode block
+  --broadcast-mode block \
+  --fees 1dym

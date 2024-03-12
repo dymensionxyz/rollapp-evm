@@ -6,7 +6,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.15
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.0.0-beta
-	github.com/dymensionxyz/dymint v0.6.1-beta.0.20240305084309-da9a85bb1206
+	github.com/dymensionxyz/dymint v0.6.1-beta.0.20240311102611-8cd1a1092f93
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
