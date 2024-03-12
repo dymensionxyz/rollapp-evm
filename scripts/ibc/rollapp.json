@@ -2,7 +2,7 @@
   "type": "cosmos",
   "value": {
     "key": "relayer-rollapp-key",
-    "chain-id": "rollappEVM_1234-1",
+    "chain-id": "rollappevm_1234-1",
     "rpc-addr": "http://127.0.0.1:26657",
     "account-prefix": "ethm",
     "keyring-backend": "test",
@@ -12,6 +12,9 @@
     "timeout": "10s",
     "output-format": "json",
     "sign-mode": "direct",
-    "client-type": "01-dymint"
+    "client-type": "07-tendermint",
+    "extra-codecs": [
+      "ethermint"
+    ]
   }
 }

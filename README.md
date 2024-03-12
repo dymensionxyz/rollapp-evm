@@ -66,14 +66,14 @@ Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/devel
 create sequencer key using `dymd`
 
 ```shell
-dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test --algo secp256k1
+dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 ```
 
 fund the sequencer account
 
 ```shell
-dymd tx bank send local-user $SEQUENCER_ADDR 10000000000000000000000udym --keyring-backend test --broadcast-mode block
+dymd tx bank send local-user $SEQUENCER_ADDR 1000dym --keyring-backend test --broadcast-mode block --fees 1dym
 ```
 
 ### Register rollapp on settlement
