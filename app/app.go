@@ -408,7 +408,6 @@ func NewRollapp(
 		app.GetSubspace(minttypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
 		app.EpochsKeeper,
 		authtypes.FeeCollectorName,
 	)
@@ -548,7 +547,7 @@ func NewRollapp(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
-		sequencers.NewAppModule(appCodec, app.SequencersKeeper, app.AccountKeeper, app.BankKeeper),
+		sequencers.NewAppModule(appCodec, app.SequencersKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
@@ -632,6 +631,7 @@ func NewRollapp(
 		stakingtypes.ModuleName,
 		seqtypes.ModuleName,
 		vestingtypes.ModuleName,
+		epochstypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		ibchost.ModuleName,
@@ -640,7 +640,6 @@ func NewRollapp(
 		claimstypes.ModuleName,
 
 		paramstypes.ModuleName,
-		epochstypes.ModuleName,
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 	}

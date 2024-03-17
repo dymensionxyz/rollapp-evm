@@ -71,7 +71,6 @@ set_EVM_params
 #local genesis account
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
 $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
-$EXECUTABLE gentx_seq --pubkey "$($EXECUTABLE dymint show-sequencer)" --from "$KEY_NAME_ROLLAPP" --keyring-backend test
 
 echo "Do you want to include staker on genesis? (Y/n) "
 read -r answer

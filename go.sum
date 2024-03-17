@@ -514,8 +514,6 @@ github.com/dvsekhvalnov/jose2go v1.5.0 h1:3j8ya4Z4kMCwT5nXIKFSV84YS+HdqSSO0VsTQx
 github.com/dvsekhvalnov/jose2go v1.5.0/go.mod h1:QsHjhyTlD/lAVqn/NSbVZmSCGeDehTB/mPZadG+mhXU=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta h1:sokBefcN1tIOlUKmB8Q2E9XMJ93LueqtFThiM/kA4DI=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta/go.mod h1:GQQu3ITEjWfi5ULR2B6X2i2YZNennY1yzcT5qdL4MGI=
-github.com/dymensionxyz/dymension-rdk v1.0.0-beta h1:fTx7N37Gg0vOtpCvPZn+tQDsEms8iN51l0NSHNBIXNw=
-github.com/dymensionxyz/dymension-rdk v1.0.0-beta/go.mod h1:e7dj4wbmFeY827RG2vK+eLpXSLLK6/2/EdBJzW4kDPo=
 github.com/dymensionxyz/dymension/v3 v3.0.0-rc02.0.20240304125623-d447bab68709 h1:97pOWOKbFtyMOASZ6mqanqXmlBRzg/eIFa5SkBhewFc=
 github.com/dymensionxyz/dymension/v3 v3.0.0-rc02.0.20240304125623-d447bab68709/go.mod h1:4PY6Y8pSTRrTmwVue9avSm3hzCOrOcCNQFz79cdgg8s=
 github.com/dymensionxyz/dymint v0.6.1-beta.0.20240311102611-8cd1a1092f93 h1:M8rmg2XuCJNGRoLtBw5t9yaV6vYaQfTkN+hFo3rtK0k=
@@ -524,7 +522,6 @@ github.com/dymensionxyz/evmos/v12 v12.1.7-0.20240313164541-a3923fc9fa1d h1:gS5AY
 github.com/dymensionxyz/evmos/v12 v12.1.7-0.20240313164541-a3923fc9fa1d/go.mod h1:LfPv2O1HXMgETpka81Pg3nXy+U/7urq8dn85ZnSXK5Y=
 github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231220125656-9e904c648367 h1:uuDi/ImqT9+vHUoVGA3oLipuwpErSzvS/dkilzl70kc=
 github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231220125656-9e904c648367/go.mod h1:RYA7aM9jIic5VV47WXu4GkcRxRhrdElWf8xtyli+Dzc=
-github.com/dymensionxyz/rollapp v1.0.0-beta h1:3OFoeFMT/t5aVRwQ8jR5bge4to/ulhyilVOBgE7fK04=
 github.com/dymensionxyz/rpc v1.3.1 h1:7EXWIobaBes5zldRvTIg7TmNsEKjicrWA/OjCc0NaGs=
 github.com/dymensionxyz/rpc v1.3.1/go.mod h1:f+WpX8ysy8wt95iGc6auYlHcnHj2bUkhiRVkkKNys8c=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=

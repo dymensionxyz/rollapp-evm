@@ -31,7 +31,6 @@ import (
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
 	rdk_utils "github.com/dymensionxyz/dymension-rdk/utils"
-	sequencercli "github.com/dymensionxyz/dymension-rdk/x/sequencers/client/cli"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	"github.com/dymensionxyz/rollapp-evm/app"
 	"github.com/dymensionxyz/rollapp-evm/app/params"
@@ -166,8 +165,6 @@ func initRootCmd(
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
-
-		sequencercli.GenTxCmd(),
 
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
