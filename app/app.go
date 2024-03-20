@@ -655,6 +655,7 @@ func NewRollapp(
 		stakingtypes.ModuleName,
 		seqtypes.ModuleName,
 		vestingtypes.ModuleName,
+		epochstypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		ibchost.ModuleName,
@@ -663,7 +664,6 @@ func NewRollapp(
 		claimstypes.ModuleName,
 
 		paramstypes.ModuleName,
-		epochstypes.ModuleName,
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
