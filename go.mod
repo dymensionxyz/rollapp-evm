@@ -1,6 +1,6 @@
 module github.com/dymensionxyz/rollapp-evm
 
-go 1.20
+go 1.22.1
 
 require (
 	github.com/cosmos/cosmos-sdk v0.46.15
