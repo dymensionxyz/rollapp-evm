@@ -533,8 +533,8 @@ github.com/dymensionxyz/dymint v0.6.1-beta.0.20240311102611-8cd1a1092f93 h1:M8rm
 github.com/dymensionxyz/dymint v0.6.1-beta.0.20240311102611-8cd1a1092f93/go.mod h1:zocY0l2DVX5NmQjRR+LRfaDHojItgSdHl37QnjiJqZg=
 github.com/dymensionxyz/evmos/v12 v12.1.7-0.20240313164541-a3923fc9fa1d h1:gS5AYLLAXxpzmJ0ZwMqFSZ5OD/mPN9EhFeK/gShRjgc=
 github.com/dymensionxyz/evmos/v12 v12.1.7-0.20240313164541-a3923fc9fa1d/go.mod h1:LfPv2O1HXMgETpka81Pg3nXy+U/7urq8dn85ZnSXK5Y=
-github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231220125656-9e904c648367 h1:uuDi/ImqT9+vHUoVGA3oLipuwpErSzvS/dkilzl70kc=
-github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231220125656-9e904c648367/go.mod h1:RYA7aM9jIic5VV47WXu4GkcRxRhrdElWf8xtyli+Dzc=
+github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231219183151-4504d4995913 h1:sR3nGYRlktL2Xfj5pcOhgG2bvlBOZ14meqdu2TKkSCU=
+github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231219183151-4504d4995913/go.mod h1:1OxbaT/pFRO5h+Dpze8hdHQ63R0ke55XTs6b6NwLLkw=
 github.com/dymensionxyz/rpc v1.3.1 h1:7EXWIobaBes5zldRvTIg7TmNsEKjicrWA/OjCc0NaGs=
 github.com/dymensionxyz/rpc v1.3.1/go.mod h1:f+WpX8ysy8wt95iGc6auYlHcnHj2bUkhiRVkkKNys8c=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
