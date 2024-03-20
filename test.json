@@ -1,0 +1,9 @@
+{
+    "title": "Add new genesis_triggerer_whitelist",
+    "description": "Add current rollappUserAddr to the genesis_triggerer_whitelist",
+    "changes": {
+        "subspace": "hubgenesis",
+        "key": "GenesisTriggererWhitelist",
+        "value": [""]
+    }
+}
