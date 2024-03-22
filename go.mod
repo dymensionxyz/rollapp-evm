@@ -5,8 +5,8 @@ go 1.22.1
 require (
 	github.com/cosmos/cosmos-sdk v0.46.15
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.0.0-beta.0.20240319112419-906d5ea30648
-	github.com/dymensionxyz/dymint v0.6.1-beta.0.20240311102611-8cd1a1092f93
+	github.com/dymensionxyz/dymension-rdk v1.1.0-beta
+	github.com/dymensionxyz/dymint v1.0.0-alpha
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
@@ -41,7 +41,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/btcsuite/btcd v0.23.4 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
@@ -149,7 +149,7 @@ require (
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.2 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
-	github.com/ignite/cli v0.25.2 // indirect
+	github.com/ignite/cli v0.26.1 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ipfs/boxo v0.10.0 // indirect
