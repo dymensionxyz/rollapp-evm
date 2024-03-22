@@ -27,7 +27,6 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	simapp "github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store/streaming"
-
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -51,7 +50,6 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -110,6 +108,9 @@ import (
 	distr "github.com/dymensionxyz/dymension-rdk/x/dist"
 	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
 
+	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
+	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
+	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
 	ethante "github.com/evmos/evmos/v12/app/ante"
 	ethanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
@@ -154,6 +155,7 @@ var (
 		// evmos keys
 		erc20types.StoreKey,
 		claimstypes.StoreKey,
+		denommetadatamoduletypes.StoreKey,
 	}
 )
 
@@ -167,9 +169,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-	)
-
-	govProposalHandlers = append(govProposalHandlers,
 		erc20client.RegisterCoinProposalHandler,
 		erc20client.RegisterERC20ProposalHandler,
 		erc20client.ToggleTokenConversionProposalHandler,
@@ -209,21 +208,23 @@ var (
 		erc20.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		claims.AppModuleBasic{},
+		denommetadata.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		minttypes.ModuleName:           {authtypes.Minter},
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		claimstypes.ModuleName:         nil,
-		hubgentypes.ModuleName:         {authtypes.Burner},
+		authtypes.FeeCollectorName:          nil,
+		distrtypes.ModuleName:               nil,
+		minttypes.ModuleName:                {authtypes.Minter},
+		stakingtypes.BondedPoolName:         {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:      {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                 {authtypes.Burner},
+		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:                 {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		erc20types.ModuleName:               {authtypes.Minter, authtypes.Burner},
+		claimstypes.ModuleName:              nil,
+		hubgentypes.ModuleName:              {authtypes.Burner},
+		denommetadatamoduletypes.ModuleName: nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -296,6 +297,8 @@ type App struct {
 	// Evmos keepers
 	Erc20Keeper  erc20keeper.Keeper
 	ClaimsKeeper *claimskeeper.Keeper
+
+	DenomMetadataKeeper denommetadatamodulekeeper.Keeper
 
 	// mm is the module manager
 	mm *module.Manager
@@ -514,6 +517,18 @@ func NewRollapp(
 		),
 	)
 
+	denomMetadataHooks := denommetadatamoduletypes.NewMultiDenommetadataHooks(
+		erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
+	)
+
+	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
+		appCodec,
+		keys[denommetadatamoduletypes.StoreKey],
+		app.BankKeeper,
+		denomMetadataHooks,
+		app.GetSubspace(denommetadatamoduletypes.ModuleName),
+	)
+
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
@@ -582,6 +597,7 @@ func NewRollapp(
 		transferModule,
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper, app.GetSubspace(claimstypes.ModuleName)),
+		denommetadata.NewAppModule(app.DenomMetadataKeeper, app.BankKeeper),
 	}
 
 	app.mm = module.NewManager(modules...)
@@ -612,6 +628,7 @@ func NewRollapp(
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		hubgentypes.ModuleName,
+		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -636,6 +653,7 @@ func NewRollapp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
+		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -667,6 +685,7 @@ func NewRollapp(
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
+		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
@@ -1006,6 +1025,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
+	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper
 }
