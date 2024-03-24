@@ -17,6 +17,7 @@ set_denom() {
 set_EVM_params() {
   jq '.consensus_params["block"]["max_gas"] = "40000000"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
 
 # ---------------------------- initial parameters ---------------------------- #
@@ -28,7 +29,7 @@ STAKING_AMOUNT="500000000000000000000000$DENOM"
 
 CONFIG_DIRECTORY="$ROLLAPP_CHAIN_DIR/config"
 GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
-TENDERMINT_CONFIG_FILE="$CONFIG_DIRECTORY/config.toml"
+DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 
 # --------------------------------- run init --------------------------------- #
@@ -71,7 +72,9 @@ set_EVM_params
 #local genesis account
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
 $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
-$EXECUTABLE gentx_seq --pubkey "$($EXECUTABLE dymint show-sequencer)" --from "$KEY_NAME_ROLLAPP" --keyring-backend test
+
+awk -v home="$ROLLAPP_CHAIN_DIR" '/operator_keyring_home_dir/{$0="operator_keyring_home_dir = \""home"\""}1' "$DYMINT_CONFIG_FILE" > temp && mv temp "$DYMINT_CONFIG_FILE"
+awk -v name="$KEY_NAME_ROLLAPP" '/operator_account_name/{$0="operator_account_name = \""name"\""}1' "$DYMINT_CONFIG_FILE" > temp && mv temp "$DYMINT_CONFIG_FILE"
 
 echo "Do you want to include staker on genesis? (Y/n) "
 read -r answer
