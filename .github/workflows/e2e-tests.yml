@@ -47,4 +47,4 @@ jobs:
     needs: build-image
     uses: dymensionxyz/e2e-tests/.github/workflows/e2e-test-workflow-call.yml@main
     with:
-      rollapp_ci: "e2e"
+      rollapp_evm_ci: "e2e"
