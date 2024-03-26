@@ -3,6 +3,22 @@ package cmd
 import (
 	"context"
 	"fmt"
+	berpc "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc"
+	berpcbackend "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/backend"
+	berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
+	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
+	berpcserver "github.com/bcdevtools/block-explorer-rpc-cosmos/server"
+	iberpcbackend "github.com/bcdevtools/integrate-block-explorer-rpc-cosmos/integrate_be_rpc/backend"
+	evmberpcbackend "github.com/bcdevtools/integrate-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
+	evmbeapi "github.com/bcdevtools/integrate-block-explorer-rpc-cosmos/integrate_be_rpc/namespaces/evm"
+	"github.com/cosmos/cosmos-sdk/types/tx"
+	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
+	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/rpc"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"net"
 	"net/http"
 	"os"
@@ -225,6 +241,8 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().String(srvflags.EVMTracer, config.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
 	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, config.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
 
+	berpccfg.AddBeJsonRpcFlags(cmd)
+
 	dymintconf.AddNodeFlags(cmd)
 	rdklogger.AddLogFlags(cmd)
 	return cmd
@@ -252,6 +270,15 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	}
 
 	if err := config.ValidateBasic(); err != nil {
+		return err
+	}
+
+	beRpcCfg, err := berpccfg.GetConfig(ctx.Viper)
+	if err != nil {
+		return err
+	}
+
+	if err := beRpcCfg.Validate(); err != nil {
 		return err
 	}
 
@@ -316,7 +343,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	// Add the tx service to the gRPC router. We only need to register this
 	// service if API or gRPC is enabled, and avoid doing so in the general
 	// case, because it spawns a new local tendermint RPC client.
-	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable) && tmNode != nil {
+	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable || beRpcCfg.Enable) && tmNode != nil {
 		clientCtx = clientCtx.WithClient(dymserver.Client())
 
 		app.RegisterTxService(clientCtx)
@@ -358,7 +385,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}
 	}
 
-	if config.API.Enable || config.JSONRPC.Enable {
+	if config.API.Enable || config.JSONRPC.Enable || beRpcCfg.Enable {
 		genDoc, err := genDocProvider()
 		if err != nil {
 			return err
@@ -487,6 +514,107 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}()
 	}
 
+	var (
+		beJsonRpcHttpSrv     *http.Server
+		beJsonRpcHttpSrvDone chan struct{}
+	)
+
+	if beRpcCfg.Enable {
+		externalServices := berpctypes.ExternalServices{
+			ChainType:    berpctypes.ChainTypeEvm,
+			EvmTxIndexer: beJsonRpcEvmIndexerCompatible{indexer: idxer},
+		}
+
+		evmBeRpcBackend := evmberpcbackend.NewEvmBackend(ctx, ctx.Logger, clientCtx, externalServices)
+
+		raeBeRpcBackend := raeberpcbackend.NewRollAppEvmBackend(ctx, ctx.Logger, clientCtx)
+
+		// register application APIs
+
+		berpc.RegisterAPINamespace(evmbeapi.DymEvmBlockExplorerNamespace, func(ctx *server.Context,
+			_ client.Context,
+			_ *rpcclient.WSClient,
+			_ map[string]berpctypes.MessageParser,
+			_ map[string]berpctypes.MessageInvolversExtractor,
+			_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
+			_ berpctypes.ExternalServices,
+		) []rpc.API {
+			return []rpc.API{
+				{
+					Namespace: evmbeapi.DymEvmBlockExplorerNamespace,
+					Version:   evmbeapi.ApiVersion,
+					Service:   evmbeapi.NewEvmBeAPI(ctx, evmBeRpcBackend),
+					Public:    true,
+				},
+			}
+		}, false)
+		berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
+			_ client.Context,
+			_ *rpcclient.WSClient,
+			_ map[string]berpctypes.MessageParser,
+			_ map[string]berpctypes.MessageInvolversExtractor,
+			_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
+			_ berpctypes.ExternalServices,
+		) []rpc.API {
+			return []rpc.API{
+				{
+					Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
+					Version:   raebeapi.ApiVersion,
+					Service:   raebeapi.NewRaeAPI(ctx, raeBeRpcBackend),
+					Public:    true,
+				},
+			}
+		}, false)
+
+		// register message involvers extractor
+
+		berpc.RegisterMessageInvolversExtractor(&evmtypes.MsgEthereumTx{}, func(msg sdk.Msg, _ *tx.Tx, _ tmtypes.Tx, _ client.Context) (berpctypes.MessageInvolversResult, error) {
+			return evmBeRpcBackend.GetEvmTransactionInvolversByHash(
+				msg.(*evmtypes.MsgEthereumTx).AsTransaction().Hash(),
+			)
+		})
+
+		//
+
+		genDoc, err := genDocProvider()
+		if err != nil {
+			return err
+		}
+
+		clientCtx := clientCtx.WithChainID(genDoc.ChainID)
+
+		tmEndpoint := "/websocket"
+		tmRPCAddr := cfg.RPC.ListenAddress
+		beJsonRpcHttpSrv, beJsonRpcHttpSrvDone, err = berpcserver.StartBeJsonRPC(
+			ctx, clientCtx, tmRPCAddr, tmEndpoint,
+			beRpcCfg,
+			func(backend berpcbackend.BackendI) berpcbackend.RequestInterceptor {
+				return raeberpcbackend.NewRollAppEvmRequestInterceptor(
+					backend,
+					raeBeRpcBackend,
+					iberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
+				)
+			},
+			externalServices,
+		)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancelFn()
+			if err := beJsonRpcHttpSrv.Shutdown(shutdownCtx); err != nil {
+				ctx.Logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
+			} else {
+				ctx.Logger.Info("HTTP server shut down, waiting 5 sec")
+				select {
+				case <-time.Tick(5 * time.Second):
+				case <-beJsonRpcHttpSrvDone:
+				}
+			}
+		}()
+	}
+
 	var rosettaSrv crgserver.Server
 	if config.Rosetta.Enable {
 		offlineMode := config.Rosetta.Offline
@@ -597,4 +725,63 @@ func wrapCPUProfile(ctx *server.Context, callback func() error) error {
 	}
 
 	return <-errCh
+}
+
+var _ berpctypes.TxResultForExternal = beJsonRpcEvmIndexerTxResultCompatible{}
+
+type beJsonRpcEvmIndexerTxResultCompatible struct {
+	txResult ethermint.TxResult
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetHeight() int64 {
+	return b.txResult.Height
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetTxIndex() uint32 {
+	return b.txResult.TxIndex
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetMsgIndex() uint32 {
+	return b.txResult.MsgIndex
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetEthTxIndex() int32 {
+	return b.txResult.EthTxIndex
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetFailed() bool {
+	return b.txResult.Failed
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetGasUsed() uint64 {
+	return b.txResult.GasUsed
+}
+
+func (b beJsonRpcEvmIndexerTxResultCompatible) GetCumulativeGasUsed() uint64 {
+	return b.txResult.CumulativeGasUsed
+}
+
+var _ berpctypes.ExpectedEVMTxIndexer = beJsonRpcEvmIndexerCompatible{}
+
+type beJsonRpcEvmIndexerCompatible struct {
+	indexer ethermint.EVMTxIndexer
+}
+
+func (b beJsonRpcEvmIndexerCompatible) GetIndexer() any {
+	return b.indexer
+}
+
+func (b beJsonRpcEvmIndexerCompatible) LastIndexedBlock() (int64, error) {
+	return b.LastIndexedBlock()
+}
+
+func (b beJsonRpcEvmIndexerCompatible) GetByTxHashForExternal(hash common.Hash) (berpctypes.TxResultForExternal, error) {
+	txResult, err := b.indexer.GetByTxHash(hash)
+	if err != nil {
+		return nil, err
+	}
+	if txResult == nil {
+		return nil, nil
+	}
+	return beJsonRpcEvmIndexerTxResultCompatible{txResult: *txResult}, nil
 }
