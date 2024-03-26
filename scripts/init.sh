@@ -73,8 +73,13 @@ set_EVM_params
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
 $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
 
-awk -v home="$ROLLAPP_CHAIN_DIR" '/operator_keyring_home_dir/{$0="operator_keyring_home_dir = \""home"\""}1' "$DYMINT_CONFIG_FILE" > temp && mv temp "$DYMINT_CONFIG_FILE"
-awk -v name="$KEY_NAME_ROLLAPP" '/operator_account_name/{$0="operator_account_name = \""name"\""}1' "$DYMINT_CONFIG_FILE" > temp && mv temp "$DYMINT_CONFIG_FILE"
+
+# set sequencer's operator address
+operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
+jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+
+
 
 echo "Do you want to include staker on genesis? (Y/n) "
 read -r answer
