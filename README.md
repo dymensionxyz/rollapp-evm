@@ -1,6 +1,6 @@
-<h1 align="center">Dymension EVM Rollapp</h1>
+# Dymension EVM Rollapp
 
-# Rollapp-evm - A template EVM RollApp chain
+## Rollapp-evm - A template EVM RollApp chain
 
 This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
 
@@ -12,7 +12,7 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 - wired with EVM and ERC20 modules by [Evmos](https://github.com/evmos/evmos)
 - wired IBC for [ICS 20 Fungible Token Transfers](https://github.com/cosmos/ibc/tree/main/spec/app/ics-020-fungible-token-transfer)
 - Uses `dymint` for block sequencing and replacing `tendermint`
-- Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic 
+- Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic
 
 ## Overview
 
