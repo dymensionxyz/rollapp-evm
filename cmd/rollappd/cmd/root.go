@@ -13,6 +13,7 @@ import (
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
+	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -204,10 +205,29 @@ func queryCommand() *cobra.Command {
 		rpc.BlockCommand(),
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
+		makeAddressCmd(),
 	)
 
 	app.ModuleBasics.AddQueryCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
+
+	return cmd
+}
+
+// makeAddressCmd returns the command to create a new address from a given text input
+func makeAddressCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "make-address",
+		Short: "Generate an address based on a given string",
+		Long: `Generate an address based on a given string. This command is useful for generating
+deterministic addresses based on some input string.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			address := sdk.AccAddress(crypto.AddressHash([]byte(args[0])))
+			fmt.Println(address.String())
+			return nil
+		},
+	}
 
 	return cmd
 }

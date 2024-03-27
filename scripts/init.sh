@@ -23,6 +23,8 @@ set_EVM_params() {
 # ---------------------------- initial parameters ---------------------------- #
 # Assuming 1,000,000 tokens
 #half is staked
+MODULE_AMOUNT=1000000000000000000000000
+TOTAL_SUPPLY=2000000000000000000000000
 TOKEN_AMOUNT="1000000000000000000000000$DENOM"
 STAKING_AMOUNT="500000000000000000000000$DENOM"
 
@@ -78,8 +80,45 @@ $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-ba
 operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
+whitelisted_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test)
 
+jq --arg address $whitelisted_address '.app_state.hubgenesis.params.genesis_triggerer_whitelist += [{ "address": $address }]' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
+module_name="hubgenesis"
+module_address=$($EXECUTABLE q make-address $module_name)
+
+jq --arg module_address $module_address --arg module_name $module_name '.app_state.auth.accounts += [
+    {
+     "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+     "base_account": {
+         "account_number": "0",
+         "address": $module_address,
+         "pub_key": null,
+         "sequence": "0"
+     },
+     "name": $module_name,
+     "permissions": []
+    }
+]' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+jq --arg module_address $module_address --arg amount $MODULE_AMOUNT '.app_state.bank.balances += [
+    {
+      "address": $module_address,
+      "coins": [
+        {
+          "denom": "urax",
+          "amount": $amount
+        }
+      ]
+    }
+]' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+jq --arg total_supply $TOTAL_SUPPLY '.app_state.bank.supply = [
+    {
+      "denom": "urax",
+      "amount": $total_supply
+    }
+]' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 echo "Do you want to include staker on genesis? (Y/n) "
 read -r answer
