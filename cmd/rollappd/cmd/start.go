@@ -7,17 +7,12 @@ import (
 	berpcbackend "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/backend"
 	berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
 	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
-	berpcserver "github.com/bcdevtools/block-explorer-rpc-cosmos/server"
+	"github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc"
 	evmberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
-	evmbeapi "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/namespaces/evm"
-	"github.com/cosmos/cosmos-sdk/types/tx"
 	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
 	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"net"
 	"net/http"
 	"os"
@@ -513,105 +508,55 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}()
 	}
 
-	var (
-		beJsonRpcHttpSrv     *http.Server
-		beJsonRpcHttpSrvDone chan struct{}
-	)
-
 	if beRpcCfg.Enable {
-		externalServices := berpctypes.ExternalServices{
-			ChainType:    berpctypes.ChainTypeEvm,
-			EvmTxIndexer: beJsonRpcEvmIndexerCompatible{indexer: idxer},
-		}
-
-		evmBeRpcBackend := evmberpcbackend.NewEvmBackend(ctx, ctx.Logger, clientCtx, externalServices)
-
-		raeBeRpcBackend := raeberpcbackend.NewRollAppEvmBackend(ctx, ctx.Logger, clientCtx)
-
-		// register application APIs
-
-		berpc.RegisterAPINamespace(evmbeapi.DymEvmBlockExplorerNamespace, func(ctx *server.Context,
-			_ client.Context,
-			_ *rpcclient.WSClient,
-			_ map[string]berpctypes.MessageParser,
-			_ map[string]berpctypes.MessageInvolversExtractor,
-			_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
-			_ berpctypes.ExternalServices,
-		) []rpc.API {
-			return []rpc.API{
-				{
-					Namespace: evmbeapi.DymEvmBlockExplorerNamespace,
-					Version:   evmbeapi.ApiVersion,
-					Service:   evmbeapi.NewEvmBeAPI(ctx, evmBeRpcBackend),
-					Public:    true,
-				},
-			}
-		}, false)
-		berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
-			_ client.Context,
-			_ *rpcclient.WSClient,
-			_ map[string]berpctypes.MessageParser,
-			_ map[string]berpctypes.MessageInvolversExtractor,
-			_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
-			_ berpctypes.ExternalServices,
-		) []rpc.API {
-			return []rpc.API{
-				{
-					Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
-					Version:   raebeapi.ApiVersion,
-					Service:   raebeapi.NewRollAppEvmApi(ctx, raeBeRpcBackend),
-					Public:    true,
-				},
-			}
-		}, false)
-
-		// register message involvers extractor
-
-		berpc.RegisterMessageInvolversExtractor(&evmtypes.MsgEthereumTx{}, func(msg sdk.Msg, _ *tx.Tx, _ tmtypes.Tx, _ client.Context) (berpctypes.MessageInvolversResult, error) {
-			return evmBeRpcBackend.GetEvmTransactionInvolversByHash(
-				msg.(*evmtypes.MsgEthereumTx).AsTransaction().Hash(),
-			)
-		})
-
-		//
-
 		genDoc, err := genDocProvider()
 		if err != nil {
 			return err
 		}
 
-		clientCtx := clientCtx.WithChainID(genDoc.ChainID)
+		raeBeRpcBackend := raeberpcbackend.NewRollAppEvmBackend(ctx, ctx.Logger, clientCtx)
 
-		tmEndpoint := "/websocket"
-		tmRPCAddr := cfg.RPC.ListenAddress
-		beJsonRpcHttpSrv, beJsonRpcHttpSrvDone, err = berpcserver.StartBeJsonRPC(
-			ctx, clientCtx, tmRPCAddr, tmEndpoint,
+		serverCloseDeferFunc, err := integrate_be_rpc.StartEvmBeJsonRPC(
+			ctx,
+			clientCtx,
+			genDoc.ChainID,
 			beRpcCfg,
-			func(backend berpcbackend.BackendI) berpcbackend.RequestInterceptor {
+			idxer,
+			nil, // external services modifier
+			func(evmberpcbackend.EvmBackendI) {
+				berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
+					_ client.Context,
+					_ *rpcclient.WSClient,
+					_ map[string]berpctypes.MessageParser,
+					_ map[string]berpctypes.MessageInvolversExtractor,
+					_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
+					_ berpctypes.ExternalServices,
+				) []rpc.API {
+					return []rpc.API{
+						{
+							Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
+							Version:   raebeapi.ApiVersion,
+							Service:   raebeapi.NewRollAppEvmApi(ctx, raeBeRpcBackend),
+							Public:    true,
+						},
+					}
+				}, false)
+			},
+			func(backend berpcbackend.BackendI, evmBeRpcBackend evmberpcbackend.EvmBackendI) berpcbackend.RequestInterceptor {
 				return raeberpcbackend.NewRollAppEvmRequestInterceptor(
 					backend,
 					raeBeRpcBackend,
 					evmberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
 				)
 			},
-			externalServices,
+			cfg.RPC.ListenAddress,
+			"/websocket",
 		)
 		if err != nil {
 			return err
 		}
-		defer func() {
-			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancelFn()
-			if err := beJsonRpcHttpSrv.Shutdown(shutdownCtx); err != nil {
-				ctx.Logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
-			} else {
-				ctx.Logger.Info("HTTP server shut down, waiting 5 sec")
-				select {
-				case <-time.Tick(5 * time.Second):
-				case <-beJsonRpcHttpSrvDone:
-				}
-			}
-		}()
+
+		defer serverCloseDeferFunc()
 	}
 
 	var rosettaSrv crgserver.Server
@@ -724,63 +669,4 @@ func wrapCPUProfile(ctx *server.Context, callback func() error) error {
 	}
 
 	return <-errCh
-}
-
-var _ berpctypes.TxResultForExternal = beJsonRpcEvmIndexerTxResultCompatible{}
-
-type beJsonRpcEvmIndexerTxResultCompatible struct {
-	txResult ethermint.TxResult
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetHeight() int64 {
-	return b.txResult.Height
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetTxIndex() uint32 {
-	return b.txResult.TxIndex
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetMsgIndex() uint32 {
-	return b.txResult.MsgIndex
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetEthTxIndex() int32 {
-	return b.txResult.EthTxIndex
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetFailed() bool {
-	return b.txResult.Failed
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetGasUsed() uint64 {
-	return b.txResult.GasUsed
-}
-
-func (b beJsonRpcEvmIndexerTxResultCompatible) GetCumulativeGasUsed() uint64 {
-	return b.txResult.CumulativeGasUsed
-}
-
-var _ berpctypes.ExpectedEVMTxIndexer = beJsonRpcEvmIndexerCompatible{}
-
-type beJsonRpcEvmIndexerCompatible struct {
-	indexer ethermint.EVMTxIndexer
-}
-
-func (b beJsonRpcEvmIndexerCompatible) GetIndexer() any {
-	return b.indexer
-}
-
-func (b beJsonRpcEvmIndexerCompatible) LastIndexedBlock() (int64, error) {
-	return b.LastIndexedBlock()
-}
-
-func (b beJsonRpcEvmIndexerCompatible) GetByTxHashForExternal(hash common.Hash) (berpctypes.TxResultForExternal, error) {
-	txResult, err := b.indexer.GetByTxHash(hash)
-	if err != nil {
-		return nil, err
-	}
-	if txResult == nil {
-		return nil, nil
-	}
-	return beJsonRpcEvmIndexerTxResultCompatible{txResult: *txResult}, nil
 }
