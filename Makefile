@@ -51,7 +51,7 @@ build: go.sum ## Compiles the rollapd binary
 	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
 	@echo "--> building rollapp-evm"
-	@go build  -o build/rollapp-evm $(BUILD_FLAGS) -tags be_json_rpc_evm ./cmd/rollappd
+	@go build  -o build/rollapp-evm $(BUILD_FLAGS) ./cmd/rollappd
 
 
 .PHONY: clean

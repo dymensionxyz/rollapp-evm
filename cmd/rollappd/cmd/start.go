@@ -8,7 +8,6 @@ import (
 	berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
 	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
 	berpcserver "github.com/bcdevtools/block-explorer-rpc-cosmos/server"
-	iberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend"
 	evmberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
 	evmbeapi "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/namespaces/evm"
 	"github.com/cosmos/cosmos-sdk/types/tx"
@@ -592,7 +591,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 				return raeberpcbackend.NewRollAppEvmRequestInterceptor(
 					backend,
 					raeBeRpcBackend,
-					iberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
+					evmberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
 				)
 			},
 			externalServices,
