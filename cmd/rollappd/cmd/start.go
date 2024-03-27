@@ -559,7 +559,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 				{
 					Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
 					Version:   raebeapi.ApiVersion,
-					Service:   raebeapi.NewRaeAPI(ctx, raeBeRpcBackend),
+					Service:   raebeapi.NewRollAppEvmApi(ctx, raeBeRpcBackend),
 					Public:    true,
 				},
 			}

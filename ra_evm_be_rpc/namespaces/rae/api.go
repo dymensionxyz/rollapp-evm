@@ -15,14 +15,15 @@ const (
 )
 
 // API is the RollApp EVM Block Explorer JSON-RPC.
+// Developers can create custom API for the chain.
 type API struct {
 	ctx     *server.Context
 	logger  log.Logger
 	backend raeberpcbackend.RollAppEvmBackendI
 }
 
-// NewRaeAPI creates an instance of the RollApp EVM Block Explorer API.
-func NewRaeAPI(
+// NewRollAppEvmApi creates an instance of the RollApp EVM Block Explorer API.
+func NewRollAppEvmApi(
 	ctx *server.Context,
 	backend raeberpcbackend.RollAppEvmBackendI,
 ) *API {
