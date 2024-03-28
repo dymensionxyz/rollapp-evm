@@ -37,7 +37,8 @@ export the following variables:
 ```shell
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
-export DENOM="urax"
+export BASE_DENOM="arax"
+export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 ```
 
@@ -55,11 +56,22 @@ rollapp-evm start
 
 You should have a running local rollapp!
 
-## Run a rollapp with local settlement node
+## Run a rollapp with a settlement node
 
 ### Run local dymension hub node
 
 Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/develop/get-started/run-base-layers) to run local dymension hub node
+
+all scripts are adjusted to use local hub node that's hosted on the default port `localhost:36657`.
+
+configuration with a remote hub node is also supported, the following variables must be set:
+
+```shell
+export HUB_RPC_ENDPOINT="http://localhost"
+export HUB_RPC_PORT="36657" # default: 36657
+export HUB_RPC_URL="$HUB_RPC_ENDPOINT:$HUB_RPC_PORT"
+export HUB_CHAIN_ID="dymension_100-1"
+```
 
 ### Create sequencer keys
 
@@ -70,15 +82,35 @@ dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-ba
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 ```
 
-fund the sequencer account
+fund the sequencer account (if you're using a remote hub node, you must fund the sequencer account or you must have an account with enough funds in your keyring)
 
 ```shell
-dymd tx bank send local-user $SEQUENCER_ADDR 1000dym --keyring-backend test --broadcast-mode block --fees 1dym
+dymd tx bank send local-user $SEQUENCER_ADDR 1000dym --keyring-backend test --broadcast-mode block --fees 1dym -b block -y --node ${HUB_RPC_URL}
+```
+
+### Generate denommetadata
+
+```shell
+export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
+
+sh scripts/settlement/generate_denom_metadata.sh
+```
+
+### Add genesis accounts
+
+
+```shell
+sh scripts/settlement/add_genesis_accounts.sh
 ```
 
 ### Register rollapp on settlement
 
 ```shell
+# for permissioned deployment setup, you must have access to an account whitelisted for rollapp
+# registration, assuming you want to import an existing account, you can do:
+dymd keys add local-user --recover
+# input mnemonic from the account that has the permission to register rollapp
+
 sh scripts/settlement/register_rollapp_to_hub.sh
 ```
 
@@ -94,7 +126,15 @@ Modify `dymint.toml` in the chain directory (`~/.rollapp_evm/config`)
 set:
 
 ```shell
-settlement_layer = "dymension"
+ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
+
+```shell
+# this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or remove them
+sh scripts/update_genesis_file.sh
 ```
 
 ### Run rollapp locally
@@ -109,7 +149,7 @@ rollapp-evm start
 
 ```shell
 git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.2.0-v2.3.1-relayer
-cd relayer && make install
+cd go-relayer && make install
 ```
 
 ### Establish IBC channel

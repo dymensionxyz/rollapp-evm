@@ -15,7 +15,7 @@ set_denom() {
 }
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_gas"] = "40000000"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
@@ -23,8 +23,8 @@ set_EVM_params() {
 # ---------------------------- initial parameters ---------------------------- #
 # Assuming 1,000,000 tokens
 #half is staked
-TOKEN_AMOUNT="1000000000000000000000000$DENOM"
-STAKING_AMOUNT="500000000000000000000000$DENOM"
+TOKEN_AMOUNT="1000000000000000000000000$BASE_DENOM"
+STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
 
 
 CONFIG_DIRECTORY="$ROLLAPP_CHAIN_DIR/config"
@@ -64,8 +64,8 @@ $EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
 $EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID"
 
 # -------------------------------- app config -------------------------------- #
-sed -i'' -e "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$DENOM\"/" "$APP_CONFIG_FILE"
-set_denom "$DENOM"
+sed -i'' -e "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$BASE_DENOM\"/" "$APP_CONFIG_FILE"
+set_denom "$BASE_DENOM"
 set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
