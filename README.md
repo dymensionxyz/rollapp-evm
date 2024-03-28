@@ -133,8 +133,14 @@ sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR
 ### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
 
 ```shell
-# this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or remove them
 sh scripts/update_genesis_file.sh
+```
+
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
+
+```shell
+# this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
+sh scripts/add_vesting_accounts_to_genesis_file.sh
 ```
 
 ### Run rollapp locally

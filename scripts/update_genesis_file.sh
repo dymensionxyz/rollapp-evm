@@ -70,17 +70,3 @@ jq '.app_state.hubgenesis.hub.hub_id = "dymension_100-1"' "$GENESIS_FILE" >"$tmp
 denom_metadata=$(cat $ROLLAPP_SETTLEMENT_INIT_DIR_PATH/denommetadata.json)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-
-# ---------------------------- add denom metadata ---------------------------- #
-rollapp_evm keys add three-year-vester --keyring-backend test
-rollapp_evm add-genesis-account three-year-vester \
-  10000000000000000000000a${DENOM} --keyring-backend test \
-  --vesting-amount 10000000000000000000000a${DENOM} \
-  --vesting-end-time 1805902584
-
-rollapp_evm keys add two-year-vester-after-1-week --keyring-backend test
-
-rollapp_evm add-genesis-account two-year-vester-after-1-week \
-  10000000000000000000000a${DENOM} --keyring-backend test \
-  --vesting-amount 10000000000000000000000a${DENOM} \
-  --vesting-end-time 1774366584 --vesting-start-time 1711985835
