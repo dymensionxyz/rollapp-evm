@@ -17,6 +17,8 @@ jq '.consensus_params["block"]["max_bytes"] = "5242880"' "$GENESIS_FILE" >"$tmp"
 
 jq '.app_state.gov.voting_params.voting_period = "300s"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
+# this is a static module account for the hubgenesis module
+# retrieved using  'rollapp-evm q auth module-accounts' command
 module_account_address="ethm1748tamme3jj3v9wq95fc3pmglxtqscljdy7483"
 
 # Construct the JSON object with the obtained address
