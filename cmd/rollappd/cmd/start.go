@@ -164,9 +164,15 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
+			beJsonRpcConfig := berpccfg.DefaultBeJsonRpcConfig()
+			err = beJsonRpcConfig.GetViperConfig(cmd, serverCtx.Viper.GetString(flags.FlagHome))
+			if err != nil {
+				return err
+			}
+
 			// amino is needed here for backwards compatibility of REST routes
 			err = wrapCPUProfile(serverCtx, func() error {
-				return startInProcess(serverCtx, clientCtx, dymconfig, appCreator)
+				return startInProcess(serverCtx, clientCtx, dymconfig, beJsonRpcConfig, appCreator)
 			})
 			errCode, ok := err.(server.ErrorCode)
 			if !ok {
@@ -242,7 +248,7 @@ which accepts a path for the resulting pprof file.
 	return cmd
 }
 
-func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *dymintconf.NodeConfig, appCreator types.AppCreator) error {
+func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *dymintconf.NodeConfig, beRpcCfg *berpccfg.BeJsonRpcConfig, appCreator types.AppCreator) error {
 	cfg := ctx.Config
 	home := cfg.RootDir
 
@@ -264,11 +270,6 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	}
 
 	if err := config.ValidateBasic(); err != nil {
-		return err
-	}
-
-	beRpcCfg, err := berpccfg.GetConfig(ctx.Viper)
-	if err != nil {
 		return err
 	}
 
@@ -520,7 +521,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 			ctx,
 			clientCtx,
 			genDoc.ChainID,
-			beRpcCfg,
+			*beRpcCfg,
 			idxer,
 			nil, // external services modifier
 			func(evmberpcbackend.EvmBackendI) {
