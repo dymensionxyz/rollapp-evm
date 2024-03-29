@@ -14,11 +14,11 @@ tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/genesis_accounts.json" >/dev/null <<EOF
 [
   {"amount":
       {"amount":"10000000000000000000000","denom":"a${DENOM}"},
-      "address": "$(dymd keys show bob-genesis --keyring-backend test --output json | jq -r .address)"
+      "address": "$(dymd keys show -a bob-genesis --keyring-backend test)"
   },
   {"amount":
       {"amount":"50000000000000000000000","denom":"a${DENOM}"},
-      "address":"$(dymd keys show alice-genesis --keyring-backend test --output json | jq -r .address)"
+      "address":"$(dymd keys show -a alice-genesis --keyring-backend test)"
     }
 ]
 EOF
