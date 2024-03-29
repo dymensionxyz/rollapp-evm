@@ -41,7 +41,8 @@ export the following variables:
 ```shell
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
-export DENOM="arax"
+export BASE_DENOM="arax"
+export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 ```
 
