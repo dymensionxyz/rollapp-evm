@@ -18,13 +18,11 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 **Note**: Requires [Go 1.20](https://go.dev/)
 
-## Quick guide
-
-Get started with [building RollApps](https://docs.dymension.xyz/develop/get-started/setup)
 
 ## Feature-full setup
 
 For a more advanced setup that include `denom-metadata`, `genesis-accounts` and others, please refer to the [README.with-advanced-features.md](./README.with-advanced-features.md)
+
 
 ## Installing / Getting started
 
