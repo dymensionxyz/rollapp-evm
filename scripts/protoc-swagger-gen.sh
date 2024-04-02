@@ -14,6 +14,18 @@ for dir in $proto_dirs; do
 done
 
 cd ..
+# combine swagger files
+# uses nodejs package `swagger-combine`.
+# all the individual swagger files need to be configured in `swagger_config.json` for merging
+
+# Check if swagger-combine is installed
+if ! command -v swagger-combine &> /dev/null
+then
+    echo "swagger-combine could not be found. Please install it with 'npm install -g swagger-combine'"
+    exit
+fi
+
+swagger-combine ./proto/swagger_config.json -o ./docs/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
 
 # clean swagger files
 rm -rf ./tmp-swagger-gen
