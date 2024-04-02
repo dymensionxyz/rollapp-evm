@@ -4,6 +4,8 @@ go 1.22.1
 
 require (
 	cosmossdk.io/errors v1.0.1
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.0.1
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.0.1
 	github.com/cosmos/cosmos-sdk v0.46.15
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.2.0-beta
@@ -11,6 +13,7 @@ require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.8.0
@@ -228,7 +231,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/petermattis/goid v0.0.0-20230317030725-371a4b8eda08 // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.89.0 // indirect
 	github.com/prometheus/client_golang v1.18.0 // indirect
