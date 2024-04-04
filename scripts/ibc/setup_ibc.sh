@@ -83,12 +83,21 @@ echo '# -------------------------------- creating IBC link ---------------------
 
 rly paths new "$ROLLAPP_CHAIN_ID" "$SETTLEMENT_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 
+# block_time_workaround: this is a workaround to enable automatic ibc creation,
+# it forces block generation as the default block time as of @20240403 is set to 1h
+while true; do
+  rly tx update-clients "$RELAYER_PATH" | tee /dev/stdout
+  sleep 5
+done &
+UPDATE_CLIENTS_PID=$!
 
 rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 # Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
 # Which messed up with channel creation as part of tx link.
 rly tx channel "$RELAYER_PATH"
 
+# this is a part of the block_time_workaround
+kill $UPDATE_CLIENTS_PID >/dev/null 2>&1
 
 echo '# -------------------------------- IBC channel established ------------------------------- #'
 ROLLAPP_CHANNEL_ID=$(rly q channels "$ROLLAPP_CHAIN_ID" | jq -r 'select(.state == "STATE_OPEN") | .channel_id' | tail -n 1)
