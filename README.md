@@ -16,7 +16,7 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 ## Overview
 
-**Note**: Requires [Go 1.20](https://go.dev/)
+**Note**: Requires [Go 1.22.1](https://go.dev/)
 
 
 ## Feature-full setup
