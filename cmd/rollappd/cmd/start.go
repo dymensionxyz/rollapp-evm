@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -527,7 +526,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 			idxer,
 			nil, // external services modifier
 			func(evmberpcbackend.EvmBackendI) {
-				err = berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
+				_ = berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
 					_ client.Context,
 					_ *rpcclient.WSClient,
 					_ map[string]berpctypes.MessageParser,
@@ -544,9 +543,6 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 						},
 					}
 				}, false)
-				if err != nil {
-					log.Fatalf("Failed to register API namespace: %v", err)
-				}
 			},
 			func(backend berpcbackend.BackendI, evmBeRpcBackend evmberpcbackend.EvmBackendI) berpcbackend.RequestInterceptor {
 				return raeberpcbackend.NewRollAppEvmRequestInterceptor(
