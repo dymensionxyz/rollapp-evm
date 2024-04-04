@@ -99,7 +99,6 @@ sh scripts/settlement/generate_denom_metadata.sh
 
 ### Add genesis accounts
 
-
 ```shell
 sh scripts/settlement/add_genesis_accounts.sh
 ```
@@ -131,13 +130,11 @@ ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
 sh scripts/update_genesis_file.sh
 ```
-
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
 
 ```shell
 # this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
