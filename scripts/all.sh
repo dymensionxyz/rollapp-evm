@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export ROLLAPP_CHAIN_ID="rollex_1442-1"
-export KEY_NAME_ROLLAPP="local-user"
+export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="alex"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
