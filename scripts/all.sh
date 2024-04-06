@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Set the environment variables"
-export ROLLAPP_CHAIN_ID="rollex_1443-1"
+export ROLLAPP_CHAIN_ID="rollex_1444-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export SETTLEMENT_KEY_NAME="local-user"
 export BASE_DENOM="alxx"
