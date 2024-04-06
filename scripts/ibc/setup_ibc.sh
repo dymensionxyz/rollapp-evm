@@ -33,16 +33,6 @@ RLY_CONFIG_FILE="$RLY_PATH/config/config.yaml"
 ROLLAPP_IBC_CONF_FILE="$BASEDIR/rollapp.json"
 HUB_IBC_CONF_FILE="$BASEDIR/hub.json"
 
-if [ -f "$RLY_CONFIG_FILE" ]; then
-  printf "======================================================================================================\n"
-  echo "A rly config file already exists. Overwrite? (y/N)"
-  printf "======================================================================================================\n"
-  read -r answer
-  if [[ "$answer" == "Y" || "$answer" == "y" ]]; then
-    rm -rf "$RLY_PATH"
-  fi
-fi
-
 echo '# -------------------------- initializing rly config ------------------------- #'
 rly config init
 
