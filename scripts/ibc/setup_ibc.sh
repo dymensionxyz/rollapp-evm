@@ -70,7 +70,7 @@ RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo "# ------------------------------- balance of rly account on hub [$RLY_HUB_ADDR]------------------------------ #"
 $SETTLEMENT_EXECUTABLE q bank balances "$(rly keys show "$SETTLEMENT_CHAIN_ID")" --node "$SETTLEMENT_RPC_FOR_RELAYER"
-echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym\""
+echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym -node https://rpc.hwpd.noisnemyd.xyz:443 --chain-id dymension_1405-1 -y \""
 
 echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
 $EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
