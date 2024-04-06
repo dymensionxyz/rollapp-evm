@@ -3,7 +3,7 @@
 EXECUTABLE="rollapp-evm"
 KEYRING_PATH="$HOME/.rollapp_evm/sequencer_keys"
 KEY_NAME_SEQUENCER="sequencer"
-BOND_AMOUNT="100dym"
+BOND_AMOUNT="1000dym"
 
 #Register Sequencer
 DESCRIPTION="{\"Moniker\":\"${ROLLAPP_CHAIN_ID}-sequencer\",\"Identity\":\"\",\"Website\":\"\",\"SecurityContact\":\"\",\"Details\":\"\"}"
