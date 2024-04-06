@@ -2,6 +2,7 @@
 
 export ROLLAPP_CHAIN_ID="rollex_1443-1"
 export KEY_NAME_ROLLAPP="rol-user"
+export SETTLEMENT_KEY_NAME="local-user"
 export BASE_DENOM="alex"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
@@ -20,7 +21,7 @@ rm -rf $HUB_HOME_DIR
 
 sh ./init.sh
 
-dymd keys add $KEY_NAME_ROLLAPP --recover --keyring-backend test
+dymd keys add $SETTLEMENT_KEY_NAME --recover --keyring-backend test
 dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 dymd tx bank send $KEY_NAME_ROLLAPP $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL} --chain-id $HUB_CHAIN_ID
