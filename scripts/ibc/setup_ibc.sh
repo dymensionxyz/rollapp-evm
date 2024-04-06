@@ -33,6 +33,9 @@ RLY_CONFIG_FILE="$RLY_PATH/config/config.yaml"
 ROLLAPP_IBC_CONF_FILE="$BASEDIR/rollapp.json"
 HUB_IBC_CONF_FILE="$BASEDIR/hub.json"
 
+echo '# -------------------------- removing rly config ------------------------- #'
+rm -rf "$RLY_PATH"
+
 echo '# -------------------------- initializing rly config ------------------------- #'
 rly config init
 
