@@ -9,7 +9,7 @@ RELAYER_EXECUTABLE="rly"
 
 # settlement config
 SETTLEMENT_EXECUTABLE="dymd"
-SETTLEMENT_CHAIN_ID="dymension_100-1"
+SETTLEMENT_CHAIN_ID=$HUB_CHAIN_ID
 SETTLEMENT_KEY_NAME_GENESIS="local-user"
 
 EXECUTABLE="rollapp-evm"
@@ -18,7 +18,7 @@ RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
 RELAYER_KEY_FOR_HUB="relayer-hub-key"
 RELAYER_PATH="hub-rollapp"
 ROLLAPP_RPC_FOR_RELAYER="http://127.0.0.1:26657"
-SETTLEMENT_RPC_FOR_RELAYER="http://127.0.0.1:36657"
+SETTLEMENT_RPC_FOR_RELAYER="https://rpc.hwpd.noisnemyd.xyz:443"
 
 
 if ! command -v $RELAYER_EXECUTABLE >/dev/null; then
@@ -70,14 +70,11 @@ RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo "# ------------------------------- balance of rly account on hub [$RLY_HUB_ADDR]------------------------------ #"
 $SETTLEMENT_EXECUTABLE q bank balances "$(rly keys show "$SETTLEMENT_CHAIN_ID")" --node "$SETTLEMENT_RPC_FOR_RELAYER"
-echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym\""
+$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" --chain-id "$SETTLEMENT_CHAIN_ID" -y
 
 echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
 $EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
-echo "From within the rollapp node: \"$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 100000000000000000000$BASE_DENOM --keyring-backend test --broadcast-mode block\""
-
-echo "waiting to fund accounts. Press to continue..."
-read -r answer
+$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 100000000000000000000$BASE_DENOM --keyring-backend test --broadcast-mode block --node "$ROLLAPP_RPC_FOR_RELAYER" --chain-id "$ROLLAPP_CHAIN_ID" -y
 
 echo '# -------------------------------- creating IBC link ------------------------------- #'
 

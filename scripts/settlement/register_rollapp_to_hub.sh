@@ -5,15 +5,9 @@ MAX_SEQUENCERS=5
 # this account must be whitelisted on the hub for permissioned deployment setup
 DEPLOYER="local-user"
 
-if [ -n "$HUB_RPC_URL" ]; then
-  echo "HUB_RPC_URL is not set, using 'http://localhost:36657'"
-  HUB_RPC_URL="http://localhost:36657"
-fi
+HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
 
-if [ -n "$HUB_CHAIN_ID" ]; then
-  echo "HUB_CHAIN_ID is not set, using 'dymension_100-1'"
-  HUB_CHAIN_ID="dymension_100-1"
-fi
+HUB_CHAIN_ID="dymension_1405-1"
 
 # this file is generated using the scripts/settlement/generate_denom_metadata.sh
 DENOM_METADATA_PATH="$HOME/.rollapp_evm/init/denommetadata.json"
@@ -30,5 +24,5 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" '{"Addresse
   --broadcast-mode block \
   --fees 1dym \
   --node ${HUB_RPC_URL} \
-  --chain-id ${HUB_CHAIN_ID}
+  --chain-id ${HUB_CHAIN_ID} -y
 set +x

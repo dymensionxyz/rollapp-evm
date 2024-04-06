@@ -35,9 +35,9 @@ make install
 export the following variables:
 
 ```shell
-export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
+export ROLLAPP_CHAIN_ID="rollex_1442-1"
 export KEY_NAME_ROLLAPP="rol-user"
-export BASE_DENOM="arax"
+export BASE_DENOM="alex"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 ```
@@ -67,10 +67,10 @@ all scripts are adjusted to use local hub node that's hosted on the default port
 configuration with a remote hub node is also supported, the following variables must be set:
 
 ```shell
-export HUB_RPC_ENDPOINT="http://localhost"
-export HUB_RPC_PORT="36657" # default: 36657
-export HUB_RPC_URL="http://3.71.160.88:36657"
-export HUB_CHAIN_ID="dymension_100-1"
+export HUB_RPC_ENDPOINT="https://rpc.hwpd.noisnemyd.xyz"
+export HUB_RPC_PORT="443"
+export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
+export HUB_CHAIN_ID="dymension_1405-1"
 ```
 
 ### Create sequencer keys
@@ -78,15 +78,20 @@ export HUB_CHAIN_ID="dymension_100-1"
 create sequencer key using `dymd`
 
 ```shell
+# app key: for signing txs on the hub
 dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
+
+dym16gmfkqndz7wezfljjvymq5vcsmttdrpm74rnac
+palace immune funny spirit oil bag story equal bid behind abuse just window clean success horn canoe measure dynamic radio friend rare oven rough
+
 ```
 
 fund the sequencer account (if you're using a remote hub node, you must fund the sequencer account or you must have an account with enough funds in your keyring)
 
 ```shell
-BOND_AMOUNT="100000dym"
-dymd tx bank send local-user $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
+BOND_AMOUNT="1000dym"
+dymd tx bank send alex $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL} --chain-id dymension_1405-1 
 ```
 
 ### Generate denommetadata

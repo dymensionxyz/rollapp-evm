@@ -44,18 +44,7 @@ if [ -z "$ROLLAPP_CHAIN_ID" ]; then
   exit 1
 fi
 
-# Verify that a genesis file doesn't exists for the dymension chain
-if [ -f "$GENESIS_FILE" ]; then
-  printf "\n======================================================================================================\n"
-  echo "A genesis file already exists [$GENESIS_FILE]. building the chain will delete all previous chain data. continue? (y/n)"
-  printf "\n======================================================================================================\n"
-  read -r answer
-  if [ "$answer" != "${answer#[Yy]}" ]; then
-    rm -rf "$ROLLAPP_CHAIN_DIR"
-  else
-    exit 1
-  fi
-fi
+rm -rf "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- init rollapp ------------------------------- #
 $EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
@@ -78,15 +67,7 @@ $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-ba
 operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-
-
-
-echo "Do you want to include staker on genesis? (Y/n) "
-read -r answer
-if [ ! "$answer" != "${answer#[Nn]}" ] ;then
-  $EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
-  $EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
-fi
-
+$EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
 
 $EXECUTABLE validate-genesis
