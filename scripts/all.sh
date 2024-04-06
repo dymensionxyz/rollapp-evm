@@ -38,6 +38,9 @@ sh settlement/register_sequencer_to_hub.sh
 sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 sed -i '' 's/node_address.*/node_address = "https:\/\/rpc.hwpd.noisnemyd.xyz:443"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 
+sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i 's/node_address.*/node_address = "https:\/\/rpc.hwpd.noisnemyd.xyz:443"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+
 echo "Update the genesis file"
 sh update_genesis_file.sh
 
