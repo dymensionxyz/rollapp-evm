@@ -3,17 +3,17 @@
 EXECUTABLE="rollapp-evm"
 KEYRING_PATH="$HOME/.rollapp_evm/sequencer_keys"
 KEY_NAME_SEQUENCER="sequencer"
-BOND_AMOUNT="1000dym"
+BOND_AMOUNT="10000dym"
 
 #Register Sequencer
 DESCRIPTION="{\"Moniker\":\"${ROLLAPP_CHAIN_ID}-sequencer\",\"Identity\":\"\",\"Website\":\"\",\"SecurityContact\":\"\",\"Details\":\"\"}"
 SEQ_PUB_KEY="$($EXECUTABLE dymint show-sequencer)" # sequencing key: for signing blocks on the rollapp chain
 
 echo "Add the sequencer key to the ~/.rollapp_evm/sequencer_keys directory"
-dymd keys add $KEY_NAME_SEQUENCER --keyring-dir $KEYRING_PATH --keyring-backend test --keyring-dir $KEYRING_PATH
+dymd keys add $KEY_NAME_SEQUENCER --keyring-dir $KEYRING_PATH --keyring-backend test
 SEQUENCER_ADDRESS=$(dymd keys show $KEY_NAME_SEQUENCER --address --keyring-backend test --keyring-dir $KEYRING_PATH)
 echo "Fund the sequencer from the local-user account"
-dymd tx bank send $SETTLEMENT_KEY_NAME --keyring-backend test $SEQUENCER_ADDRESS $BOND_AMOUNT --node $HUB_RPC_URL --chain-id $HUB_CHAIN_ID -y
+dymd tx bank send $SETTLEMENT_KEY_NAME --keyring-backend test $SEQUENCER_ADDRESS $BOND_AMOUNT --node $HUB_RPC_URL --chain-id $HUB_CHAIN_ID -b block -y
 
 set -x
 dymd tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$DESCRIPTION" "$BOND_AMOUNT" \
