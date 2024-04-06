@@ -76,7 +76,7 @@ $EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-ba
 operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-echo "Do you want to include staker on genesis? (Y/n) "
+echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
 if [ ! "$answer" != "${answer#[Nn]}" ]; then
   $EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
