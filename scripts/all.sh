@@ -4,7 +4,7 @@ echo "Set the environment variables"
 export ROLLAPP_CHAIN_ID="rollex_1443-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export SETTLEMENT_KEY_NAME="local-user"
-export BASE_DENOM="alx"
+export BASE_DENOM="alxx"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
