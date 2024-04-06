@@ -1,12 +1,12 @@
 #!/bin/bash
 
+echo "Set the environment variables"
 export ROLLAPP_CHAIN_ID="rollex_1443-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export SETTLEMENT_KEY_NAME="local-user"
-export BASE_DENOM="alex"
+export BASE_DENOM="alx"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
-export BOND_AMOUNT="1000dym"
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export HUB_HOME_DIR="$HOME/.dymension"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
@@ -16,25 +16,30 @@ export HUB_RPC_PORT="443"
 export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
 export HUB_CHAIN_ID="dymension_1405-1"
 
+echo "Remove the existing directories"
 rm -rf $ROLLAPP_HOME_DIR
 rm -rf $HUB_HOME_DIR
 
+echo "Run the init.sh script"
 sh ./init.sh
 
+echo "Import the local-user key to the dymd keyring"
 dymd keys add $SETTLEMENT_KEY_NAME --recover --keyring-backend test
-dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
-SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
-dymd tx bank send $KEY_NAME_ROLLAPP $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL} --chain-id $HUB_CHAIN_ID
 
+echo "Generate denom metadata"
 sh settlement/generate_denom_metadata.sh
+echo "Add genesis accounts"
 sh settlement/add_genesis_accounts.sh
+echo "Register rollapp to the hub"
 sh settlement/register_rollapp_to_hub.sh
+echo "Register sequencer to the hub"
 sh settlement/register_sequencer_to_hub.sh
-
 
 sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 sed -i '' 's/node_address.*/node_address = "https:\/\/rpc.hwpd.noisnemyd.xyz:443"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 
+echo "Update the genesis file"
 sh update_genesis_file.sh
 
+echo "Start the rollapp-evm"
 rollapp-evm start

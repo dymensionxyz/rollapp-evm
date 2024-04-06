@@ -74,7 +74,7 @@ echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMEN
 
 echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
 $EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
-echo "From within the rollapp node: \"$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 100000000000000000000$DENOM --keyring-backend test --broadcast-mode block\""
+echo "From within the rollapp node: \"$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 10000000000000000000$DENOM --keyring-backend test --broadcast-mode block\""
 
 echo "waiting to fund accounts. Press to continue..."
 read -r answer
