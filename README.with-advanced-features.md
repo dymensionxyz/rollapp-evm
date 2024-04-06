@@ -91,7 +91,7 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 
 ```shell
 BOND_AMOUNT="1000dym"
-dymd tx bank send alex $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL} --chain-id dymension_1405-1 
+dymd tx bank send local-user $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL} --chain-id dymension_1405-1 
 ```
 
 ### Generate denommetadata
