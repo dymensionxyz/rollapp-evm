@@ -7,6 +7,7 @@ export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 export BOND_AMOUNT="1000dym"
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+export HUB_HOME_DIR="$HOME/.dymension"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
 
 export HUB_RPC_ENDPOINT="https://rpc.hwpd.noisnemyd.xyz"
@@ -15,6 +16,7 @@ export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
 export HUB_CHAIN_ID="dymension_1405-1"
 
 rm -rf $ROLLAPP_HOME_DIR
+rm -rf $HUB_HOME_DIR
 
 sh ./init.sh
 
