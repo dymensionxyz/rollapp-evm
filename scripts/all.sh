@@ -14,6 +14,8 @@ export HUB_RPC_PORT="443"
 export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
 export HUB_CHAIN_ID="dymension_1405-1"
 
+rm -rf $ROLLAPP_HOME_DIR
+
 sh ./init.sh
 
 dymd keys add $KEY_NAME_ROLLAPP --recover --keyring-backend test
