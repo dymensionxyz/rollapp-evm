@@ -6,6 +6,12 @@ if [ -z "$ROLLAPP_CHAIN_ID" ]; then
   exit 1
 fi
 
+if [ -z "$HUB_CHAIN_ID" ]; then
+  echo "HUB_CHAIN_ID is not set"
+  exit 1
+fi
+
+
 echo "Set the environment variables"
 # export ROLLAPP_CHAIN_ID="rollex_1450-1"
 export KEY_NAME_ROLLAPP="rol-user"
@@ -17,10 +23,9 @@ export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export HUB_HOME_DIR="$HOME/.dymension"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
 
-export HUB_RPC_ENDPOINT="https://rpc.hwpd.noisnemyd.xyz"
-export HUB_RPC_PORT="443"
-export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
-export HUB_CHAIN_ID="dymension_1405-1"
+# export HUB_RPC_ENDPOINT="https://rpc.hwpd.noisnemyd.xyz"
+# export HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
+# export HUB_CHAIN_ID="dymension_1405-1"
 
 echo "Remove the existing directories"
 rm -rf $ROLLAPP_HOME_DIR
