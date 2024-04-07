@@ -5,6 +5,16 @@ if [ -z "$ROLLAPP_CHAIN_ID" ]; then
   exit 1
 fi
 
+if [ -z "$HUB_CHAIN_ID" ]; then
+  echo "HUB_CHAIN_ID is not set"
+  exit 1
+fi
+
+if [ -z "$HUB_RPC_URL" ]; then
+  echo "HUB_RPC_URL is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
@@ -23,7 +33,7 @@ RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
 RELAYER_KEY_FOR_HUB="relayer-hub-key"
 RELAYER_PATH="hub-rollapp"
 ROLLAPP_RPC_FOR_RELAYER="http://127.0.0.1:26657"
-SETTLEMENT_RPC_FOR_RELAYER="https://rpc.hwpd.noisnemyd.xyz:443"
+SETTLEMENT_RPC_FOR_RELAYER=$HUB_RPC_URL
 
 
 if ! command -v $RELAYER_EXECUTABLE >/dev/null; then

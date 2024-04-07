@@ -5,10 +5,6 @@ MAX_SEQUENCERS=5
 # this account must be whitelisted on the hub for permissioned deployment setup
 DEPLOYER="local-user"
 
-HUB_RPC_URL="https://rpc.hwpd.noisnemyd.xyz:443"
-
-HUB_CHAIN_ID="dymension_1405-1"
-
 # this file is generated using the scripts/settlement/generate_denom_metadata.sh
 DENOM_METADATA_PATH="$HOME/.rollapp_evm/init/denommetadata.json"
 # this file is generated using the scripts/settlement/add_genesis_accounts.sh
