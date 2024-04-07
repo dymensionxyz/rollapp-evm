@@ -15,6 +15,16 @@ if [ -z "$HUB_RPC_URL" ]; then
   exit 1
 fi
 
+if [ -z "$BASE_DENOM" ]; then
+  echo "BASE_DENOM is not set"
+  exit 1
+fi
+
+if [ -z "$KEY_NAME_ROLLAPP" ]; then
+  echo "KEY_NAME_ROLLAPP is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
