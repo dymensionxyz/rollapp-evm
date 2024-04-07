@@ -34,8 +34,8 @@ rm -rf $HUB_HOME_DIR
 echo "Run the init.sh script"
 sh ./init.sh
 
-echo "Import the local-user key to the dymd keyring"
-dymd keys add $SETTLEMENT_KEY_NAME --recover --keyring-backend test
+# echo "Import the local-user key to the dymd keyring"
+# dymd keys add $SETTLEMENT_KEY_NAME --recover --keyring-backend test
 
 echo "Generate denom metadata"
 sh settlement/generate_denom_metadata.sh
