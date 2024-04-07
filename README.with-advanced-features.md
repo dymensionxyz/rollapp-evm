@@ -72,8 +72,11 @@ configuration with a remote hub node is also supported, the following variables 
 ```shell
 export HUB_RPC_ENDPOINT="http://localhost"
 export HUB_RPC_PORT="36657" # default: 36657
-export HUB_RPC_URL="http://3.71.160.88:36657"
+export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
 export HUB_CHAIN_ID="dymension_100-1"
+
+dymd config chain-id ${HUB_CHAIN_ID}
+dymd config node ${HUB_RPC_URL}
 ```
 
 ### Create sequencer keys
@@ -90,9 +93,9 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 ```shell
 # retrieve the minimal bond amount from hub sequencer params
 # you have to account for gas fees so it should the final value should be increased
-BOND_AMOUNT="$(dymd q sequencer params -o json --node ${HUB_RPC_URL} | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json --node ${HUB_RPC_URL} | jq -r '.params.min_bond.denom')"
+BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
 
-dymd tx bank send local-user $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
+dymd tx bank send local-user $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y
 ```
 
 ### Generate denommetadata
@@ -102,7 +105,6 @@ sh scripts/settlement/generate_denom_metadata.sh
 ```
 
 ### Add genesis accounts
-
 
 ```shell
 sh scripts/settlement/add_genesis_accounts.sh
@@ -136,13 +138,13 @@ sed -i '/node_address =/c\node_address = '\"$HUB_RPC_URL\" "${ROLLAPP_HOME_DIR}/
 sed -i '/rollapp_id =/c\rollapp_id = '\"$ROLLAPP_CHAIN_ID\" "${ROLLAPP_HOME_DIR}/config/dymint.toml"
 ```
 
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
 sh scripts/update_genesis_file.sh
 ```
 
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts 
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
 # this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
@@ -178,6 +180,25 @@ After successful run, the new established channels will be shown
 
 ```shell
 rly start hub-rollapp
+```
+
+or as a systemd service:
+
+```shell
+sudo tee /etc/systemd/system/relayer.service > /dev/null <<EOF
+[Unit] 
+Description=rollapp
+After=network.target 
+[Service] 
+Type=simple
+User=$USER
+ExecStart=$(which rly) start hub-rollapp
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
 ```
 
 ## Developers guide
