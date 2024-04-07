@@ -4,8 +4,8 @@ go 1.22.1
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/bcdevtools/block-explorer-rpc-cosmos v1.0.1
-	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.0.1
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.0.2
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.0.2
 	github.com/cosmos/cosmos-sdk v0.46.15
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.2.0-beta
