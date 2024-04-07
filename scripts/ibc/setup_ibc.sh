@@ -49,10 +49,10 @@ if [ -f "$RLY_CONFIG_FILE" ]; then
   fi
 fi
 
-echo '# -------------------------- initializing rly config ------------------------- #'
+echo '\033[0;34mInitializing rly config...\033[0m'
 rly config init
 
-echo '# ------------------------- adding chains to rly config ------------------------- #'
+echo '\033[0;34mAdding chains to rly config..\033[0m'
 tmp=$(mktemp)
 
 jq --arg key "$RELAYER_KEY_FOR_ROLLAP" '.value.key = $key' $ROLLAPP_IBC_CONF_FILE >"$tmp" && mv "$tmp" $ROLLAPP_IBC_CONF_FILE
@@ -67,25 +67,24 @@ jq --arg rpc "$SETTLEMENT_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' $HUB_IBC_C
 rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
 rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
 
-echo '# -------------------------------- creating keys ------------------------------- #'
+echo -e '\033[0;34mCreating keys for rly...\033[0m'
+
 rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAP" --coin-type 60
 rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 
 RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
 RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
-echo "# ------------------------------- balance of rly account on hub [$RLY_HUB_ADDR]------------------------------ #"
-$SETTLEMENT_EXECUTABLE q bank balances "$(rly keys show "$SETTLEMENT_CHAIN_ID")" --node "$SETTLEMENT_RPC_FOR_RELAYER"
-echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym\""
+echo '\033[0;34mFunding rly account on hub ['$RLY_HUB_ADDR']...\033[0m'
 
-echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
-$EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
-echo "From within the rollapp node: \"$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 100000000000000000000$BASE_DENOM --keyring-backend test --broadcast-mode block\""
+$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y
 
-echo "waiting to fund accounts. Press to continue..."
-read -r answer
+echo '\033[0;34mFunding rly account on rollapp ['$RLY_ROLLAPP_ADDR']..\033[0m'
 
-echo '# -------------------------------- creating IBC link ------------------------------- #'
+$EXECUTABLE tx bank send $KEY_NAME_ROLLAPP $RLY_ROLLAPP_ADDR 100000000000000000000$BASE_DENOM --keyring-backend test --broadcast-mode block -y
+
+
+echo '\033[0;34mCreating IBC path...\033[0m'
 
 rly paths new "$ROLLAPP_CHAIN_ID" "$SETTLEMENT_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 

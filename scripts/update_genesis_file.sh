@@ -66,7 +66,6 @@ elevated_address_json=$(jq -n \
         "address": $address
     }]')
 jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenesis.params.genesis_triggerer_whitelist += $elevated_address_json' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-jq --arg hub_chain_id "$HUB_CHAIN_ID" '.app_state.hubgenesis.hub.hub_id = $hub_chain_id' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ---------------------------- add denom metadata ---------------------------- #
 denom_metadata=$(cat $ROLLAPP_SETTLEMENT_INIT_DIR_PATH/denommetadata.json)

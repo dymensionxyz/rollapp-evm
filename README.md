@@ -18,11 +18,9 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 **Note**: Requires [Go 1.22.1](https://go.dev/)
 
-
 ## Feature-full setup
 
 For a more advanced setup that include `denom-metadata`, `genesis-accounts` and others, please refer to the [README.with-advanced-features.md](./README.with-advanced-features.md)
-
 
 ## Installing / Getting started
 
