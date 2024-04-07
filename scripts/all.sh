@@ -29,7 +29,6 @@ export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
 
 echo "Remove the existing directories"
 rm -rf $ROLLAPP_HOME_DIR
-rm -rf $HUB_HOME_DIR
 
 echo "Run the init.sh script"
 sh ./init.sh
