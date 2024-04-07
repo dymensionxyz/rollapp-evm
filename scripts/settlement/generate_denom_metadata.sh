@@ -18,7 +18,7 @@ tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/denommetadata.json" >/dev/null <<EOF
     "description": "The native staking and governance token of the ${ROLLAPP_CHAIN_ID}",
     "denom_units": [
       {
-        "denom": "a${DENOM}",
+        "denom": "${BASE_DENOM}",
         "exponent": 0
       },
       {
@@ -26,7 +26,7 @@ tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/denommetadata.json" >/dev/null <<EOF
         "exponent": 18
       }
     ],
-    "base": "a${DENOM}",
+    "base": "${BASE_DENOM}",
     "display": "${DENOM}",
     "name": "${DENOM}",
     "symbol": "${DENOM}"
