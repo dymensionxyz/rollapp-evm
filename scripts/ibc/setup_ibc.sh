@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "$ROLLAPP_CHAIN_ID" ]; then
+  echo "ROLLAPP_CHAIN_ID is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer

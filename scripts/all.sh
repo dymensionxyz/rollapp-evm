@@ -1,7 +1,13 @@
 #!/bin/bash
 
+# check if ROLLAPP_CHAIN_ID env var is set
+if [ -z "$ROLLAPP_CHAIN_ID" ]; then
+  echo "ROLLAPP_CHAIN_ID is not set"
+  exit 1
+fi
+
 echo "Set the environment variables"
-export ROLLAPP_CHAIN_ID="rollex_1444-1"
+# export ROLLAPP_CHAIN_ID="rollex_1450-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export SETTLEMENT_KEY_NAME="local-user"
 export BASE_DENOM="alxx"
