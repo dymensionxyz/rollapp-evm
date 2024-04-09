@@ -34,7 +34,7 @@ export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 
 if [ -z "$ROLLAPP_HOME_DIR" ]; then
-  export ROLLAPP_HOME_DIR=".rollapp_evm"
+  export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 fi
 echo "Using $ROLLAPP_HOME_DIR as ROLLAPP_HOME_DIR"
 
