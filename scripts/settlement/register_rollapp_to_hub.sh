@@ -6,9 +6,9 @@ MAX_SEQUENCERS=5
 DEPLOYER="local-user"
 
 # this file is generated using the scripts/settlement/generate_denom_metadata.sh
-DENOM_METADATA_PATH="$HOME/.rollapp_evm/init/denommetadata.json"
+DENOM_METADATA_PATH="$ROLLAPP_HOME_DIR/init/denommetadata.json"
 # this file is generated using the scripts/settlement/add_genesis_accounts.sh
-GENESIS_ACCOUNTS_PATH="$HOME/.rollapp_evm/init/genesis_accounts.json"
+GENESIS_ACCOUNTS_PATH="$ROLLAPP_HOME_DIR/init/genesis_accounts.json"
 
 set -x
 #Register rollapp 

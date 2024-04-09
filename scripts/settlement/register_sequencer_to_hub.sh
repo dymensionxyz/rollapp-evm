@@ -1,7 +1,7 @@
 #!/bin/bash
 
 EXECUTABLE="rollapp-evm"
-KEYRING_PATH="$HOME/.rollapp_evm/sequencer_keys"
+KEYRING_PATH="$ROLLAPP_HOME_DIR/sequencer_keys"
 KEY_NAME_SEQUENCER="sequencer"
 FUND_AMOUNT="1100dym"
 BOND_AMOUNT="1000dym"

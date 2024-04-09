@@ -2,7 +2,7 @@
 tmp=$(mktemp)
 
 EXECUTABLE="rollapp-evm"
-ROLLAPP_CHAIN_DIR="$HOME/.rollapp_evm"
+ROLLAPP_CHAIN_DIR="$ROLLAPP_HOME_DIR"
 
 set_denom() {
   denom=$1
