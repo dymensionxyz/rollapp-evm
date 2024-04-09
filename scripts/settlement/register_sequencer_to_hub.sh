@@ -14,7 +14,7 @@ echo "Add the sequencer key to the ~/.rollapp_evm/sequencer_keys directory"
 dymd keys add $KEY_NAME_SEQUENCER --keyring-dir $KEYRING_PATH --keyring-backend test
 SEQUENCER_ADDRESS=$(dymd keys show $KEY_NAME_SEQUENCER --address --keyring-backend test --keyring-dir $KEYRING_PATH)
 echo "Fund the sequencer from the local-user account"
-dymd tx bank send $SETTLEMENT_KEY_NAME --keyring-backend test $SEQUENCER_ADDRESS $FUND_AMOUNT --node $HUB_RPC_URL --chain-id $HUB_CHAIN_ID --fees 1dym -b block -y
+dymd tx bank send local-user --keyring-backend test $SEQUENCER_ADDRESS $FUND_AMOUNT --node $HUB_RPC_URL --chain-id $HUB_CHAIN_ID --fees 1dym -b block -y
 
 set -x
 dymd tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$DESCRIPTION" "$BOND_AMOUNT" \

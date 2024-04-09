@@ -1,28 +1,19 @@
 #!/bin/bash
 
 if [ -z "$ROLLAPP_CHAIN_ID" ]; then
-  echo "ROLLAPP_CHAIN_ID is not set"
-  exit 1
+  export ROLLAPP_CHAIN_ID="rollex_1234-1"
 fi
 
 if [ -z "$HUB_CHAIN_ID" ]; then
-  echo "HUB_CHAIN_ID is not set"
-  exit 1
+  export HUB_CHAIN_ID="dymension_100-1"
 fi
 
 if [ -z "$HUB_RPC_URL" ]; then
-  echo "HUB_RPC_URL is not set"
-  exit 1
+  export HUB_RPC_URL="http://127.0.0.1:36657"
 fi
 
 if [ -z "$BASE_DENOM" ]; then
-  echo "BASE_DENOM is not set"
-  exit 1
-fi
-
-if [ -z "$KEY_NAME_ROLLAPP" ]; then
-  echo "KEY_NAME_ROLLAPP is not set"
-  exit 1
+  export BASE_DENOM="alxx"
 fi
 
 BASEDIR=$(dirname "$0")
@@ -44,7 +35,7 @@ RELAYER_KEY_FOR_HUB="relayer-hub-key"
 RELAYER_PATH="hub-rollapp"
 ROLLAPP_RPC_FOR_RELAYER="http://127.0.0.1:26657"
 SETTLEMENT_RPC_FOR_RELAYER=$HUB_RPC_URL
-
+KEY_NAME_ROLLAPP=rol-user
 
 if ! command -v $RELAYER_EXECUTABLE >/dev/null; then
   echo "$RELAYER_EXECUTABLE does not exist"
@@ -88,7 +79,7 @@ RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo "# ------------------------------- balance of rly account on hub [$RLY_HUB_ADDR]------------------------------ #"
 $SETTLEMENT_EXECUTABLE q bank balances "$(rly keys show "$SETTLEMENT_CHAIN_ID")" --node "$SETTLEMENT_RPC_FOR_RELAYER"
-echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" --chain-id dymension_1405-1 -y \""
+echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" --chain-id $HUB_CHAIN_ID -y \""
 
 echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
 $EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
