@@ -78,4 +78,4 @@ $EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHA
 echo \"$EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR\""
 $EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
 
-$EXECUTABLE validate-genesis
+$EXECUTABLE validate-genesis --home "$ROLLAPP_CHAIN_DIR"
