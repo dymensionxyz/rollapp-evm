@@ -48,8 +48,8 @@ sed -i "s/node_address.*/node_address = \"$(echo "$HUB_RPC_URL" | sed 's/\//\\\/
 
 set -e
 
-echo "Import the local-user key to the dymd keyring"
-echo "$MNEMONIC" | dymd keys add "$SETTLEMENT_KEY_NAME" --recover --keyring-backend test
+# echo "Import the local-user key to the dymd keyring"
+# echo "$MNEMONIC" | dymd keys add "$SETTLEMENT_KEY_NAME" --recover --keyring-backend test
 
 echo "Generate denom metadata"
 sh settlement/generate_denom_metadata.sh
