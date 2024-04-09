@@ -178,7 +178,7 @@ rollapp-evm start
 
 ```shell
 # make sure result is non empty
-ra q hubgenesis params
+rollapp-evm q hubgenesis params
 ```
 
 *Note: if the result of above is empty, something has gone wrong*
