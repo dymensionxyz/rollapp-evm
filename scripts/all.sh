@@ -38,7 +38,7 @@ rm -rf $HUB_HOME_DIR
 echo "Run the init.sh script"
 sh ./init.sh
 
-unset -e
+set +e
 
 sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 sed -i '' "s/node_address.*/node_address = \"$(echo "$HUB_RPC_URL" | sed 's/\//\\\//g')\"/" ${ROLLAPP_HOME_DIR}/config/dymint.toml
