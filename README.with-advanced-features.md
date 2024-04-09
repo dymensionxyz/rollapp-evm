@@ -242,10 +242,10 @@ or as a systemd service:
 
 ```shell
 sudo tee /etc/systemd/system/relayer.service > /dev/null <<EOF
-[Unit] 
+[Unit]
 Description=rollapp
-After=network.target 
-[Service] 
+After=network.target
+[Service]
 Type=simple
 User=$USER
 ExecStart=$(which rly) start hub-rollapp
