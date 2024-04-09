@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # check if ROLLAPP_CHAIN_ID env var is set
 if [ -z "$ROLLAPP_CHAIN_ID" ]; then
   export ROLLAPP_CHAIN_ID="rollex_1235-1"

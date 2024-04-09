@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -z "$ROLLAPP_CHAIN_ID" ]; then
   export ROLLAPP_CHAIN_ID="rollex_1234-1"
 fi
@@ -93,7 +95,7 @@ echo '# -------------------------------- creating IBC link ---------------------
 rly paths new "$ROLLAPP_CHAIN_ID" "$SETTLEMENT_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 
 
-rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
+rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --timeout 60s --max-retries 10
 # Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
 # Which messed up with channel creation as part of tx link.
 rly tx channel "$RELAYER_PATH"
