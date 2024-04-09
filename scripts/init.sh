@@ -53,6 +53,9 @@ fi
 rm -rf "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- init rollapp ------------------------------- #
+echo "$EXECUTABLE init $MONIKER --chain-id $ROLLAPP_CHAIN_ID --home $ROLLAPP_CHAIN_DIR"
+exit 0
+
 $EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- client config ------------------------------ #
