@@ -35,6 +35,8 @@ DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 echo "DYMINT_CONFIG_FILE: $DYMINT_CONFIG_FILE"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 echo "APP_CONFIG_FILE: $APP_CONFIG_FILE"
+KEYRING_DIR="$ROLLAPP_CHAIN_DIR/keyring-test"
+echo "KEYRING_DIR: $KEYRING_DIR"
 
 # --------------------------------- run init --------------------------------- #
 if ! command -v $EXECUTABLE >/dev/null; then
@@ -63,15 +65,15 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
-$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
-$EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
+$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"
+$EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR" --keyring-dir "$KEYRING_DIR"
 
 
 # set sequencer's operator address
-operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
+operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --keyring-dir "$KEYRING_DIR")
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-$EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
 $EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
 
 $EXECUTABLE validate-genesis
