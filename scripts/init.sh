@@ -51,10 +51,10 @@ fi
 rm -rf "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- init rollapp ------------------------------- #
-$EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
+$EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- client config ------------------------------ #
-$EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID"
+$EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
 
 # -------------------------------- app config -------------------------------- #
 sed -i'' -e "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$BASE_DENOM\"/" "$APP_CONFIG_FILE"
