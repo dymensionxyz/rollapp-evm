@@ -31,6 +31,8 @@ DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 
 # --------------------------------- run init --------------------------------- #
+# Assuming 1,000,000 tokens
+# Half is staked
 if ! command -v "$EXECUTABLE" >/dev/null; then
   echo "$EXECUTABLE does not exist"
   echo "please run make install"
@@ -44,8 +46,10 @@ fi
 
 # Verify that a genesis file doesn't exists for the dymension chain
 if [ -f "$GENESIS_FILE" ]; then
+  printf "\n======================================================================================================\n"
   echo "A genesis file already exists at $GENESIS_FILE."
   echo "Building the chain will delete all previous chain data. Continue? (y/n)"
+  printf "\n======================================================================================================\n"
   read -r answer
   if [ "$answer" != "${answer#[Yy]}" ]; then
     rm -rf "$ROLLAPP_CHAIN_DIR"
