@@ -75,6 +75,7 @@ operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backen
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 $EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
+echo \"$EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR\""
 $EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
 
 $EXECUTABLE validate-genesis
