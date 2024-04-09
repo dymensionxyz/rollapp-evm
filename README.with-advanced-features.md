@@ -51,7 +51,9 @@ And initialize the rollapp:
 sh scripts/init.sh
 ```
 
-### Run rollapp
+### Run rollapp only
+
+If you only want to run the rollapp, do 
 
 ```shell
 rollapp-evm start
@@ -61,21 +63,25 @@ You should have a running local rollapp!
 
 ## Run a rollapp with a settlement node
 
-### Run local dymension hub node
+If you want to run it with the settlement layer, first of all kill and cleanup any existing rollapp, as you will need a fresh genesis.
 
-Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/develop/get-started/run-base-layers) to run local dymension hub node
-
-all scripts are adjusted to use local hub node that's hosted on the default port `localhost:36657`.
-
-configuration with a remote hub node is also supported, the following variables must be set:
+Then, set the same ENV vars as above, as well as
 
 ```shell
 export HUB_RPC_ENDPOINT="http://localhost"
 export HUB_RPC_PORT="36657" # default: 36657
 export HUB_RPC_URL="http://localhost:36657"
 export HUB_CHAIN_ID="dymension_100-1"
-export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
+export HUB_KEY_WITH_FUNDS="local-user" # This key should exist on the keyring-backend test
 ```
+
+### First Run local dymension hub node
+
+Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/validate/dymension/build-dymd) to run local dymension hub node
+
+all scripts are adjusted to use local hub node that's hosted on the default port `localhost:36657`.
+
+*Do **NOT** start the rollapp yet*
 
 ### Create sequencer keys
 
@@ -105,22 +111,17 @@ TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
 dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
-### Generate denommetadata
+### Generate denommetadata and add genesis accounts
 
 ```shell
 sh scripts/settlement/generate_denom_metadata.sh
-```
-
-### Add genesis accounts
-
-```shell
 sh scripts/settlement/add_genesis_accounts.sh
 ```
 
 ### Register rollapp on settlement
 
 ```shell
-# for permissioned deployment setup, you must have access to an account whitelisted for rollapp
+# optionally, for permissioned deployment setup, you must have access to an account whitelisted for rollapp
 # registration, assuming you want to import an existing account, you can do:
 export HUB_PERMISSIONED_KEY="hub-rollapp-permission" # This key is for creating rollapp in permissioned setup
 echo <memonic> | dymd keys add $HUB_PERMISSIONED_KEY --recover
@@ -129,11 +130,8 @@ echo <memonic> | dymd keys add $HUB_PERMISSIONED_KEY --recover
 sh scripts/settlement/register_rollapp_to_hub.sh
 ```
 
-### Register sequencer for rollapp on settlement
+*Note: it's a good idea to check DEPLOYER variable in the above script is correct*
 
-```shell
-sh scripts/settlement/register_sequencer_to_hub.sh
-```
 
 ### Configure the rollapp
 
@@ -155,6 +153,12 @@ sed -i '' 's|node_address =.*|node_address = '\"$HUB_RPC_URL\"'|' "${ROLLAPP_HOM
 sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
 ```
 
+### Register sequencer for rollapp on settlement
+
+```shell
+sh scripts/settlement/register_sequencer_to_hub.sh
+```
+
 ### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
@@ -171,6 +175,14 @@ sh scripts/add_vesting_accounts_to_genesis_file.sh
 ```shell
 rollapp-evm start
 ```
+
+```shell
+# make sure result is non empty
+ra q hubgenesis params
+```
+
+*Note: if the result of above is empty, something has gone wrong*
+
 
 ## Setup IBC between rollapp and local dymension hub node
 
@@ -212,7 +224,7 @@ Mac:
 sed -i '' 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "3600s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
-Start the rollapp:
+restart the rollapp:
 
 ```shell
 rollapp-evm start
