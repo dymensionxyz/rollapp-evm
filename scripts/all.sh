@@ -21,15 +21,29 @@ echo "Using $HUB_RPC_URL as HUB_RPC_URL"
 MNEMONIC="pink draw film undo drama horror eternal hill team spin dolphin crane essay boost couple cereal jungle crime visa record bean knock giggle recycle"
 
 echo "Set the environment variables"
-# export ROLLAPP_CHAIN_ID="rollex_1450-1"
+
 export KEY_NAME_ROLLAPP="rol-user"
 export SETTLEMENT_KEY_NAME="local-user"
-export BASE_DENOM="alxx"
+
+if [ -z "$BASE_DENOM" ]; then
+  export BASE_DENOM="alxx"
+fi
+echo "Using $BASE_DENOM as BASE_DENOM"
+
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
-export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
-export HUB_HOME_DIR="$HOME/.dymension"
-export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$HOME/.rollapp_evm/init"
+
+if [ -z "$ROLLAPP_HOME_DIR" ]; then
+  export ROLLAPP_HOME_DIR=".rollapp_evm"
+fi
+echo "Using $ROLLAPP_HOME_DIR as ROLLAPP_HOME_DIR"
+
+if [ -z "$HUB_HOME_DIR" ]; then
+  export HUB_HOME_DIR=".dymension"
+fi
+echo "Using $HUB_HOME_DIR as HUB_HOME_DIR"
+
+export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$ROLLAPP_HOME_DIR/init"
 
 echo "Remove the existing directories"
 rm -rf $ROLLAPP_HOME_DIR
