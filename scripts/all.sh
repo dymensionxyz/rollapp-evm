@@ -38,13 +38,15 @@ rm -rf $HUB_HOME_DIR
 echo "Run the init.sh script"
 sh ./init.sh
 
+unset -e
+
 sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 sed -i '' "s/node_address.*/node_address = \"$(echo "$HUB_RPC_URL" | sed 's/\//\\\//g')\"/" ${ROLLAPP_HOME_DIR}/config/dymint.toml
 
 sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 sed -i "s/node_address.*/node_address = \"$(echo "$HUB_RPC_URL" | sed 's/\//\\\//g')\"/" ${ROLLAPP_HOME_DIR}/config/dymint.toml
 
-# exit 0
+set -e
 
 echo "Import the local-user key to the dymd keyring"
 echo "$MNEMONIC" | dymd keys add "$SETTLEMENT_KEY_NAME" --recover --keyring-backend test
