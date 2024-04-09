@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -n "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" ]; then
-  echo "ROLLAPP_SETTLEMENT_INIT_DIR_PATH is not set, using '$HOME/.rollapp_evm/init'"
+  echo "ROLLAPP_SETTLEMENT_INIT_DIR_PATH is not set, using '$ROLLAPP_HOME_DIR/init'"
   ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$ROLLAPP_HOME_DIR/init"
 fi
 
