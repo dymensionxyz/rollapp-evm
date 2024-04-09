@@ -66,7 +66,7 @@ set_EVM_params
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"
-$EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR" --keyring-dir "$KEYRING_DIR"
+$EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
 
 
 # set sequencer's operator address
