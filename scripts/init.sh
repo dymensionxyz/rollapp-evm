@@ -53,9 +53,6 @@ fi
 rm -rf "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- init rollapp ------------------------------- #
-echo "$EXECUTABLE init $MONIKER --chain-id $ROLLAPP_CHAIN_ID --home $ROLLAPP_CHAIN_DIR"
-exit 0
-
 $EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- client config ------------------------------ #
@@ -68,7 +65,7 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
-$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"
+$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"  --home "$ROLLAPP_CHAIN_DIR"
 ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir "$KEYRING_DIR")
 $EXECUTABLE add-genesis-account $ADDRESS_ROLLAPP_USER "$TOKEN_AMOUNT" --home "$ROLLAPP_CHAIN_DIR"
 

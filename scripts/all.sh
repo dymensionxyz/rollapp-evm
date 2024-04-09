@@ -46,7 +46,7 @@ echo "Using $HUB_HOME_DIR as HUB_HOME_DIR"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="$ROLLAPP_HOME_DIR/init"
 
 echo "Remove the existing directories"
-rm -rf $ROLLAPP_HOME_DIR
+# rm -rf $ROLLAPP_HOME_DIR
 # rm -rf $HUB_HOME_DIR
 
 echo "Run the init.sh script"
@@ -79,3 +79,4 @@ sh update_genesis_file.sh
 
 echo "Start the rollapp-evm"
 # rollapp-evm start
+# rollapp-evm start --home $ROLLAPP_HOME_DIR --address tcp://0.0.0.0:26659 --rpc.laddr tcp://127.0.0.1:26660 --p2p.laddr tcp://127.0.0.1:26661 --grpc-web.address "0.0.0.0:9093" --grpc.address "0.0.0.0:9092" --json-rpc.address "127.0.0.1:8555" --json-rpc.ws-address "127.0.0.1:8556"
