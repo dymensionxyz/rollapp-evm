@@ -10,7 +10,7 @@ GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
 DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 
-${EXECUTABLE} keys add hub_genesis --keyring-backend test
+${EXECUTABLE} keys add hub_genesis --keyring-backend test --keyring-dir "$ROLLAPP_CHAIN_DIR/keyring-test"
 
 jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq '.consensus_params["block"]["max_bytes"] = "5242880"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
