@@ -66,7 +66,7 @@ set_EVM_params
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
 $EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"
-ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR")
+ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir "$KEYRING_DIR")
 $EXECUTABLE add-genesis-account $ADDRESS_ROLLAPP_USER "$TOKEN_AMOUNT" --home "$ROLLAPP_CHAIN_DIR"
 
 
