@@ -17,7 +17,6 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" '{"Addresse
   --genesis-accounts-path "$GENESIS_ACCOUNTS_PATH" \
   --from "$DEPLOYER" \
   --keyring-backend test \
-  --keyring-dir "$KEYRING_DIR" \
   --broadcast-mode block \
   --fees 1dym \
   --node ${HUB_RPC_URL} \
