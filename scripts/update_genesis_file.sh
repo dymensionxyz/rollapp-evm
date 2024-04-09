@@ -59,7 +59,7 @@ jq --argjson module_account_balance "$module_account_balance" '.app_state.bank.b
 jq '.app_state.bank.supply[0].amount = "2000060000000000000000000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ---------------------------- add elevated account ---------------------------- #
-elevated_address=$(${EXECUTABLE} keys show ${KEY_NAME_ROLLAPP} --keyring-backend test --keyring-dir "$ROLLAPP_CHAIN_DIR/keyring-test" --output json | jq -r .address)
+elevated_address=$(${EXECUTABLE} keys show ${KEY_NAME_ROLLAPP} --keyring-backend test --home "$ROLLAPP_CHAIN_DIR" --keyring-dir "$ROLLAPP_CHAIN_DIR/keyring-test" --output json | jq -r .address)
 elevated_address_json=$(jq -n \
   --arg address "$elevated_address" \
   '[{

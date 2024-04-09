@@ -65,13 +65,13 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
-$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR"  --home "$ROLLAPP_CHAIN_DIR"
-ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir "$KEYRING_DIR")
+$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
+ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR")
 $EXECUTABLE add-genesis-account $ADDRESS_ROLLAPP_USER "$TOKEN_AMOUNT" --home "$ROLLAPP_CHAIN_DIR"
 
 
 # set sequencer's operator address
-operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --keyring-dir "$KEYRING_DIR")
+operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR")
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 $EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
