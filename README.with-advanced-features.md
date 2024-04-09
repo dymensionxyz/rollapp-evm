@@ -72,11 +72,14 @@ configuration with a remote hub node is also supported, the following variables 
 ```shell
 export HUB_RPC_ENDPOINT="http://localhost"
 export HUB_RPC_PORT="36657" # default: 36657
+
 export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
 export HUB_CHAIN_ID="dymension_100-1"
 
 dymd config chain-id ${HUB_CHAIN_ID}
 dymd config node ${HUB_RPC_URL}
+
+export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
 ```
 
 ### Create sequencer keys
@@ -94,6 +97,7 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 # retrieve the minimal bond amount from hub sequencer params
 # you have to account for gas fees so it should the final value should be increased
 BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
+
 
 # Extract the numeric part
 NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
@@ -157,13 +161,19 @@ sed -i '' 's|node_address =.*|node_address = '\"$HUB_RPC_URL\"'|' "${ROLLAPP_HOM
 sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
 ```
 
+
+
+```shell
+sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i '' 's|node_address =.*|node_address = '\"$HUB_RPC_URL\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+```
+
 ### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
 sh scripts/update_genesis_file.sh
 ```
-
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
 
 ```shell
 # this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
@@ -245,6 +255,7 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
+
 
 ### Trigger genesis events
 

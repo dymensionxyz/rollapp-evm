@@ -13,6 +13,8 @@ SETTLEMENT_CHAIN_ID=$($SETTLEMENT_EXECUTABLE config | jq -r '."chain-id"')
 SETTLEMENT_RPC_FOR_RELAYER=$($SETTLEMENT_EXECUTABLE config | jq -r '."node"')
 SETTLEMENT_KEY_NAME_GENESIS="local-user"
 
+SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
+
 # rollapp config
 EXECUTABLE="rollapp-evm"
 ROLLAPP_CHAIN_ID=$($EXECUTABLE config | jq -r '."chain-id"')
