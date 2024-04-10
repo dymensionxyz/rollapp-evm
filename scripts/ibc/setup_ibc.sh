@@ -32,9 +32,19 @@ SETTLEMENT_KEY_NAME_GENESIS="local-user"
 
 EXECUTABLE="rollapp-evm"
 
-RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
-RELAYER_KEY_FOR_HUB="relayer-hub-key"
-RELAYER_PATH="hub-rollapp"
+
+if [ -z "$RELAYER_KEY_FOR_ROLLAP" ]; then
+  export RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
+fi
+
+if [ -z "$RELAYER_KEY_FOR_HUB" ]; then
+  export RELAYER_KEY_FOR_HUB="relayer-hub-key"
+fi
+
+if [ -z "$RELAYER_PATH" ]; then
+  export RELAYER_PATH="hub-rollapp"
+fi
+
 ROLLAPP_RPC_FOR_RELAYER="http://127.0.0.1:26657"
 SETTLEMENT_RPC_FOR_RELAYER=$HUB_RPC_URL
 KEY_NAME_ROLLAPP=rol-user
@@ -47,7 +57,11 @@ fi
 
 # --------------------------------- rly init --------------------------------- #
 RLY_PATH="$HOME/.relayer"
-RLY_CONFIG_FILE="$RLY_PATH/config/config.yaml"
+
+if [ -z "$RLY_PATH" ]; then
+  export RLY_PATH="$HOME/.relayer"
+fi
+
 ROLLAPP_IBC_CONF_FILE="$BASEDIR/rollapp.json"
 HUB_IBC_CONF_FILE="$BASEDIR/hub.json"
 
@@ -81,7 +95,7 @@ RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo "# ------------------------------- balance of rly account on hub [$RLY_HUB_ADDR]------------------------------ #"
 $SETTLEMENT_EXECUTABLE q bank balances "$(rly keys show "$SETTLEMENT_CHAIN_ID")" --node "$SETTLEMENT_RPC_FOR_RELAYER"
-echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" --chain-id $HUB_CHAIN_ID -y \""
+echo "From within the hub node: \"$SETTLEMENT_EXECUTABLE tx bank send $SETTLEMENT_KEY_NAME_GENESIS $RLY_HUB_ADDR 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node $SETTLEMENT_RPC_FOR_RELAYER --chain-id $HUB_CHAIN_ID -y \""
 
 echo "# ------------------------------- balance of rly account on rollapp [$RLY_ROLLAPP_ADDR] ------------------------------ #"
 $EXECUTABLE q bank balances "$(rly keys show "$ROLLAPP_CHAIN_ID")" --node "$ROLLAPP_RPC_FOR_RELAYER"
