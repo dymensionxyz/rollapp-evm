@@ -4,7 +4,7 @@ set -e
 
 # check if ROLLAPP_CHAIN_ID env var is set
 if [ -z "$ROLLAPP_CHAIN_ID" ]; then
-  export ROLLAPP_CHAIN_ID="rollex_1235-1"
+  export ROLLAPP_CHAIN_ID="rollex_1234-1"
 fi
 echo "Using $ROLLAPP_CHAIN_ID as ROLLAPP_CHAIN_ID"
 
