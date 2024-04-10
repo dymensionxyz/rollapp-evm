@@ -35,11 +35,16 @@ make install
 export the following variables:
 
 ```shell
+export EXECUTABLE="rollapp-evm"
+
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
+
+export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
 ```
 
 And initialize the rollapp:

@@ -16,7 +16,6 @@ SETTLEMENT_KEY_NAME_GENESIS="local-user"
 SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
 
 # rollapp config
-EXECUTABLE="rollapp-evm"
 ROLLAPP_CHAIN_ID=$("$EXECUTABLE" config | jq -r '."chain-id"')
 ROLLAPP_RPC_FOR_RELAYER=$("$EXECUTABLE" config | jq -r '."node"')
 ROLLAPP_KEY_NAME_GENESIS="rol-user"

@@ -35,6 +35,8 @@ make install
 export the following variables:
 
 ```shell
+export EXECUTABLE="rollapp-evm"
+
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
