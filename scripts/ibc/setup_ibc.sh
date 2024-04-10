@@ -56,7 +56,6 @@ if ! command -v $RELAYER_EXECUTABLE >/dev/null; then
 fi
 
 # --------------------------------- rly init --------------------------------- #
-RLY_PATH="$HOME/.relayer"
 
 if [ -z "$RLY_PATH" ]; then
   export RLY_PATH="$HOME/.relayer"
