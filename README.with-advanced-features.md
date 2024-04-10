@@ -98,7 +98,6 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 # you have to account for gas fees so it should the final value should be increased
 BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
 
-
 # Extract the numeric part
 NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
 
@@ -154,14 +153,6 @@ sed -i '/rollapp_id =/c\rollapp_id = '\"$ROLLAPP_CHAIN_ID\" "${ROLLAPP_HOME_DIR}
 ```
 
 mac:
-
-```shell
-sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
-sed -i '' 's|node_address =.*|node_address = '\"$HUB_RPC_URL\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
-sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
-```
-
-
 
 ```shell
 sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
@@ -255,7 +246,7 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
-
+```
 
 ### Trigger genesis events
 
