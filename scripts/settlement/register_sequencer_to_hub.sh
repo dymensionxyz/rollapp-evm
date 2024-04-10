@@ -8,7 +8,7 @@ BOND_AMOUNT="1000dym"
 
 #Register Sequencer
 DESCRIPTION="{\"Moniker\":\"${ROLLAPP_CHAIN_ID}-sequencer\",\"Identity\":\"\",\"Website\":\"\",\"SecurityContact\":\"\",\"Details\":\"\"}"
-SEQ_PUB_KEY="$($EXECUTABLE dymint show-sequencer --home $ROLLAPP_HOME_DIR)" # sequencing key: for signing blocks on the rollapp chain
+SEQ_PUB_KEY="$($EXECUTABLE dymint show-sequencer)" # sequencing key: for signing blocks on the rollapp chain
 
 echo "Add the sequencer key to the sequencer_keys directory"
 dymd keys add $KEY_NAME_SEQUENCER --keyring-dir $KEYRING_PATH --keyring-backend test

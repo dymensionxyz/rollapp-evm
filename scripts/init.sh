@@ -53,10 +53,10 @@ fi
 rm -rf "$ROLLAPP_CHAIN_DIR"
 
 # ------------------------------- init rollapp ------------------------------- #
-$EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
 
 # ------------------------------- client config ------------------------------ #
-$EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE config chain-id "$ROLLAPP_CHAIN_ID"
 
 # -------------------------------- app config -------------------------------- #
 sed -i'' -e "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$BASE_DENOM\"/" "$APP_CONFIG_FILE"
@@ -65,17 +65,15 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 #local genesis account
-$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
-ADDRESS_ROLLAPP_USER=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR")
-$EXECUTABLE add-genesis-account $ADDRESS_ROLLAPP_USER "$TOKEN_AMOUNT" --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
+$EXECUTABLE add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
 
 
 # set sequencer's operator address
-operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR")
+operator_address=$($EXECUTABLE keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 jq --arg addr $operator_address '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-$EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --keyring-dir "$KEYRING_DIR" --home "$ROLLAPP_CHAIN_DIR"
-echo \"$EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR\""
+$EXECUTABLE gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
 $EXECUTABLE collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
 
-$EXECUTABLE validate-genesis --home "$ROLLAPP_CHAIN_DIR"
+$EXECUTABLE validate-genesis
