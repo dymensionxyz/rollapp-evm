@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	rollapd        = "rollapp-evm"
-	dymd           = "dymd"
+	pathPref = "/home/ubuntu/go/bin/" // TODO: config
+
+	rollapd        = pathPref + "rollapp-evm"
+	dymd           = pathPref + "dymd"
 	owner          = "rol-user"
 	userRoll       = "ralex"
 	userHub        = "halex"
