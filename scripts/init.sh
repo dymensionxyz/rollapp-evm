@@ -21,7 +21,9 @@ set_EVM_params() {
 }
 
 # ---------------------------- initial parameters ---------------------------- #
-BASE_DENOM="aevm" # Set your base denomination here
+# Assuming 1,000,000 tokens
+# Half is staked
+# set BASE_DENOM to the token denomination
 TOKEN_AMOUNT="1000000000000000000000000$BASE_DENOM"
 STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
 
