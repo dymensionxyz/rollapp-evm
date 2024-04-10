@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
@@ -21,6 +22,17 @@ const (
 )
 
 var fundAmount = fmt.Sprintf("%dalxx", totalAmount)
+
+type Balance struct {
+	Balances []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `json:"balances"`
+	Pagination struct {
+		NextKey interface{} `json:"next_key"`
+		Total   string      `json:"total"`
+	} `json:"pagination"`
+}
 
 func main() {
 	// setup accounts
@@ -50,7 +62,15 @@ func main() {
 		if err != nil {
 			log.Printf("ibcTransfer(rollapd, dymd, userRoll, userHub, transferAmount): %s", output)
 		}
-		log.Printf("Transferred; i=%d\n", i)
+		senderBalance, err := balanceOfName(rollapd, userRoll)
+		if err != nil {
+			log.Printf("balanceOfName(userRoll): %s", senderBalance)
+		}
+		receiverBalance, err := balanceOfName(dymd, userHub)
+		if err != nil {
+			log.Printf("balanceOfName(userHub): %s", receiverBalance)
+		}
+		log.Printf("Transferred; i=%d, sender balance: %s; receiver balance: %s\n", i, senderBalance, receiverBalance)
 	}
 
 	// get the sender balance after transfer
@@ -130,12 +150,22 @@ func setupAccounts() error {
 
 func balance(bin, address string) (string, error) {
 	cmd := exec.Command(
-		bin, "query", "bank", "balances", address)
+		bin, "query", "bank", "balances", address, "-o", "json")
 	output, err := cmd.Output()
 	if eerr, ok := err.(*exec.ExitError); ok {
 		output = eerr.Stderr
 	}
-	return string(output), err
+
+	var bal Balance
+	if err := json.Unmarshal(output, &bal); err != nil {
+		return "", err
+	}
+
+	if len(bal.Balances) == 0 {
+		return "", nil
+	}
+
+	return fmt.Sprintf("%s%s", bal.Balances[0].Amount, bal.Balances[0].Denom), err
 }
 
 func addKey(bin, name string) (string, error) {
