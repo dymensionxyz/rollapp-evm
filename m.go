@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 )
 
 const (
-	pathPref = "/home/ubuntu/go/bin/" // TODO: config
-
-	rollapd        = pathPref + "rollapp-evm"
-	dymd           = pathPref + "dymd"
 	owner          = "rol-user"
 	userRoll       = "ralex"
 	userHub        = "halex"
@@ -23,7 +20,13 @@ const (
 	keyringBackendFlag = "--keyring-backend"
 )
 
-var fundAmount = fmt.Sprintf("%dalxx", totalAmount)
+var (
+	pathPrefix = ""
+	rollapd    = ""
+	dymd       = ""
+
+	fundAmount = fmt.Sprintf("%dalxx", totalAmount)
+)
 
 type Balance struct {
 	Balances []struct {
@@ -37,6 +40,13 @@ type Balance struct {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		pathPrefix = os.Args[1]
+	}
+
+	rollapd = pathPrefix + "rollapp-evm"
+	dymd = pathPrefix + "dymd"
+
 	// setup accounts
 	if err := setupAccounts(); err != nil {
 		log.Fatalf("setupAccounts(): %s", err)
