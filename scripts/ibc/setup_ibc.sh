@@ -36,14 +36,22 @@ EXECUTABLE="rollapp-evm"
 if [ -z "$RELAYER_KEY_FOR_ROLLAP" ]; then
   export RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
 fi
+echo "Using $RELAYER_KEY_FOR_ROLLAP as RELAYER_KEY_FOR_ROLLAP"
 
 if [ -z "$RELAYER_KEY_FOR_HUB" ]; then
   export RELAYER_KEY_FOR_HUB="relayer-hub-key"
 fi
+echo "Using $RELAYER_KEY_FOR_HUB as RELAYER_KEY_FOR_HUB"
 
 if [ -z "$RELAYER_PATH" ]; then
   export RELAYER_PATH="hub-rollapp"
 fi
+echo "Using $RELAYER_PATH as RELAYER_PATH"
+
+if [ -z "$RLY_PATH" ]; then
+  export RLY_PATH="$HOME/.relayer"
+fi
+echo "Using $RLY_PATH as RLY_PATH"
 
 ROLLAPP_RPC_FOR_RELAYER="http://127.0.0.1:26657"
 SETTLEMENT_RPC_FOR_RELAYER=$HUB_RPC_URL
@@ -56,10 +64,6 @@ if ! command -v $RELAYER_EXECUTABLE >/dev/null; then
 fi
 
 # --------------------------------- rly init --------------------------------- #
-
-if [ -z "$RLY_PATH" ]; then
-  export RLY_PATH="$HOME/.relayer"
-fi
 
 ROLLAPP_IBC_CONF_FILE="$BASEDIR/rollapp.json"
 HUB_IBC_CONF_FILE="$BASEDIR/hub.json"
