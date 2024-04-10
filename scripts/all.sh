@@ -18,7 +18,7 @@ if [ -z "$HUB_RPC_URL" ]; then
 fi
 echo "Using $HUB_RPC_URL as HUB_RPC_URL"
 
-MNEMONIC="pink draw film undo drama horror eternal hill team spin dolphin crane essay boost couple cereal jungle crime visa record bean knock giggle recycle"
+MNEMONIC="curtain hat remain song receive tower stereo hope frog cheap brown plate raccoon post reflect wool sail salmon game salon group glimpse adult shift"
 
 echo "Set the environment variables"
 
@@ -39,7 +39,7 @@ fi
 echo "Using $ROLLAPP_HOME_DIR as ROLLAPP_HOME_DIR"
 
 if [ -z "$HUB_HOME_DIR" ]; then
-  export HUB_HOME_DIR=".dymension"
+  export HUB_HOME_DIR="$HOME/.dymension"
 fi
 echo "Using $HUB_HOME_DIR as HUB_HOME_DIR"
 
@@ -79,4 +79,3 @@ sh update_genesis_file.sh
 
 echo "Start the rollapp-evm"
 # rollapp-evm start
-# rollapp-evm start --home $ROLLAPP_HOME_DIR --address tcp://0.0.0.0:26659 --rpc.laddr tcp://127.0.0.1:26660 --p2p.laddr tcp://127.0.0.1:26661 --grpc-web.address "0.0.0.0:9093" --grpc.address "0.0.0.0:9092" --json-rpc.address "127.0.0.1:8555" --json-rpc.ws-address "127.0.0.1:8556"
