@@ -35,11 +35,18 @@ make install
 export the following variables:
 
 ```shell
+export EXECUTABLE="rollapp-evm"
+
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
+
+export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
+
+export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
 ```
 
 And initialize the rollapp:
@@ -74,8 +81,20 @@ SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyr
 fund the sequencer account
 
 ```shell
-BOND_AMOUNT="100000dym"
-dymd tx bank send local-user $SEQUENCER_ADDR ${BOND_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym
+# retrieve the minimal bond amount from hub sequencer params
+# you have to account for gas fees so it should the final value should be increased
+BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
+
+# Extract the numeric part
+NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
+
+# Add 100000000000000000000 for fees
+NEW_NUMERIC_PART=$(echo "$NUMERIC_PART + 100000000000000000000" | bc)
+
+# Append 'adym' back
+TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
+
+dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
 ### Register rollapp on settlement
