@@ -58,7 +58,9 @@ build: go.sum ## Compiles the rollapd binary
 clean: ## Clean temporary files
 	go clean
 
-
+clean-tmp: ## Clean temporary files
+	rm -rf \
+	tmp-swagger-gen/
 
 ###############################################################################
 ###                                Protobuf                                 ###
@@ -74,6 +76,13 @@ proto-gen:
 		sh ./scripts/protogen.sh; fi
 	@go mod tidy
 
+#? proto-swagger-gen: Generate Protobuf Swagger
+proto-swagger-gen:
+	@echo "Generating Protobuf Swagger"
+	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+
 proto-clean:
 	@echo "Cleaning proto generating docker container"
 	@docker rm $(containerProtoGen) || true
+
+.PHONY: proto-gen proto-swagger-gen proto-clean

@@ -3,15 +3,18 @@
   "value": {
     "key": "relayer-hub-key",
     "chain-id": "dymension_100-1",
-    "rpc-addr": "http://127.0.0.1:36657",
+    "rpc-addr": "http://localhost:36657",
     "account-prefix": "dym",
     "keyring-backend": "test",
     "gas-adjustment": 1.2,
-    "gas-prices": "0.25udym",
+    "gas-prices": "1000000000adym",
     "debug": true,
     "timeout": "10s",
     "output-format": "json",
     "sign-mode": "direct",
-    "client-type": "07-tendermint"
+    "client-type": "07-tendermint",
+    "extra-codecs": [
+      "ethermint"
+    ]
   }
 }

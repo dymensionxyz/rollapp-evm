@@ -1,6 +1,6 @@
-<h1 align="center">Dymension EVM Rollapp</h1>
+# Dymension EVM Rollapp
 
-# Rollapp-evm - A template EVM RollApp chain
+## Rollapp-evm - A template EVM RollApp chain
 
 This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
 
@@ -12,15 +12,15 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 - wired with EVM and ERC20 modules by [Evmos](https://github.com/evmos/evmos)
 - wired IBC for [ICS 20 Fungible Token Transfers](https://github.com/cosmos/ibc/tree/main/spec/app/ics-020-fungible-token-transfer)
 - Uses `dymint` for block sequencing and replacing `tendermint`
-- Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic 
+- Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic
 
 ## Overview
 
-**Note**: Requires [Go 1.19](https://go.dev/dl/)
+**Note**: Requires [Go 1.22.1](https://go.dev/dl/)
 
-## Quick guide
+## Feature-full setup
 
-Get started with [building RollApps](https://docs.dymension.xyz/build/roller)
+For a more advanced setup that include `denom-metadata`, `genesis-accounts` and others, please refer to the [README.with-advanced-features.md](./README.with-advanced-features.md)
 
 ## Installing / Getting started
 
@@ -35,10 +35,18 @@ make install
 export the following variables:
 
 ```shell
-export ROLLAPP_CHAIN_ID="rollappEVM_1234-1"
+export EXECUTABLE="rollapp-evm"
+
+export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
-export DENOM="urax"
+export BASE_DENOM="arax"
+export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
+
+export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
+
+export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
 ```
 
 And initialize the rollapp:
@@ -66,14 +74,27 @@ Follow the instructions on [Dymension Hub Docs](https://docs.dymension.xyz/valid
 create sequencer key using `dymd`
 
 ```shell
-dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test --algo secp256k1
+dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 ```
 
 fund the sequencer account
 
 ```shell
-dymd tx bank send local-user $SEQUENCER_ADDR 10000000000000000000000udym --keyring-backend test --broadcast-mode block
+# retrieve the minimal bond amount from hub sequencer params
+# you have to account for gas fees so it should the final value should be increased
+BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
+
+# Extract the numeric part
+NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
+
+# Add 100000000000000000000 for fees
+NEW_NUMERIC_PART=$(echo "$NUMERIC_PART + 100000000000000000000" | bc)
+
+# Append 'adym' back
+TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
+
+dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
 ### Register rollapp on settlement
@@ -94,7 +115,8 @@ Modify `dymint.toml` in the chain directory (`~/.rollapp_evm/config`)
 set:
 
 ```shell
-settlement_layer = "dymension"
+ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
+sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
 ### Run rollapp locally
@@ -109,7 +131,7 @@ rollapp-evm start
 
 ```shell
 git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.2.0-v2.3.1-relayer
-cd relayer && make install
+cd go-relayer && make install
 ```
 
 ### Establish IBC channel
