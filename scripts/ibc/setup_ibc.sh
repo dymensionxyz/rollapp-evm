@@ -1,4 +1,5 @@
 #!/bin/bash
+# if need to run sudo, use sudo -E to have access to exported env variables
 
 BASEDIR=$(dirname "$0")
 
@@ -98,5 +99,5 @@ echo "Channel Information:"
 echo "$(rly q channels "$ROLLAPP_CHAIN_ID" | jq '{ "rollapp-channel": .channel_id, "hub-channel": .counterparty.channel_id }')"
 
 # --------------------------------- revert empty block time to 1h --------------------------------- #
-sed -i 's/empty_blocks_max_time =.*/empty_blocks_max_time = "3600s"/' "$ROLLAPP_HOME_DIR"/config/dymint.toml
+sed -i '' 's/empty_blocks_max_time =.*/empty_blocks_max_time = "3600s"/' "$ROLLAPP_HOME_DIR"/config/dymint.toml
 sudo systemctl restart rollapp
