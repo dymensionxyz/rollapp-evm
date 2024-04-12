@@ -30,8 +30,6 @@ DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 
 # --------------------------------- run init --------------------------------- #
-# Assuming 1,000,000 tokens
-# Half is staked
 if ! command -v "$EXECUTABLE" >/dev/null; then
   echo "$EXECUTABLE does not exist"
   echo "please run make install"
@@ -102,8 +100,8 @@ jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_ad
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
 if [ "$answer" != "${answer#[Nn]}" ] ; then
-  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_CHAIN_DIR"
-  "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_CHAIN_DIR"
+  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+  "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
 
 "$EXECUTABLE" validate-genesis
