@@ -4,6 +4,7 @@ MAX_SEQUENCERS=5
 
 # this account must be whitelisted on the hub for permissioned deployment setup
 DEPLOYER=${HUB_PERMISSIONED_KEY-"$HUB_KEY_WITH_FUNDS"}
+DEPLOYER=local-user
 
 if [ -z "$HUB_RPC_URL" ]; then
   echo "HUB_RPC_URL is not set, using 'http://localhost:36657'"
