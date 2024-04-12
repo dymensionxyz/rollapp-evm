@@ -1,9 +1,6 @@
 #!/bin/bash
 tmp=$(mktemp)
 
-EXECUTABLE="rollapp-evm"
-ROLLAPP_CHAIN_DIR="$HOME/.rollapp_evm"
-
 set_denom() {
   local denom=$1
   jq --arg denom "$denom" '.app_state.mint.params.mint_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
@@ -15,9 +12,9 @@ set_denom() {
 }
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
 
 # ---------------------------- initial parameters ---------------------------- #
@@ -27,7 +24,7 @@ set_EVM_params() {
 TOKEN_AMOUNT="1000000000000000000000000$BASE_DENOM"
 STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
 
-CONFIG_DIRECTORY="$ROLLAPP_CHAIN_DIR/config"
+CONFIG_DIRECTORY="$ROLLAPP_HOME_DIR/config"
 GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
 DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
@@ -41,7 +38,7 @@ if ! command -v "$EXECUTABLE" >/dev/null; then
   exit 1
 fi
 
-if [ -z "$ROLLAPP_CHAIN_ID" ]; then
+if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
   echo "ROLLAPP_CHAIN_ID is not set"
   exit 1
 fi
@@ -54,7 +51,7 @@ if [ -f "$GENESIS_FILE" ]; then
   printf "\n======================================================================================================\n"
   read -r answer
   if [ "$answer" != "${answer#[Yy]}" ]; then
-    rm -rf "$ROLLAPP_CHAIN_DIR"
+    rm -rf "$ROLLAPP_HOME_DIR"
   else
     exit 1
   fi
@@ -99,6 +96,7 @@ set_EVM_params
 # Set sequencer's operator address
 operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+
 
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "

@@ -16,9 +16,9 @@ if [ -z "$HUB_CHAIN_ID" ]; then
 fi
 
 # this file is generated using the scripts/settlement/generate_denom_metadata.sh
-DENOM_METADATA_PATH="$HOME/.rollapp_evm/init/denommetadata.json"
+DENOM_METADATA_PATH="${ROLLAPP_SETTLEMENT_INIT_DIR_PATH}/denommetadata.json"
 # this file is generated using the scripts/settlement/add_genesis_accounts.sh
-GENESIS_ACCOUNTS_PATH="$HOME/.rollapp_evm/init/genesis_accounts.json"
+GENESIS_ACCOUNTS_PATH="${ROLLAPP_SETTLEMENT_INIT_DIR_PATH}/genesis_accounts.json"
 
 set -x
 #Register rollapp
@@ -28,7 +28,6 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" '{"Addresse
   --from "$DEPLOYER" \
   --keyring-backend test \
   --broadcast-mode block \
-  --fees 1dym \
-  --node ${HUB_RPC_URL} \
-  --chain-id ${HUB_CHAIN_ID}
+  --fees 1dym
+
 set +x

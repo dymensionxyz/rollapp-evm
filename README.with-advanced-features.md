@@ -35,6 +35,8 @@ make install
 export the following variables:
 
 ```shell
+export EXECUTABLE="rollapp-evm"
+
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
@@ -72,8 +74,13 @@ configuration with a remote hub node is also supported, the following variables 
 ```shell
 export HUB_RPC_ENDPOINT="http://localhost"
 export HUB_RPC_PORT="36657" # default: 36657
-export HUB_RPC_URL="http://localhost:36657"
+
+export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
 export HUB_CHAIN_ID="dymension_100-1"
+
+dymd config chain-id ${HUB_CHAIN_ID}
+dymd config node ${HUB_RPC_URL}
+
 export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
 ```
 
@@ -91,7 +98,7 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 ```shell
 # retrieve the minimal bond amount from hub sequencer params
 # you have to account for gas fees so it should the final value should be increased
-BOND_AMOUNT="$(dymd q sequencer params -o json --node ${HUB_RPC_URL} | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json --node ${HUB_RPC_URL} | jq -r '.params.min_bond.denom')"
+BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
 
 # Extract the numeric part
 NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
@@ -222,6 +229,25 @@ rollapp-evm start
 
 ```shell
 rly start hub-rollapp
+```
+
+or as a systemd service:
+
+```shell
+sudo tee /etc/systemd/system/relayer.service > /dev/null <<EOF
+[Unit]
+Description=rollapp
+After=network.target
+[Service]
+Type=simple
+User=$USER
+ExecStart=$(which rly) start hub-rollapp
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
 ```
 
 ### Trigger genesis events

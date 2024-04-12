@@ -3,14 +3,12 @@
 
 set -x
 tmp=$(mktemp)
-EXECUTABLE="rollapp-evm"
-ROLLAPP_CHAIN_DIR="$HOME/.rollapp_evm"
-CONFIG_DIRECTORY="$ROLLAPP_CHAIN_DIR/config"
+CONFIG_DIRECTORY="$ROLLAPP_HOME_DIR/config"
 GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
 DYMINT_CONFIG_FILE="$CONFIG_DIRECTORY/dymint.toml"
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 
-${EXECUTABLE} keys add hub_genesis --keyring-backend test
+"$EXECUTABLE" keys add hub_genesis --keyring-backend test
 
 jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq '.consensus_params["block"]["max_bytes"] = "5242880"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
@@ -59,7 +57,7 @@ jq --argjson module_account_balance "$module_account_balance" '.app_state.bank.b
 jq '.app_state.bank.supply[0].amount = "2000060000000000000000000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ---------------------------- add elevated account ---------------------------- #
-elevated_address=$(${EXECUTABLE} keys show ${KEY_NAME_ROLLAPP} --keyring-backend test --output json | jq -r .address)
+elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | jq -r .address)
 elevated_address_json=$(jq -n \
   --arg address "$elevated_address" \
   '[{
@@ -68,6 +66,6 @@ elevated_address_json=$(jq -n \
 jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenesis.params.genesis_triggerer_whitelist += $elevated_address_json' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ---------------------------- add denom metadata ---------------------------- #
-denom_metadata=$(cat $ROLLAPP_SETTLEMENT_INIT_DIR_PATH/denommetadata.json)
+denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
