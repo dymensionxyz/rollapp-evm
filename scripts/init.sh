@@ -1,20 +1,36 @@
 #!/bin/bash
 tmp=$(mktemp)
+EXECUTABLE="rollapp-evm"
 
 set_denom() {
   local denom=$1
-  jq --arg denom "$denom" '.app_state.mint.params.mint_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq --arg denom "$denom" '.app_state.staking.params.bond_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq --arg denom "$denom" '.app_state.gov.deposit_params.min_deposit[0].denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  
-  jq --arg denom "$denom" '.app_state.evm.params.evm_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq --arg denom "$denom" '.app_state.claims.params.claims_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
+  local success=true
+
+  jq --arg denom "$denom" '.app_state.mint.params.mint_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE" ||
+    success=false
+  jq --arg denom "$denom" '.app_state.staking.params.bond_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE" ||
+    success=false
+  jq --arg denom "$denom" '.app_state.gov.deposit_params.min_deposit[0].denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE" ||
+    success=false
+  jq --arg denom "$denom" '.app_state.evm.params.evm_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE" ||
+    success=false
+  jq --arg denom "$denom" '.app_state.claims.params.claims_denom = $denom' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE" ||
+    success=false
+
+  if [ "$success" = false ]; then
+    echo "An error occurred. Please refer to README.md"
+    return 1
+  fi
 }
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  if ! jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" || 
+     ! jq '.app_state["feemarket"]["params"]["no_base_fee"] = true' "$GENESIS_FILE" >"$tmp" ||
+     ! jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" ||
+     ! mv "$tmp" "$GENESIS_FILE"; then
+    echo "Error configuring EVM parameters. Please refer to README.md"
+    return 1
+  fi
 }
 
 # ---------------------------- initial parameters ---------------------------- #
