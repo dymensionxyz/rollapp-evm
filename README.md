@@ -18,9 +18,6 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 **Note**: Requires [Go 1.22.1](https://go.dev/dl/)
 
-## Feature-full setup
-
-For a more advanced setup that include `denom-metadata`, `genesis-accounts` and others, please refer to the [README.with-advanced-features.md](./README.with-advanced-features.md)
 
 ## Installing / Getting started
 
@@ -45,8 +42,6 @@ export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
-
-export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
 ```
 
 And initialize the rollapp:
@@ -63,11 +58,28 @@ rollapp-evm start
 
 You should have a running local rollapp!
 
-## Run a rollapp with local settlement node
+## Run a rollapp with a settlement node
 
 ### Run local dymension hub node
 
-Follow the instructions on [Dymension Hub Docs](https://docs.dymension.xyz/validate/dymension-hub/join-network) to run local dymension hub node.
+Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/develop/get-started/run-base-layers) to run local dymension hub node
+
+all scripts are adjusted to use local hub node that's hosted on the default port `localhost:36657`.
+
+configuration with a remote hub node is also supported, the following variables must be set:
+
+```shell
+export HUB_RPC_ENDPOINT="localhost"
+export HUB_RPC_PORT="36657" # default: 36657
+
+export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
+export HUB_CHAIN_ID="dymension_100-1"
+
+dymd config chain-id ${HUB_CHAIN_ID}
+dymd config node ${HUB_RPC_URL}
+
+export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
+```
 
 ### Create sequencer keys
 
@@ -78,7 +90,7 @@ dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-ba
 SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
 ```
 
-fund the sequencer account
+fund the sequencer account (if you're using a remote hub node, you must fund the sequencer account or you must have an account with enough funds in your keyring)
 
 ```shell
 # retrieve the minimal bond amount from hub sequencer params
@@ -97,9 +109,27 @@ TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
 dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
+### Generate denommetadata
+
+```shell
+sh scripts/settlement/generate_denom_metadata.sh
+```
+
+### Add genesis accounts
+
+```shell
+sh scripts/settlement/add_genesis_accounts.sh
+```
+
 ### Register rollapp on settlement
 
 ```shell
+# for permissioned deployment setup, you must have access to an account whitelisted for rollapp
+# registration, assuming you want to import an existing account, you can do:
+export HUB_PERMISSIONED_KEY="hub-rollapp-permission" # This key is for creating rollapp in permissioned setup
+echo <memonic> | dymd keys add $HUB_PERMISSIONED_KEY --recover
+# input mnemonic from the account that has the permission to register rollapp
+
 sh scripts/settlement/register_rollapp_to_hub.sh
 ```
 
@@ -112,11 +142,32 @@ sh scripts/settlement/register_sequencer_to_hub.sh
 ### Configure the rollapp
 
 Modify `dymint.toml` in the chain directory (`~/.rollapp_evm/config`)
-set:
+
+linux:
 
 ```shell
-ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i '/node_address =/c\node_address = '\"$HUB_RPC_URL\" "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+sed -i '/rollapp_id =/c\rollapp_id = '\"$ROLLAPP_CHAIN_ID\" "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+```
+
+mac:
+
+```shell
+sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i '' 's|node_address =.*|node_address = '\"$HUB_RPC_URL\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+```
+
+### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
+
+```shell
+sh scripts/update_genesis_file.sh
+```
+
+```shell
+# this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
+sh scripts/add_vesting_accounts_to_genesis_file.sh
 ```
 
 ### Run rollapp locally
@@ -136,6 +187,7 @@ cd go-relayer && make install
 
 ### Establish IBC channel
 
+Verify you have all the environment variables defined earlier set.
 while the rollapp and the local dymension hub node running, run:
 
 ```shell
@@ -144,10 +196,50 @@ sh scripts/ibc/setup_ibc.sh
 
 After successful run, the new established channels will be shown
 
+### Configure empty block time to 1hr
+
+Stop the rollapp:
+
+```shell
+kill $(pgrep rollapp-evm)
+```
+
+Linux:
+
+```shell
+sed -i 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "3600s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
+Mac:
+
+```shell
+sed -i '' 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "3600s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
+Start the rollapp:
+
+```shell
+rollapp-evm start
+```
+
 ### run the relayer
 
 ```shell
 rly start hub-rollapp
+```
+
+### Trigger genesis events
+
+Trigger the genesis events on the rollapp
+
+```shell
+sh ./scripts/trigger_rollapp_genesis_event.sh
+```
+
+Trigger the genesis events on the hub
+
+```shell
+sh ./scripts/settlement/trigger_hub_genesis_event.sh
 ```
 
 ## Developers guide
