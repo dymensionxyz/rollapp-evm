@@ -18,7 +18,6 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 **Note**: Requires [Go 1.22.1](https://go.dev/dl/)
 
-
 ## Installing / Getting started
 
 Build and install the ```rollapp-evm``` binary:
