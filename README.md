@@ -41,7 +41,7 @@ export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
-export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-backend test
+```
 
 And initialize the rollapp:
 
@@ -94,7 +94,7 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 ```shell
 # retrieve the minimal bond amount from hub sequencer params
 # you have to account for gas fees so it should the final value should be increased
-BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom' )"
+BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
 
 # Extract the numeric part
 NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
