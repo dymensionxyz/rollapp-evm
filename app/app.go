@@ -393,7 +393,7 @@ func NewRollapp(
 		app.GetSubspace(authtypes.ModuleName),
 		ethermint.ProtoAccount,
 		maccPerms,
-		sdk.Bech32PrefixAccAddr, //Bech32MainPrefix
+		sdk.GetConfig().GetBech32AccountAddrPrefix(), //Bech32MainPrefix
 	)
 
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
