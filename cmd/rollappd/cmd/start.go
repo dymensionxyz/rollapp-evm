@@ -3,6 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+	"runtime/pprof"
+	"strconv"
+	"time"
+
 	berpc "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc"
 	berpcbackend "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/backend"
 	berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
@@ -13,12 +20,6 @@ import (
 	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
 	"github.com/ethereum/go-ethereum/rpc"
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	"net"
-	"net/http"
-	"os"
-	"runtime/pprof"
-	"strconv"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/node"
@@ -525,7 +526,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 			idxer,
 			nil, // external services modifier
 			func(evmberpcbackend.EvmBackendI) {
-				berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
+				_ = berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
 					_ client.Context,
 					_ *rpcclient.WSClient,
 					_ map[string]berpctypes.MessageParser,
