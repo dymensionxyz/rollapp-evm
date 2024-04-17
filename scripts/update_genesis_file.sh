@@ -11,7 +11,7 @@ APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 "$EXECUTABLE" keys add hub_genesis --keyring-backend test
 
 jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-jq '.consensus_params["block"]["max_bytes"] = "5242880"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+jq '.consensus_params["block"]["max_bytes"] = "3145728"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 jq '.app_state.gov.voting_params.voting_period = "300s"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
