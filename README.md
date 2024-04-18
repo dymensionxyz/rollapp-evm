@@ -41,6 +41,7 @@ export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
+export SKIP_EVM_BASE_FEE=true # optional, removes fees on the rollapp
 ```
 
 And initialize the rollapp:
