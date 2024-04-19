@@ -64,7 +64,8 @@ Templates for Unreleased:
 ### Improvements
 
 - (deps) [#138](https://github.com/dymensionxyz/rollapp-evm/issues/138) Bumps `block-explorer-rpc-cosmos v1.0.2` & `evm-block-explorer-rpc-cosmos v1.0.2`
-- (deps) [#151](https://github.com/dymensionxyz/rollapp-evm/issues/151) Bumps `block-explorer-rpc-cosmos v1.0.2` & `evm-block-explorer-rpc-cosmos v1.1.0`
+- (deps) [#151](https://github.com/dymensionxyz/rollapp-evm/issues/151) Bumps `block-explorer-rpc-cosmos v1.1.0` & `evm-block-explorer-rpc-cosmos v1.1.0`
+- (deps) [#167](https://github.com/dymensionxyz/rollapp-evm/issues/167) Bumps `block-explorer-rpc-cosmos v1.1.2`
 
 ### Bug Fixes
 
