@@ -6,7 +6,7 @@ import (
 	epochstypes "github.com/dymensionxyz/dymension-rdk/x/epochs/types"
 	hubgentypes "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/types"
 	sequencerstypes "github.com/dymensionxyz/dymension-rdk/x/sequencers/types"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 )

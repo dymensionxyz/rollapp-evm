@@ -4,15 +4,14 @@ go 1.22.1
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.0
-	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.0
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.2
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.1-de
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.5.0-beta
 	github.com/dymensionxyz/dymint v1.0.1-alpha.0.20240414124654-eb08e30da2c5
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/ethermint v0.22.0
-	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
@@ -105,6 +104,7 @@ require (
 	github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
+	github.com/evmos/evmos/v12 v12.1.6 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/filecoin-project/go-jsonrpc v0.3.1 // indirect
 	github.com/flynn/noise v1.1.0 // indirect
