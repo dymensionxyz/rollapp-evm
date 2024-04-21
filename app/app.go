@@ -16,6 +16,8 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/evmos/ethermint/x/evm/vm/geth"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -93,7 +95,6 @@ import (
 	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
 
 	rollappparams "github.com/dymensionxyz/rollapp-evm/app/params"
-	srvflags "github.com/evmos/evmos/v12/server/flags"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -111,25 +112,26 @@ import (
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
 	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
 	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
-	ethante "github.com/evmos/evmos/v12/app/ante"
-	ethanteevm "github.com/evmos/evmos/v12/app/ante/evm"
-	"github.com/evmos/evmos/v12/ethereum/eip712"
-	ethermint "github.com/evmos/evmos/v12/types"
-	"github.com/evmos/evmos/v12/x/claims"
-	claimskeeper "github.com/evmos/evmos/v12/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
-	"github.com/evmos/evmos/v12/x/erc20"
-	erc20client "github.com/evmos/evmos/v12/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v12/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v12/x/erc20/types"
-	"github.com/evmos/evmos/v12/x/evm"
-	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
-	"github.com/evmos/evmos/v12/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
-	"github.com/evmos/evmos/v12/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
+
+	/* ------------------------------ ethermint imports ----------------------------- */
+
+	ethante "github.com/evmos/ethermint/app/ante"
+	"github.com/evmos/ethermint/ethereum/eip712"
+	srvflags "github.com/evmos/ethermint/server/flags"
+	ethermint "github.com/evmos/ethermint/types"
+	"github.com/evmos/ethermint/x/erc20"
+	erc20client "github.com/evmos/ethermint/x/erc20/client"
+	erc20keeper "github.com/evmos/ethermint/x/erc20/keeper"
+	erc20types "github.com/evmos/ethermint/x/erc20/types"
+	"github.com/evmos/ethermint/x/evm"
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/x/feemarket"
+	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+
+	"github.com/evmos/ethermint/x/erc20/transfer"
+	transferkeeper "github.com/evmos/ethermint/x/erc20/transfer/keeper"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -154,7 +156,6 @@ var (
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
 		erc20types.StoreKey,
-		claimstypes.StoreKey,
 		denommetadatamoduletypes.StoreKey,
 	}
 )
@@ -207,7 +208,6 @@ var (
 		// Evmos moudles
 		erc20.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
-		claims.AppModuleBasic{},
 		denommetadata.AppModuleBasic{},
 	)
 
@@ -222,7 +222,6 @@ var (
 		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:                 {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		claimstypes.ModuleName:              nil,
 		hubgentypes.ModuleName:              {authtypes.Burner},
 		denommetadatamoduletypes.ModuleName: nil,
 	}
@@ -248,9 +247,6 @@ func init() {
 
 	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
-
-	// disable claims on genesis
-	claimstypes.DefaultEnableClaims = false
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -295,8 +291,7 @@ type App struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	Erc20Keeper  erc20keeper.Keeper
-	ClaimsKeeper *claimskeeper.Keeper
+	Erc20Keeper erc20keeper.Keeper
 
 	DenomMetadataKeeper denommetadatamodulekeeper.Keeper
 
@@ -463,7 +458,12 @@ func NewRollapp(
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.SequencersKeeper, app.FeeMarketKeeper,
-		tracer, app.GetSubspace(evmtypes.ModuleName),
+		nil, geth.NewEVM, tracer, app.GetSubspace(evmtypes.ModuleName),
+	)
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
 	)
 
 	// Create IBC Keeper
@@ -494,17 +494,6 @@ func NewRollapp(
 		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
 	)
 
-	// Create evmos keeper
-	app.ClaimsKeeper = claimskeeper.NewKeeper(
-		appCodec, keys[claimstypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.IBCKeeper.ChannelKeeper,
-	)
-
-	app.Erc20Keeper = erc20keeper.NewKeeper(
-		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-	)
-
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 		// register the governance hooks
@@ -518,7 +507,8 @@ func NewRollapp(
 	)
 
 	denomMetadataHooks := denommetadatamoduletypes.NewMultiDenommetadataHooks(
-		erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
+	// FIXME: move hooks to ethermint repo
+	// erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
 	)
 
 	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
@@ -531,7 +521,7 @@ func NewRollapp(
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
@@ -546,10 +536,6 @@ func NewRollapp(
 		app.AccountKeeper,
 	)
 
-	// NOTE: app.Erc20Keeper is already initialized elsewhere
-	// Set the ICS4 wrappers for custom module middlewares
-	app.ClaimsKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
-
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
@@ -557,7 +543,6 @@ func NewRollapp(
 	var transferStack ibcporttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
-	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -591,12 +576,11 @@ func NewRollapp(
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper, app.AccountKeeper),
 
 		// Ethermint app modules
-		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
 		transferModule,
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
-		claims.NewAppModule(appCodec, *app.ClaimsKeeper, app.GetSubspace(claimstypes.ModuleName)),
 		denommetadata.NewAppModule(app.DenomMetadataKeeper, app.BankKeeper),
 	}
 
@@ -623,7 +607,6 @@ func NewRollapp(
 		banktypes.ModuleName,
 		govtypes.ModuleName,
 		erc20types.ModuleName,
-		claimstypes.ModuleName,
 		genutiltypes.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -645,7 +628,6 @@ func NewRollapp(
 		vestingtypes.ModuleName,
 		minttypes.ModuleName,
 		erc20types.ModuleName,
-		claimstypes.ModuleName,
 		genutiltypes.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -679,7 +661,6 @@ func NewRollapp(
 		ibchost.ModuleName,
 		genutiltypes.ModuleName,
 		erc20types.ModuleName,
-		claimstypes.ModuleName,
 
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -739,27 +720,28 @@ func NewRollapp(
 
 func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 	options := ethante.HandlerOptions{
-		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
+		SignModeHandler:        txConfig.SignModeHandler(),
 		EvmKeeper:              app.EvmKeeper,
-		StakingKeeper:          app.StakingKeeper,
 		FeegrantKeeper:         nil,
-		DistributionKeeper:     app.DistrKeeper,
 		IBCKeeper:              app.IBCKeeper,
 		FeeMarketKeeper:        app.FeeMarketKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         ethante.SigVerificationGasConsumer,
+		SigGasConsumer:         ethante.DefaultSigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(app.EvmKeeper),
+		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+		DisabledAuthzMsgs: []string{
+			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+		},
 	}
-
-	if err := options.Validate(); err != nil {
+	handler, err := ethante.NewAnteHandler(options)
+	if err != nil {
 		panic(err)
 	}
 
-	app.SetAnteHandler(ethante.NewAnteHandler(options))
+	app.SetAnteHandler(handler)
 }
 
 func (app *App) setPostHandler() {
@@ -1024,7 +1006,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
-	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper

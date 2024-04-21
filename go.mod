@@ -104,6 +104,7 @@ require (
 	github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
+	github.com/evmos/ethermint v0.22.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/filecoin-project/go-jsonrpc v0.3.1 // indirect
 	github.com/flynn/noise v1.1.0 // indirect
@@ -322,6 +323,8 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
+	github.com/evmos/ethermint => github.com/dymensionxyz/ethermint v0.22.0-dymension-v0.4.1.0.20240421090051-c2269a2be99f
+
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
