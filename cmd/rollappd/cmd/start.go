@@ -10,16 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	berpc "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc"
-	berpcbackend "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/backend"
-	berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
-	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
-	"github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc"
-	evmberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
-	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
-	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
-	"github.com/ethereum/go-ethereum/rpc"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	// berpccfg "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/node"
@@ -165,15 +156,15 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
-			beJsonRpcConfig := berpccfg.DefaultBeJsonRpcConfig()
-			err = beJsonRpcConfig.GetViperConfig(cmd, serverCtx.Viper.GetString(flags.FlagHome))
-			if err != nil {
-				return err
-			}
+			// beJsonRpcConfig := berpccfg.DefaultBeJsonRpcConfig()
+			// err = beJsonRpcConfig.GetViperConfig(cmd, serverCtx.Viper.GetString(flags.FlagHome))
+			// if err != nil {
+			// 	return err
+			// }
 
 			// amino is needed here for backwards compatibility of REST routes
 			err = wrapCPUProfile(serverCtx, func() error {
-				return startInProcess(serverCtx, clientCtx, dymconfig, beJsonRpcConfig, appCreator)
+				return startInProcess(serverCtx, clientCtx, dymconfig, nil, appCreator)
 			})
 			errCode, ok := err.(server.ErrorCode)
 			if !ok {
@@ -242,14 +233,14 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().String(srvflags.EVMTracer, config.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
 	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, config.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
 
-	berpccfg.AddBeJsonRpcFlags(cmd)
+	// berpccfg.AddBeJsonRpcFlags(cmd)
 
 	dymintconf.AddNodeFlags(cmd)
 	rdklogger.AddLogFlags(cmd)
 	return cmd
 }
 
-func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *dymintconf.NodeConfig, beRpcCfg *berpccfg.BeJsonRpcConfig, appCreator types.AppCreator) error {
+func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *dymintconf.NodeConfig, _ *int, appCreator types.AppCreator) error {
 	cfg := ctx.Config
 	home := cfg.RootDir
 
@@ -274,9 +265,9 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
-	if err := beRpcCfg.Validate(); err != nil {
-		return err
-	}
+	// if err := beRpcCfg.Validate(); err != nil {
+	// 	return err
+	// }
 
 	app := appCreator(ctx.Logger, db, traceWriter, ctx.Viper)
 
@@ -339,7 +330,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 	// Add the tx service to the gRPC router. We only need to register this
 	// service if API or gRPC is enabled, and avoid doing so in the general
 	// case, because it spawns a new local tendermint RPC client.
-	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable || beRpcCfg.Enable) && tmNode != nil {
+	if (config.API.Enable || config.GRPC.Enable || config.JSONRPC.Enable) && tmNode != nil {
 		clientCtx = clientCtx.WithClient(dymserver.Client())
 
 		app.RegisterTxService(clientCtx)
@@ -381,7 +372,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}
 	}
 
-	if config.API.Enable || config.JSONRPC.Enable || beRpcCfg.Enable {
+	if config.API.Enable || config.JSONRPC.Enable {
 		genDoc, err := genDocProvider()
 		if err != nil {
 			return err
@@ -510,56 +501,56 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		}()
 	}
 
-	if beRpcCfg.Enable {
-		genDoc, err := genDocProvider()
-		if err != nil {
-			return err
-		}
+	// if beRpcCfg.Enable {
+	// 	genDoc, err := genDocProvider()
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		raeBeRpcBackend := raeberpcbackend.NewRollAppEvmBackend(ctx, ctx.Logger, clientCtx)
+	// 	raeBeRpcBackend := raeberpcbackend.NewRollAppEvmBackend(ctx, ctx.Logger, clientCtx)
 
-		serverCloseDeferFunc, err := integrate_be_rpc.StartEvmBeJsonRPC(
-			ctx,
-			clientCtx,
-			genDoc.ChainID,
-			*beRpcCfg,
-			idxer,
-			nil, // external services modifier
-			func(evmberpcbackend.EvmBackendI) {
-				_ = berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
-					_ client.Context,
-					_ *rpcclient.WSClient,
-					_ map[string]berpctypes.MessageParser,
-					_ map[string]berpctypes.MessageInvolversExtractor,
-					_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
-					_ berpctypes.ExternalServices,
-				) []rpc.API {
-					return []rpc.API{
-						{
-							Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
-							Version:   raebeapi.ApiVersion,
-							Service:   raebeapi.NewRollAppEvmApi(ctx, raeBeRpcBackend),
-							Public:    true,
-						},
-					}
-				}, false)
-			},
-			func(backend berpcbackend.BackendI, evmBeRpcBackend evmberpcbackend.EvmBackendI) berpcbackend.RequestInterceptor {
-				return raeberpcbackend.NewRollAppEvmRequestInterceptor(
-					backend,
-					raeBeRpcBackend,
-					evmberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
-				)
-			},
-			cfg.RPC.ListenAddress,
-			"/websocket",
-		)
-		if err != nil {
-			return err
-		}
+	// 	serverCloseDeferFunc, err := integrate_be_rpc.StartEvmBeJsonRPC(
+	// 		ctx,
+	// 		clientCtx,
+	// 		genDoc.ChainID,
+	// 		*beRpcCfg,
+	// 		idxer,
+	// 		nil, // external services modifier
+	// 		func(evmberpcbackend.EvmBackendI) {
+	// 			_ = berpc.RegisterAPINamespace(raebeapi.DymRollAppEvmBlockExplorerNamespace, func(ctx *server.Context,
+	// 				_ client.Context,
+	// 				_ *rpcclient.WSClient,
+	// 				_ map[string]berpctypes.MessageParser,
+	// 				_ map[string]berpctypes.MessageInvolversExtractor,
+	// 				_ func(berpcbackend.BackendI) berpcbackend.RequestInterceptor,
+	// 				_ berpctypes.ExternalServices,
+	// 			) []rpc.API {
+	// 				return []rpc.API{
+	// 					{
+	// 						Namespace: raebeapi.DymRollAppEvmBlockExplorerNamespace,
+	// 						Version:   raebeapi.ApiVersion,
+	// 						Service:   raebeapi.NewRollAppEvmApi(ctx, raeBeRpcBackend),
+	// 						Public:    true,
+	// 					},
+	// 				}
+	// 			}, false)
+	// 		},
+	// 		func(backend berpcbackend.BackendI, evmBeRpcBackend evmberpcbackend.EvmBackendI) berpcbackend.RequestInterceptor {
+	// 			return raeberpcbackend.NewRollAppEvmRequestInterceptor(
+	// 				backend,
+	// 				raeBeRpcBackend,
+	// 				evmberpcbackend.NewDefaultRequestInterceptor(backend, evmBeRpcBackend),
+	// 			)
+	// 		},
+	// 		cfg.RPC.ListenAddress,
+	// 		"/websocket",
+	// 	)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		defer serverCloseDeferFunc()
-	}
+	// 	defer serverCloseDeferFunc()
+	// }
 
 	var rosettaSrv crgserver.Server
 	if config.Rosetta.Enable {
