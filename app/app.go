@@ -507,8 +507,7 @@ func NewRollapp(
 	)
 
 	denomMetadataHooks := denommetadatamoduletypes.NewMultiDenommetadataHooks(
-	// FIXME: move hooks to ethermint repo
-	// erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
+		erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
 	)
 
 	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
