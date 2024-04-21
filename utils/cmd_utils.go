@@ -2,7 +2,7 @@ package utils
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethermint "github.com/evmos/evmos/v12/types"
+	ethermint "github.com/evmos/ethermint/types"
 )
 
 // SetBip44CoinType sets the global coin type to be used in hierarchical deterministic wallets.

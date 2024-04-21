@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	cryptocodec "github.com/evmos/evmos/v12/crypto/codec"
-	ethermint "github.com/evmos/evmos/v12/types"
+	cryptocodec "github.com/evmos/ethermint/crypto/codec"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/dymensionxyz/rollapp-evm/app/params"
 )

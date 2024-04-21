@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v12/crypto/hd"
+	"github.com/evmos/ethermint/crypto/hd"
 
 	berpcconfig "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -37,10 +37,10 @@ import (
 	"github.com/dymensionxyz/rollapp-evm/app/params"
 	"github.com/dymensionxyz/rollapp-evm/utils"
 
-	ethermintclient "github.com/evmos/evmos/v12/client"
+	ethermintclient "github.com/evmos/ethermint/client"
 
-	evmserver "github.com/evmos/evmos/v12/server"
-	evmconfig "github.com/evmos/evmos/v12/server/config"
+	evmserver "github.com/evmos/ethermint/server"
+	evmconfig "github.com/evmos/ethermint/server/config"
 )
 
 const rollappAscii = `
