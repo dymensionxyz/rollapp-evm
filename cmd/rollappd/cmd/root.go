@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -26,8 +28,13 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	tmcfg "github.com/tendermint/tendermint/config"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmlog "github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
@@ -50,6 +57,17 @@ const rollappAscii = `
 ██       ██  ██  ██  ██  ██     ██   ██ ██    ██ ██      ██      ██   ██ ██      ██      
 ███████   ████   ██      ██     ██   ██  ██████  ███████ ███████ ██   ██ ██      ██                                                                                                                                                            
 `
+
+type CustomGenesisDoc struct {
+	GenesisTime     time.Time                  `json:"genesis_time"`
+	ChainID         string                     `json:"chain_id"`
+	Bech32Prefix    string                     `json:"bech32_prefix"`
+	InitialHeight   int64                      `json:"initial_height"`
+	ConsensusParams *tmproto.ConsensusParams   `json:"consensus_params,omitempty"`
+	Validators      []tmtypes.GenesisValidator `json:"validators,omitempty"`
+	AppHash         tmbytes.HexBytes           `json:"app_hash"`
+	AppState        json.RawMessage            `json:"app_state,omitempty"`
+}
 
 // NewRootCmd creates a new root rollappd command. It is called once in the main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -108,7 +126,18 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			//create Block Explorer Json-RPC toml config file
 			berpcconfig.EnsureRoot(home, berpcconfig.DefaultBeJsonRpcConfig())
-
+			// Set config
+			sdkconfig := sdk.GetConfig()
+			utils.SetBip44CoinType(sdkconfig)
+			cfg := serverCtx.Config
+			genFile := cfg.GenesisFile()
+			if tmos.FileExists(genFile) {
+				genDoc, _ := GenesisDocFromFile(genFile)
+				rdk_utils.SetPrefixes(sdkconfig, genDoc.Bech32Prefix)
+				sdkconfig.Seal()
+			} else {
+				rdk_utils.SetPrefixes(sdkconfig, "ethm")
+			}
 			return nil
 		},
 	}
@@ -155,17 +184,37 @@ func initRootCmd(
 	rootCmd *cobra.Command,
 	encodingConfig params.EncodingConfig,
 ) {
-	// Set config
-	sdkconfig := sdk.GetConfig()
-	rdk_utils.SetPrefixes(sdkconfig, app.AccountAddressPrefix)
-	utils.SetBip44CoinType(sdkconfig)
-	sdkconfig.Seal()
-
 	ac := appCreator{
 		encCfg: encodingConfig,
 	}
+
+	initCmd := genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome)
+	initCmd.Flags().String(FlagBech32Prefix, "ethm", "set bech32 prefix for rollapp, if left blank default value is 'ethm'")
+
+	initCmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		prefix, _ := initCmd.Flags().GetString(FlagBech32Prefix)
+
+		serverCtx := server.GetServerContextFromCmd(cmd)
+		config := serverCtx.Config
+		path := config.GenesisFile()
+
+		genDoc, err := GenesisDocFromFile(path)
+		if err != nil {
+			fmt.Println("Failed to read genesis doc from file", err)
+		}
+
+		genDoc.Bech32Prefix = prefix
+
+		genDocBytes, err := tmjson.MarshalIndent(genDoc, "", "  ")
+		if err != nil {
+			return err
+		}
+		return tmos.WriteFile(path, genDocBytes, 0o644)
+
+	}
+
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
+		initCmd,
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
@@ -309,4 +358,28 @@ func (ac appCreator) appExport(
 	}
 
 	return rollapp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+}
+
+// GenesisDocFromFile reads JSON data from a file and unmarshalls it into a GenesisDoc.
+func GenesisDocFromFile(genDocFile string) (*CustomGenesisDoc, error) {
+	jsonBlob, err := os.ReadFile(genDocFile)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't read CustomGenesisDoc file: %w", err)
+	}
+	genDoc, err := GenesisDocFromJSON(jsonBlob)
+	if err != nil {
+		return nil, fmt.Errorf("error reading CustomGenesisDoc at %s: %w", genDocFile, err)
+	}
+	return genDoc, nil
+}
+
+// GenesisDocFromJSON unmarshalls JSON data into a GenesisDoc.
+func GenesisDocFromJSON(jsonBlob []byte) (*CustomGenesisDoc, error) {
+	genDoc := CustomGenesisDoc{}
+	err := tmjson.Unmarshal(jsonBlob, &genDoc)
+	if err != nil {
+		return nil, err
+	}
+
+	return &genDoc, err
 }

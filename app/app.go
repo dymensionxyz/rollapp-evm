@@ -137,8 +137,7 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "ethm"
-	Name                 = "rollapp_evm"
+	Name = "rollapp_evm"
 )
 
 var (
