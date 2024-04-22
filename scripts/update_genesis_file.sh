@@ -51,6 +51,18 @@ module_account_balance=$(
   }]'
 )
 
+hubgenesis_tokens=$(
+jq -n \
+  --arg denom "$BASE_DENOM" \
+  --arg amount "60000000000000000000000" \
+  '[{
+    "denom": $denom,
+    "amount": $amount
+  }]'
+)
+
+jq --argjson hubgenesis_tokens "$hubgenesis_tokens" '.app_state.hubgenesis.state.genesis_tokens = $hubgenesis_tokens' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+
 jq '.app_state.bank.balances[0].coins[0].amount = "2000000000000000000000000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --argjson module_account_balance "$module_account_balance" '.app_state.bank.balances += $module_account_balance' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
