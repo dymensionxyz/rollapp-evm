@@ -126,6 +126,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			//create Block Explorer Json-RPC toml config file
 			berpcconfig.EnsureRoot(home, berpcconfig.DefaultBeJsonRpcConfig())
+
 			// Set config
 			sdkconfig := sdk.GetConfig()
 			utils.SetBip44CoinType(sdkconfig)
@@ -134,10 +135,10 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			if tmos.FileExists(genFile) {
 				genDoc, _ := GenesisDocFromFile(genFile)
 				rdk_utils.SetPrefixes(sdkconfig, genDoc.Bech32Prefix)
-				sdkconfig.Seal()
 			} else {
 				rdk_utils.SetPrefixes(sdkconfig, "ethm")
 			}
+			sdkconfig.Seal()
 			return nil
 		},
 	}
@@ -358,6 +359,28 @@ func (ac appCreator) appExport(
 	}
 
 	return rollapp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+}
+
+// GenesisStateFromGenFile creates the core parameters for genesis initialization
+// for the application.
+//
+// NOTE: The pubkey input is this machines pubkey.
+func GenesisStateFromGenFile(genFile string) (genesisState map[string]json.RawMessage, genDoc *CustomGenesisDoc, err error) {
+	if !tmos.FileExists(genFile) {
+		return genesisState, genDoc,
+			fmt.Errorf("%s does not exist, run `init` first", genFile)
+	}
+
+	genDoc, err = GenesisDocFromFile(genFile)
+	if err != nil {
+		return genesisState, genDoc, err
+	}
+
+	if err = json.Unmarshal(genDoc.AppState, &genesisState); err != nil {
+		return genesisState, genDoc, err
+	}
+
+	return genesisState, genDoc, err
 }
 
 // GenesisDocFromFile reads JSON data from a file and unmarshalls it into a GenesisDoc.
