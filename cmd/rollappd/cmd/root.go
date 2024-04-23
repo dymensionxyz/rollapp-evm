@@ -41,6 +41,7 @@ import (
 
 	ethermintclient "github.com/evmos/evmos/v12/client"
 
+	rdk_genutilcli "github.com/dymensionxyz/dymension-rdk/x/genutil/client/cli"
 	evmserver "github.com/evmos/evmos/v12/server"
 	evmconfig "github.com/evmos/evmos/v12/server/config"
 )
@@ -200,7 +201,7 @@ func initRootCmd(
 
 	rootCmd.AddCommand(
 		initCmd,
-		CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
+		rdk_genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 
