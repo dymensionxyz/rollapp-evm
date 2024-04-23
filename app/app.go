@@ -524,6 +524,7 @@ func NewRollapp(
 		appCodec,
 		keys[denommetadatamoduletypes.StoreKey],
 		app.BankKeeper,
+		app.TransferKeeper,
 		denomMetadataHooks,
 		app.GetSubspace(denommetadatamoduletypes.ModuleName),
 	)
