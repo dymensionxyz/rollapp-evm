@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmos "github.com/tendermint/tendermint/libs/os"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -194,13 +193,8 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			}
 			appState[banktypes.ModuleName] = bankGenStateBz
 
-			appStateJSON, err := json.Marshal(appState)
-			if err != nil {
-				return fmt.Errorf("failed to marshal application genesis state: %w", err)
-			}
-
-			genDoc.AppState = appStateJSON
-			genDocBytes, err := tmjson.MarshalIndent(genDoc, "", "  ")
+			genDoc["app_state"] = appState
+			genDocBytes, err := json.MarshalIndent(genDoc, "", "  ")
 			if err != nil {
 				return err
 			}
