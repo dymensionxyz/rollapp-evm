@@ -45,6 +45,6 @@ jobs:
           path: /tmp/e2e.tar  
   e2e-tests:
     needs: build-image
-    uses: dymensionxyz/e2e-tests/.github/workflows/e2e-test-workflow-call.yml@7119390de13c4ea922d6a3c957226ac84142472d
+    uses: dymensionxyz/e2e-tests/.github/workflows/e2e-test-workflow-call.yml@df3d16fbadd850320848421ddd9747957d86c511
     with:
       rollapp_evm_ci: "e2e"
