@@ -226,7 +226,7 @@ var (
 		denommetadatamoduletypes.ModuleName: nil,
 	}
 
-	// module accounts that are allowed to receive tokens
+	// module accounts that are allowed to receive tokens directly from users
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName: true,
 	}
@@ -732,7 +732,6 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
 		DisabledAuthzMsgs: []string{
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
 		},
 	}
 	handler, err := ethante.NewAnteHandler(options)
