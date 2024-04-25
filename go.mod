@@ -8,8 +8,8 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.1-de
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.5.0-beta.0.20240425145314-226329f9f918
-	github.com/dymensionxyz/dymint v1.0.1-alpha.0.20240421140132-71ee964252d1
+	github.com/dymensionxyz/dymension-rdk v1.1.0-rc01
+	github.com/dymensionxyz/dymint v1.1.0-rc01
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/ethermint v0.22.0
 	github.com/gorilla/mux v1.8.1
@@ -262,7 +262,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.15.0 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
