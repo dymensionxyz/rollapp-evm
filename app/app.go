@@ -56,8 +56,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	// "github.com/cosmos/cosmos-sdk/x/genutil"
+	// genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -71,7 +72,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -105,8 +105,9 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
 
-	"github.com/dymensionxyz/dymension-rdk/x/staking"
-	stakingkeeper "github.com/dymensionxyz/dymension-rdk/x/staking/keeper"
+	"github.com/dymensionxyz/dymension-rdk/x/governors"
+	governorskeeper "github.com/dymensionxyz/dymension-rdk/x/governors/keeper"
+	governorstypes "github.com/dymensionxyz/dymension-rdk/x/governors/types"
 
 	"github.com/dymensionxyz/dymension-rdk/x/sequencers"
 	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
@@ -152,7 +153,7 @@ var (
 	kvstorekeys = []string{
 		authtypes.StoreKey, authzkeeper.StoreKey,
 		feegrant.StoreKey, banktypes.StoreKey,
-		stakingtypes.StoreKey, seqtypes.StoreKey,
+		governorstypes.StoreKey, seqtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey,
 		ibchost.StoreKey, upgradetypes.StoreKey,
@@ -194,10 +195,10 @@ var (
 	ModuleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
-		genutil.AppModuleBasic{},
+		// genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		governors.AppModuleBasic{},
 		sequencers.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		epochs.AppModuleBasic{},
@@ -225,8 +226,8 @@ var (
 		authz.ModuleName:                    nil,
 		distrtypes.ModuleName:               nil,
 		minttypes.ModuleName:                {authtypes.Minter},
-		stakingtypes.BondedPoolName:         {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:      {authtypes.Burner, authtypes.Staking},
+		governorstypes.BondedPoolName:       {authtypes.Burner, authtypes.Staking},
+		governorstypes.NotBondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:                 {authtypes.Burner},
 		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:                 {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -280,7 +281,7 @@ type App struct {
 	AuthzKeeper      authzkeeper.Keeper
 	BankKeeper       bankkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
+	GovernorsKeeper  governorskeeper.Keeper
 	SequencersKeeper seqkeeper.Keeper
 	MintKeeper       mintkeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
@@ -417,12 +418,12 @@ func NewRollapp(
 		app.BlockedAddrs(),
 	)
 
-	stakingKeeper := stakingkeeper.NewKeeper(
+	governorsKeeper := governorskeeper.NewKeeper(
 		appCodec,
-		keys[stakingtypes.StoreKey],
+		keys[governorstypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.GetSubspace(stakingtypes.ModuleName),
+		app.GetSubspace(governorstypes.ModuleName),
 	)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
@@ -442,15 +443,15 @@ func NewRollapp(
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
+		&governorsKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
-	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	app.StakingKeeper = *stakingKeeper.SetHooks(app.DistrKeeper.Hooks())
+	// register the governors hooks
+	// NOTE: governorsKeeper above is passed by reference, so that it will contain these hooks
+	app.GovernorsKeeper = *governorsKeeper.SetHooks(app.DistrKeeper.Hooks())
 
 	app.EpochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
@@ -482,12 +483,12 @@ func NewRollapp(
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.GovernorsKeeper,
 	)
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
+		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.SequencersKeeper, app.UpgradeKeeper, scopedIBCKeeper,
 	)
 
 	// Register the proposal types
@@ -510,7 +511,7 @@ func NewRollapp(
 	*/
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
+		&governorsKeeper, govRouter, app.MsgServiceRouter(), govConfig,
 	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
@@ -575,10 +576,10 @@ func NewRollapp(
 	// must be passed by reference here.
 
 	modules := []module.AppModule{
-		genutil.NewAppModule(
-			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
-			encodingConfig.TxConfig,
-		),
+		// genutil.NewAppModule(
+		// 	app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
+		// 	encodingConfig.TxConfig,
+		// ),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
@@ -587,8 +588,8 @@ func NewRollapp(
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper),
-		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.GovernorsKeeper),
+		governors.NewAppModule(app.GovernorsKeeper, app.AccountKeeper, app.BankKeeper),
 		sequencers.NewAppModule(appCodec, app.SequencersKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		params.NewAppModule(app.ParamsKeeper),
@@ -610,7 +611,6 @@ func NewRollapp(
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	// NOTE: staking module is required if HistoricalEntries param > 0
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	beginBlockersList := []string{
 		upgradetypes.ModuleName,
@@ -619,7 +619,7 @@ func NewRollapp(
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 		distrtypes.ModuleName,
-		stakingtypes.ModuleName,
+		governorstypes.ModuleName,
 		seqtypes.ModuleName,
 		vestingtypes.ModuleName,
 		ibchost.ModuleName,
@@ -629,7 +629,7 @@ func NewRollapp(
 		banktypes.ModuleName,
 		govtypes.ModuleName,
 		erc20types.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -640,7 +640,7 @@ func NewRollapp(
 
 	endBlockersList := []string{
 		govtypes.ModuleName,
-		stakingtypes.ModuleName,
+		governorstypes.ModuleName,
 		evmtypes.ModuleName,
 		seqtypes.ModuleName,
 		feemarkettypes.ModuleName,
@@ -652,7 +652,7 @@ func NewRollapp(
 		vestingtypes.ModuleName,
 		minttypes.ModuleName,
 		erc20types.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -678,14 +678,14 @@ func NewRollapp(
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		distrtypes.ModuleName,
-		stakingtypes.ModuleName,
+		governorstypes.ModuleName,
 		seqtypes.ModuleName,
 		vestingtypes.ModuleName,
 		epochstypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		ibchost.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		erc20types.ModuleName,
 
 		paramstypes.ModuleName,
@@ -970,12 +970,7 @@ func (app *App) GetBaseApp() *baseapp.BaseApp {
 
 // GetStakingKeeper implements the TestingApp interface.
 func (app *App) GetStakingKeeper() ibctestingtypes.StakingKeeper {
-	return app.StakingKeeper
-}
-
-// GetStakingKeeper implements the TestingApp interface.
-func (app *App) GetStakingKeeperSDK() stakingkeeper.Keeper {
-	return app.StakingKeeper
+	return app.SequencersKeeper
 }
 
 // GetIBCKeeper implements the TestingApp interface.
@@ -1020,7 +1015,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
-	paramsKeeper.Subspace(stakingtypes.ModuleName)
+	paramsKeeper.Subspace(governorstypes.ModuleName)
 	paramsKeeper.Subspace(seqtypes.ModuleName)
 	paramsKeeper.Subspace(minttypes.ModuleName)
 	paramsKeeper.Subspace(epochstypes.ModuleName)
