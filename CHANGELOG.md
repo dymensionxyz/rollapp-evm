@@ -18,7 +18,12 @@
 
 * add swagger config and make scripts ([#130](https://github.com/dymensionxyz/rollapp-evm/issues/130)) ([41718e4](https://github.com/dymensionxyz/rollapp-evm/commit/41718e4d4098e6bf18117c31b514b2cc226a331f))
 * **be:** integrate block explorer Json-RPC server ([#132](https://github.com/dymensionxyz/rollapp-evm/issues/132)) ([d73b1c4](https://github.com/dymensionxyz/rollapp-evm/commit/d73b1c451b93f04a1db5a73c4c8c78fc21729208))
-* **ci:** add addtional changelog log auto update workflow ([327f375](https://github.com/dymensionxyz/rollapp-evm/commit/327f375cdb7e33c431a8d5f0a710a52b641e7eca))
+* **ci:** Add changelog log auto update workflow ([#176](https://github.com/dymensionxyz/rollapp-evm/issues/176)) ([f58feaa](https://github.com/dymensionxyz/rollapp-evm/commit/f58feaaea83b17d2258d1025a72c9b832922b7a9))
+
+
+### Reverts
+
+* Revert "removed explorer" ([b72fbb7](https://github.com/dymensionxyz/rollapp-evm/commit/b72fbb767580436293151bf73174f77d891f3099))
 
 
 
