@@ -56,8 +56,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	// "github.com/cosmos/cosmos-sdk/x/genutil"
+	// genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -194,7 +195,7 @@ var (
 	ModuleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
-		genutil.AppModuleBasic{},
+		// genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
 		governors.AppModuleBasic{},
@@ -575,10 +576,10 @@ func NewRollapp(
 	// must be passed by reference here.
 
 	modules := []module.AppModule{
-		genutil.NewAppModule(
-			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
-			encodingConfig.TxConfig,
-		),
+		// genutil.NewAppModule(
+		// 	app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
+		// 	encodingConfig.TxConfig,
+		// ),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
@@ -628,7 +629,7 @@ func NewRollapp(
 		banktypes.ModuleName,
 		govtypes.ModuleName,
 		erc20types.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -651,7 +652,7 @@ func NewRollapp(
 		vestingtypes.ModuleName,
 		minttypes.ModuleName,
 		erc20types.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
@@ -684,7 +685,7 @@ func NewRollapp(
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		ibchost.ModuleName,
-		genutiltypes.ModuleName,
+		// genutiltypes.ModuleName,
 		erc20types.ModuleName,
 
 		paramstypes.ModuleName,
