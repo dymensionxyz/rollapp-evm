@@ -502,6 +502,7 @@ func NewRollapp(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(seqtypes.RouterKey, sequencers.NewUpdatePermissionProposalHandler(&app.SequencersKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
 
 	govConfig := govtypes.DefaultConfig()
@@ -533,10 +534,10 @@ func NewRollapp(
 	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
 		appCodec,
 		keys[denommetadatamoduletypes.StoreKey],
+		app.SequencersKeeper,
 		app.BankKeeper,
 		app.TransferKeeper,
 		denomMetadataHooks,
-		app.GetSubspace(denommetadatamoduletypes.ModuleName),
 	)
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
@@ -550,8 +551,8 @@ func NewRollapp(
 	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
 		appCodec,
 		keys[hubgentypes.StoreKey],
-		app.GetSubspace(hubgentypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
+		app.SequencersKeeper,
 		app.BankKeeper,
 		app.AccountKeeper,
 	)
@@ -1023,14 +1024,12 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
-	paramsKeeper.Subspace(hubgentypes.ModuleName)
 
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
-	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper
 }
