@@ -36,7 +36,7 @@ export EXECUTABLE="rollapp-evm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
-export BECH32="rol"
+export BECH32="ethm"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
 
@@ -182,7 +182,7 @@ rollapp-evm start
 ### Install dymension relayer
 
 ```shell
-git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.2.0-v2.3.1-relayer
+git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.0-v2.5.2-relayer
 cd go-relayer && make install
 ```
 
