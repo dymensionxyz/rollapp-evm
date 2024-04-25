@@ -81,3 +81,7 @@ jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenes
 denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+# ----------------------------- update evm params ---------------------------- #
+
+jq '.app_state.evm.params.extra_eips = [3855]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
