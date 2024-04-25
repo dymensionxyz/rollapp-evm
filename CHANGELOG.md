@@ -21,11 +21,6 @@
 * **ci:** Add changelog log auto update workflow ([#176](https://github.com/dymensionxyz/rollapp-evm/issues/176)) ([f58feaa](https://github.com/dymensionxyz/rollapp-evm/commit/f58feaaea83b17d2258d1025a72c9b832922b7a9))
 
 
-### Reverts
-
-* Revert "removed explorer" ([b72fbb7](https://github.com/dymensionxyz/rollapp-evm/commit/b72fbb767580436293151bf73174f77d891f3099))
-
-
 
 # [2.2.0-alpha](https://github.com/dymensionxyz/rollapp-evm/compare/v2.1.0-alpha...v2.2.0-alpha) (2024-03-26)
 
