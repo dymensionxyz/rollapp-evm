@@ -80,7 +80,7 @@ if [ -z "$KEY_NAME_ROLLAPP" ]; then
 fi
 
 # ------------------------------- init rollapp ------------------------------- #
-"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
+"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --bech32-prefix "$BECH32"
 
 # ------------------------------- client config ------------------------------ #
 "$EXECUTABLE" config chain-id "$ROLLAPP_CHAIN_ID"

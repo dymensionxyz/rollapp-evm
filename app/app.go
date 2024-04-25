@@ -145,8 +145,7 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "ethm"
-	Name                 = "rollapp_evm"
+	Name = "rollapp_evm"
 )
 
 var (
@@ -534,6 +533,7 @@ func NewRollapp(
 		appCodec,
 		keys[denommetadatamoduletypes.StoreKey],
 		app.BankKeeper,
+		app.TransferKeeper,
 		denomMetadataHooks,
 		app.GetSubspace(denommetadatamoduletypes.ModuleName),
 	)
