@@ -11,6 +11,7 @@ require (
 	github.com/dymensionxyz/dymension-rdk v1.6.0-rc02
 	github.com/dymensionxyz/dymint v1.1.0-rc02
 	github.com/ethereum/go-ethereum v1.12.0
+	github.com/evmos/ethermint v0.22.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
 	github.com/pkg/errors v0.9.1
@@ -19,6 +20,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/tendermint/tendermint v0.34.29
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
+	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
 	google.golang.org/grpc v1.61.0
 )
 
@@ -289,7 +291,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a // indirect
 	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
