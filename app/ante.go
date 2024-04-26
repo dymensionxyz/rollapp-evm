@@ -5,16 +5,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+
+	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
+
+	appante "github.com/dymensionxyz/rollapp-evm/app/ante"
 )
 
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	IBCKeeper *ibckeeper.Keeper
+	SequencerKeeper *seqkeeper.Keeper
+	IBCKeeper       *ibckeeper.Keeper
 }
 
 func GetAnteDecorators(options HandlerOptions) []sdk.AnteDecorator {
@@ -27,6 +33,11 @@ func GetAnteDecorators(options HandlerOptions) []sdk.AnteDecorator {
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		appante.NewPermissionedVestingDecorator(*options.SequencerKeeper, []string{
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
+		}),
 
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
