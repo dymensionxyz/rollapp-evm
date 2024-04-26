@@ -89,7 +89,7 @@ func (o HandlerOptions) validate() error {
 	return nil
 }
 
-func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if err := options.validate(); err != nil {
 		return nil, err
 	}
