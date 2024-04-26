@@ -3,7 +3,7 @@ package ante
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -23,7 +23,7 @@ func MustCreateHandler(
 	feeGrantKeeper authante.FeegrantKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
-) sdktypes.AnteHandler {
+) sdk.AnteHandler {
 	options := ethante.HandlerOptions{
 		AccountKeeper:          accountKeeper,
 		BankKeeper:             bankKeeper,
@@ -37,10 +37,10 @@ func MustCreateHandler(
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(evmKeeper),
 		DisabledAuthzMsgs: []string{
-			sdktypes.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdktypes.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-			sdktypes.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
-			sdktypes.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
+			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
 		},
 	}
 	handler, err := ethante.NewAnteHandler(options)
@@ -52,15 +52,69 @@ func MustCreateHandler(
 
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
-	authante.HandlerOptions
+	ethante.HandlerOptions
+	authanteOps authante.HandlerOptions
 
 	IBCKeeper *ibckeeper.Keeper
+}
+
+func (o HandlerOptions) validate() error {
+	return nil // TODO:
+}
+
+func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+	if err := options.validate(); err != nil {
+		return nil, err
+	}
+
+	return func(
+		ctx sdk.Context, tx sdk.Tx, sim bool,
+	) (newCtx sdk.Context, err error) {
+		var anteHandler sdk.AnteHandler
+
+		defer ethante.Recover(ctx.Logger(), &err)
+
+		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
+		if ok {
+			opts := txWithExtensions.GetExtensionOptions()
+			if len(opts) > 0 {
+				switch typeURL := opts[0].GetTypeUrl(); typeURL {
+				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
+					// handle as *evmtypes.MsgEthereumTx. It will get checked by the EVM handler to make sure it is.
+					anteHandler = newEthAnteHandler(options)
+				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
+					// Deprecated: Handle as normal Cosmos SDK tx, except signature is checked for Legacy EIP712 representation
+					anteHandler = newLegacyCosmosAnteHandlerEip712(options)
+				case "/ethermint.types.v1.ExtensionOptionDynamicFeeTx": // TODO: can delete?
+					// cosmos-sdk tx with dynamic fee extension
+					anteHandler = newCosmosAnteHandler(options)
+				default:
+					return ctx, errorsmod.Wrapf(
+						sdkerrors.ErrUnknownExtensionOptions,
+						"rejecting tx with unsupported extension option: %s", typeURL,
+					)
+				}
+
+				return anteHandler(ctx, tx, sim)
+			}
+		}
+
+		// handle as totally normal Cosmos SDK tx
+		switch tx.(type) {
+		case sdk.Tx:
+			anteHandler = newCosmosAnteHandler(options)
+		default:
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
+		}
+
+		return anteHandler(ctx, tx, sim)
+	}, nil
 }
 
 // NewHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
-func NewHandler(options HandlerOptions) (sdktypes.AnteHandler, error) {
+func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	// From x/auth/ante.go
 	if options.AccountKeeper == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
@@ -74,16 +128,16 @@ func NewHandler(options HandlerOptions) (sdktypes.AnteHandler, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 
-	return sdktypes.ChainAnteDecorators(Decorators(options)...), nil
+	return sdk.ChainAnteDecorators(Decorators(options)...), nil
 }
 
-func Decorators(options HandlerOptions) []sdktypes.AnteDecorator {
+func Decorators(options HandlerOptions) []sdk.AnteDecorator {
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
 	}
 
-	anteDecorators := []sdktypes.AnteDecorator{
+	anteDecorators := []sdk.AnteDecorator{
 		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 
 		authante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
