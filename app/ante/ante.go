@@ -8,23 +8,23 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
-	"github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	"github.com/evmos/ethermint/app/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	ethante "github.com/evmos/ethermint/app/ante"
 	ethtypes "github.com/evmos/ethermint/types"
-	"github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 func MustCreateHandler(
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	iBCKeeper *keeper.Keeper,
-	feeMarketKeeper ante.FeeMarketKeeper,
-	evmKeeper ante.EVMKeeper,
+	accountKeeper evmtypes.AccountKeeper,
+	bankKeeper evmtypes.BankKeeper,
+	iBCKeeper *ibckeeper.Keeper,
+	feeMarketKeeper ethante.FeeMarketKeeper,
+	evmKeeper ethante.EVMKeeper,
 	feeGrantKeeper authante.FeegrantKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
 ) sdktypes.AnteHandler {
-	options := ante.HandlerOptions{
+	options := ethante.HandlerOptions{
 		AccountKeeper:          accountKeeper,
 		BankKeeper:             bankKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
@@ -32,18 +32,18 @@ func MustCreateHandler(
 		FeegrantKeeper:         feeGrantKeeper,
 		IBCKeeper:              iBCKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
-		SigGasConsumer:         ante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:         ethante.DefaultSigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           ante.NewDynamicFeeChecker(evmKeeper),
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(evmKeeper),
 		DisabledAuthzMsgs: []string{
-			sdktypes.MsgTypeURL(&types.MsgEthereumTx{}),
+			sdktypes.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdktypes.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
 			sdktypes.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 			sdktypes.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
 		},
 	}
-	handler, err := ante.NewAnteHandler(options)
+	handler, err := ethante.NewAnteHandler(options)
 	if err != nil {
 		panic(err)
 	}
@@ -54,13 +54,13 @@ func MustCreateHandler(
 type HandlerOptions struct {
 	authante.HandlerOptions
 
-	IBCKeeper *keeper.Keeper
+	IBCKeeper *ibckeeper.Keeper
 }
 
-// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// NewHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
-func NewAnteHandler(options HandlerOptions) (sdktypes.AnteHandler, error) {
+func NewHandler(options HandlerOptions) (sdktypes.AnteHandler, error) {
 	// From x/auth/ante.go
 	if options.AccountKeeper == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
