@@ -1,10 +1,11 @@
-# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-25)
+# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-26)
 
 
 ### Bug Fixes
 
 * **app:** fixed bech32 on account keeper to not be hardcoded  ([#165](https://github.com/dymensionxyz/rollapp-evm/issues/165)) ([750d1e7](https://github.com/dymensionxyz/rollapp-evm/commit/750d1e70ad052daf7b2942bcecaf0dddfbc17d90))
 * **deps:** bumps `block-explorer-rpc-cosmos v1.0.3` & `evm-block-explorer-rpc-cosmos` v1.0.3 ([#142](https://github.com/dymensionxyz/rollapp-evm/issues/142)) ([ea5e5fd](https://github.com/dymensionxyz/rollapp-evm/commit/ea5e5fdc854d5a4fa4079c4d79b79732e78cf9d8))
+* **local script:** updated default genesis created on extended guide with EIP 3855 ([#183](https://github.com/dymensionxyz/rollapp-evm/issues/183)) ([d201be4](https://github.com/dymensionxyz/rollapp-evm/commit/d201be4ee6757c912ecae568207c1ea358387cae))
 * multiple fixes to advance readme features ([#141](https://github.com/dymensionxyz/rollapp-evm/issues/141)) ([469d39f](https://github.com/dymensionxyz/rollapp-evm/commit/469d39fc79591cdae4455839db1546cc5bd9c053))
 * **readme:** broken links have been renewed. ([#78](https://github.com/dymensionxyz/rollapp-evm/issues/78)) ([c7df6f2](https://github.com/dymensionxyz/rollapp-evm/commit/c7df6f29c8b9981d7a998be4091d2e96c19647a3))
 * **scripts:** add an option to skip evm base fees ([#162](https://github.com/dymensionxyz/rollapp-evm/issues/162)) ([ea51eee](https://github.com/dymensionxyz/rollapp-evm/commit/ea51eee8d66dbba587d6ec00395418a1f08b99a8))
