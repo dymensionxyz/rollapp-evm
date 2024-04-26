@@ -49,6 +49,13 @@ func (m *RollAppEvmRequestInterceptor) GetModuleParams(moduleName string) (inter
 		} else {
 			params = *sequencersParams
 		}
+	case "hub-genesis":
+		hubGenesisParams, errFetch := m.backend.GetHubGenesisModuleParams()
+		if errFetch != nil {
+			err = errors.Wrap(errFetch, "failed to get hub genesis params")
+		} else {
+			params = *hubGenesisParams
+		}
 	default:
 		return m.defaultInterceptor.GetModuleParams(moduleName)
 	}

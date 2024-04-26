@@ -70,19 +70,12 @@ jq '.app_state.bank.supply[0].amount = "2000060000000000000000000000"' "$GENESIS
 
 # ---------------------------- add elevated account ---------------------------- #
 elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | jq -r .address)
-
 elevated_address_json=$(jq -n \
   --arg address "$elevated_address" \
   '[{
-        "address": $address,
-        "permission_list": {
-            "permissions": [
-                "hubgenesis",
-                "denommetadata"
-            ]
-        }
+        "address": $address
     }]')
-jq --argjson elevated_address_json "$elevated_address_json" '.app_state.sequencers.address_permissions += $elevated_address_json' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenesis.params.genesis_triggerer_allowlist += $elevated_address_json' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ---------------------------- add denom metadata ---------------------------- #
 denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
