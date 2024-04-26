@@ -754,6 +754,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		app.FeeGrantKeeper,
 		txConfig,
 		maxGasWanted,
+		app.SequencersKeeper.HasPermission,
 	)
 	app.SetAnteHandler(h)
 }
