@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
+
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -743,7 +745,7 @@ func NewRollapp(
 }
 
 func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	h := MustCreateAnteHandler(
+	h := ante.MustCreateAnteHandler(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper,
