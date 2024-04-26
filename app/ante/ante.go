@@ -1,7 +1,10 @@
 package ante
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -16,20 +19,21 @@ import (
 func MustCreateHandler(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,
-	iBCKeeper *ibckeeper.Keeper,
+	ibcKeeper *ibckeeper.Keeper,
 	feeMarketKeeper ethante.FeeMarketKeeper,
 	evmKeeper ethante.EVMKeeper,
 	feeGrantKeeper authante.FeegrantKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
+	hashPermission HasPermission,
 ) sdk.AnteHandler {
-	options := ethante.HandlerOptions{
+	ethOpts := ethante.HandlerOptions{
 		AccountKeeper:          accountKeeper,
 		BankKeeper:             bankKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
 		EvmKeeper:              evmKeeper,
 		FeegrantKeeper:         feeGrantKeeper,
-		IBCKeeper:              iBCKeeper,
+		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
 		SigGasConsumer:         ethante.DefaultSigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
@@ -42,19 +46,23 @@ func MustCreateHandler(
 			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
 		},
 	}
-	handler, err := ethante.NewAnteHandler(options)
-	if err != nil {
-		panic(err)
+
+	opts := HandlerOptions{
+		HandlerOptions: ethOpts,
+		hasPermission:  hashPermission,
 	}
-	return handler
+
+	h, err := NewHandler(opts)
+	if err != nil {
+		panic(fmt.Errorf("new ante handler: %w", err))
+	}
+	return h
 }
 
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	ethante.HandlerOptions
-
 	hasPermission HasPermission
-	IBCKeeper     *ibckeeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {
@@ -62,36 +70,36 @@ func (o HandlerOptions) validate() error {
 		First check the eth stuff - the validate method is not exported so this is copy-pasted
 	*/
 	if o.AccountKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper missing")
 	}
 	if o.BankKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for AnteHandler")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper missing")
 	}
 	if o.SignModeHandler == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler missing")
 	}
 	if o.FeeMarketKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "fee market keeper is required for AnteHandler")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "fee market keeper missing")
 	}
 	if o.EvmKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper is required for AnteHandler")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper missing")
 	}
 
 	/*
-		Now our stuff
+	 Our stuff
 	*/
 	if o.hasPermission == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "permission checker is required for ante builder")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "permission checker missing")
 	}
 	if o.IBCKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for ante builder")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "IBC keeper missing")
 	}
 	return nil
 }
 
 func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if err := options.validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("options validate: %w", err)
 	}
 
 	return func(
