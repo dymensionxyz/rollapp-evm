@@ -521,20 +521,21 @@ func NewRollapp(
 		erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
 	)
 
-	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
-		appCodec,
-		keys[denommetadatamoduletypes.StoreKey],
-		app.BankKeeper,
-		denomMetadataHooks,
-		app.GetSubspace(denommetadatamoduletypes.ModuleName),
-	)
-
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+	)
+
+	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
+		appCodec,
+		keys[denommetadatamoduletypes.StoreKey],
+		app.BankKeeper,
+		app.TransferKeeper,
+		denomMetadataHooks,
+		app.GetSubspace(denommetadatamoduletypes.ModuleName),
 	)
 
 	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
