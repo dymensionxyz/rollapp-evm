@@ -52,25 +52,41 @@ func MustCreateHandler(
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	ethante.HandlerOptions
-	authanteOps authante.HandlerOptions
 
 	hasPermission HasPermission
 	IBCKeeper     *ibckeeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {
+	/*
+		First check the eth stuff - the validate method is not exported so this is copy-pasted
+	*/
 	if o.AccountKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
 	}
-
 	if o.BankKeeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for AnteHandler")
 	}
-
 	if o.SignModeHandler == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
-	return nil // TODO:
+	if o.FeeMarketKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "fee market keeper is required for AnteHandler")
+	}
+	if o.EvmKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper is required for AnteHandler")
+	}
+
+	/*
+		Now our stuff
+	*/
+	if o.hasPermission == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "permission checker is required for ante builder")
+	}
+	if o.IBCKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for ante builder")
+	}
+	return nil
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {

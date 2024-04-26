@@ -7,6 +7,8 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
+// TODO: make agnostic to vesting
+
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, permission string) bool
 
 // PermissionedVestingDecorator prevents invalid msg types from being executed
