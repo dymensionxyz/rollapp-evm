@@ -7,7 +7,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ethante "github.com/evmos/ethermint/app/ante"
 	ethtypes "github.com/evmos/ethermint/types"
@@ -109,53 +108,4 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 		return anteHandler(ctx, tx, sim)
 	}, nil
-}
-
-// NewHandler returns an AnteHandler that checks and increments sequence
-// numbers, checks signatures & account numbers, and deducts fees from the first
-// signer.
-func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
-	// From x/auth/ante.go
-	if options.AccountKeeper == nil {
-		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
-	}
-
-	if options.BankKeeper == nil {
-		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
-	return sdk.ChainAnteDecorators(Decorators(options)...), nil
-}
-
-func Decorators(options HandlerOptions) []sdk.AnteDecorator {
-	sigGasConsumer := options.SigGasConsumer
-	if sigGasConsumer == nil {
-		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
-	}
-
-	anteDecorators := []sdk.AnteDecorator{
-		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-
-		authante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-
-		authante.NewValidateBasicDecorator(),
-		authante.NewTxTimeoutHeightDecorator(),
-
-		authante.NewValidateMemoDecorator(options.AccountKeeper),
-		authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
-		authante.NewValidateSigCountDecorator(options.AccountKeeper),
-		authante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
-		authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
-	}
-
-	anteDecorators = append(anteDecorators, ibcante.NewRedundantRelayDecorator(options.IBCKeeper))
-
-	return anteDecorators
 }

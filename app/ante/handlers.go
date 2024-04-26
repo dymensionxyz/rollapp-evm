@@ -1,7 +1,10 @@
 package ante
 
 import (
+	"cosmossdk.io/errors"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errors2 "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
@@ -26,14 +29,35 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	)
 }
 
-// NOTE: this function is copied from ethermint AND modified by us
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
+		cosmosDecorators(options, options.ExtensionOptionChecker, ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler))...,
+	)
+}
+
+// Deprecated: NewLegacyCosmosAnteHandlerEip712 creates an AnteHandler to process legacy EIP-712
+// transactions, as defined by the presence of an ExtensionOptionsWeb3Tx extension.
+func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
+	// TODO: do we need anything extra? See hub decorators https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L38-L39
+	return sdk.ChainAnteDecorators(
+		cosmosDecorators(options, func(c *codectypes.Any) bool {
+			return true
+		},
+			ethante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
+		)...,
+	)
+}
+
+func cosmosDecorators(options HandlerOptions, extensionChecker authante.ExtensionOptionChecker, sigChecker sdk.AnteDecorator) []sdk.AnteDecorator {
+	// TODO: do we need anything extra? See hub decorators
+	//  https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L79-L80
+	//  https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L38-L39
+	return []sdk.AnteDecorator{
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		// disable the Msg types that cannot be included on an authz.MsgExec msgs field
 		ethante.NewAuthzLimiterDecorator(options.DisabledAuthzMsgs),
 		ante.NewSetUpContextDecorator(),
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		ante.NewExtensionOptionsDecorator(extensionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
@@ -44,36 +68,58 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		sigChecker,
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-	)
+	}
 }
 
-// Deprecated: NewLegacyCosmosAnteHandlerEip712 creates an AnteHandler to process legacy EIP-712
-// transactions, as defined by the presence of an ExtensionOptionsWeb3Tx extension.
-// NOTE: this function is copied from ethermint
-func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
-	return sdk.ChainAnteDecorators(
-		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
-		// disable the Msg types that cannot be included on an authz.MsgExec msgs field
-		ethante.NewAuthzLimiterDecorator(options.DisabledAuthzMsgs),
-		authante.NewSetUpContextDecorator(),
+// NewHandler returns an AnteHandler that checks and increments sequence
+// numbers, checks signatures & account numbers, and deducts fees from the first
+// signer.
+func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+	// From x/auth/ante.go
+	if options.AccountKeeper == nil {
+		return nil, errors.Wrap(errors2.ErrLogic, "account keeper is required for ante builder")
+	}
+
+	if options.BankKeeper == nil {
+		return nil, errors.Wrap(errors2.ErrLogic, "bank keeper is required for ante builder")
+	}
+
+	if options.SignModeHandler == nil {
+		return nil, errors.Wrap(errors2.ErrLogic, "sign mode handler is required for ante builder")
+	}
+
+	return sdk.ChainAnteDecorators(Decorators(options)...), nil
+}
+
+func Decorators(options HandlerOptions) []sdk.AnteDecorator {
+	sigGasConsumer := options.SigGasConsumer
+	if sigGasConsumer == nil {
+		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
+	}
+
+	anteDecorators := []sdk.AnteDecorator{
+		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+
+		authante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+
 		authante.NewValidateBasicDecorator(),
 		authante.NewTxTimeoutHeightDecorator(),
-		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
+
 		authante.NewValidateMemoDecorator(options.AccountKeeper),
 		authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		// SetPubKeyDecorator must be called before all signature verification decorators
-		authante.NewSetPubKeyDecorator(options.AccountKeeper),
+		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 		authante.NewValidateSigCountDecorator(options.AccountKeeper),
-		authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		// Note: signature verification uses EIP instead of the cosmos signature validator
-		ethante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		authante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
+		authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-	)
+	}
+
+	anteDecorators = append(anteDecorators, ibcante.NewRedundantRelayDecorator(options.IBCKeeper))
+
+	return anteDecorators
 }
