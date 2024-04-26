@@ -9,6 +9,7 @@
 * **local script:** updated default genesis created on extended guide with EIP 3855 ([#183](https://github.com/dymensionxyz/rollapp-evm/issues/183)) ([d201be4](https://github.com/dymensionxyz/rollapp-evm/commit/d201be4ee6757c912ecae568207c1ea358387cae))
 * multiple fixes to advance readme features ([#141](https://github.com/dymensionxyz/rollapp-evm/issues/141)) ([469d39f](https://github.com/dymensionxyz/rollapp-evm/commit/469d39fc79591cdae4455839db1546cc5bd9c053))
 * **readme:** broken links have been renewed. ([#78](https://github.com/dymensionxyz/rollapp-evm/issues/78)) ([c7df6f2](https://github.com/dymensionxyz/rollapp-evm/commit/c7df6f29c8b9981d7a998be4091d2e96c19647a3))
+* remove deprecated denommetadata param ([f32d809](https://github.com/dymensionxyz/rollapp-evm/commit/f32d809b21a9d72a8c3ee9b5d1ad91d263f27ca0))
 * **scripts:** add an option to skip evm base fees ([#162](https://github.com/dymensionxyz/rollapp-evm/issues/162)) ([ea51eee](https://github.com/dymensionxyz/rollapp-evm/commit/ea51eee8d66dbba587d6ec00395418a1f08b99a8))
 * **scripts:** fix hubgenesis tokens in update genesis ([#172](https://github.com/dymensionxyz/rollapp-evm/issues/172)) ([8d37db8](https://github.com/dymensionxyz/rollapp-evm/commit/8d37db874902eb483293894333416d54bd051e72))
 * **scripts:** remove redundant line in setup ibc script ([#161](https://github.com/dymensionxyz/rollapp-evm/issues/161)) ([57d4f17](https://github.com/dymensionxyz/rollapp-evm/commit/57d4f170779dbaeac0e877d1005709d48a4df2f0))

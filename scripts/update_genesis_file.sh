@@ -52,10 +52,10 @@ module_account_balance=$(
 )
 
 hubgenesis_tokens=$(
-jq -n \
-  --arg denom "$BASE_DENOM" \
-  --arg amount "60000000000000000000000" \
-  '[{
+  jq -n \
+    --arg denom "$BASE_DENOM" \
+    --arg amount "60000000000000000000000" \
+    '[{
     "denom": $denom,
     "amount": $amount
   }]'
@@ -86,7 +86,6 @@ jq --argjson elevated_address_json "$elevated_address_json" '.app_state.sequence
 # ---------------------------- add denom metadata ---------------------------- #
 denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 # ----------------------------- update evm params ---------------------------- #
 
