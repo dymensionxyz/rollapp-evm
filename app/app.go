@@ -729,7 +729,18 @@ func NewRollapp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	h := ante.MustCreateHandler(
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.IBCKeeper,
+		app.FeeMarketKeeper,
+		app.EvmKeeper,
+		app.FeeGrantKeeper,
+		encodingConfig.TxConfig,
+		maxGasWanted,
+		app.SequencersKeeper.HasPermission,
+	)
+	app.SetAnteHandler(h)
 	app.setPostHandler()
 
 	if loadLatest {
@@ -742,21 +753,6 @@ func NewRollapp(
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
-}
-
-func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	h := ante.MustCreateHandler(
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.IBCKeeper,
-		app.FeeMarketKeeper,
-		app.EvmKeeper,
-		app.FeeGrantKeeper,
-		txConfig,
-		maxGasWanted,
-		app.SequencersKeeper.HasPermission,
-	)
-	app.SetAnteHandler(h)
 }
 
 func (app *App) setPostHandler() {
