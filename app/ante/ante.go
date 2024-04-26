@@ -16,6 +16,8 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
+type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
+
 func MustCreateHandler(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,
@@ -25,7 +27,7 @@ func MustCreateHandler(
 	feeGrantKeeper authante.FeegrantKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
-	hashPermission HasPermission,
+	hasPermission HasPermission,
 ) sdk.AnteHandler {
 	ethOpts := ethante.HandlerOptions{
 		AccountKeeper:          accountKeeper,
@@ -49,7 +51,7 @@ func MustCreateHandler(
 
 	opts := HandlerOptions{
 		HandlerOptions: ethOpts,
-		hasPermission:  hashPermission,
+		hasPermission:  hasPermission,
 	}
 
 	h, err := NewHandler(opts)
