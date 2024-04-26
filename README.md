@@ -182,11 +182,25 @@ rollapp-evm start
 ### Install dymension relayer
 
 ```shell
-git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.2.0-v2.3.1-relayer
+git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.0-v2.5.2-relayer
 cd go-relayer && make install
 ```
 
 ### Establish IBC channel
+
+Setup block time to be 3s for easy ibc channel establishment
+
+Linux:
+
+```shell
+sed -i 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+```
+
+Mac:
+
+```shell
+sed -i '' 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' "${ROLLAPP_HOME_DIR}/config/dymint.toml"
+```
 
 Verify you have all the environment variables defined earlier set.
 while the rollapp and the local dymension hub node running, run:
@@ -205,16 +219,18 @@ Stop the rollapp:
 kill $(pgrep rollapp-evm)
 ```
 
+Change back to 1hr block time:
+
 Linux:
 
 ```shell
-sed -i 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "3600s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "1h0m0s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
 Mac:
 
 ```shell
-sed -i '' 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "3600s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+sed -i '' 's/empty_blocks_max_time = "3s"/empty_blocks_max_time = "1h0m0s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
 Start the rollapp:

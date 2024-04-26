@@ -2,10 +2,10 @@ package backend
 
 import (
 	"context"
+
 	"github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/config"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
-	hubgentypes "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/types"
 	sequencerstypes "github.com/dymensionxyz/dymension-rdk/x/sequencers/types"
 	raeberpctypes "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -15,7 +15,6 @@ type RollAppEvmBackendI interface {
 	// Misc
 
 	GetSequencersModuleParams() (*sequencerstypes.Params, error)
-	GetHubGenesisModuleParams() (*hubgentypes.Params, error)
 }
 
 var _ RollAppEvmBackendI = (*RollAppEvmBackend)(nil)
