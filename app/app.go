@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/dymensionxyz/rollapp-evm/app/ante"
-
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -143,21 +141,23 @@ const (
 	Name                 = "rollapp_evm"
 )
 
-var kvstorekeys = []string{
-	authtypes.StoreKey, banktypes.StoreKey,
-	stakingtypes.StoreKey, seqtypes.StoreKey,
-	minttypes.StoreKey, distrtypes.StoreKey,
-	govtypes.StoreKey, paramstypes.StoreKey,
-	ibchost.StoreKey, upgradetypes.StoreKey,
-	epochstypes.StoreKey, hubgentypes.StoreKey,
-	ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-	// ethermint keys
-	evmtypes.StoreKey, feemarkettypes.StoreKey,
-	// evmos keys
-	erc20types.StoreKey,
-	claimstypes.StoreKey,
-	denommetadatamoduletypes.StoreKey,
-}
+var (
+	kvstorekeys = []string{
+		authtypes.StoreKey, banktypes.StoreKey,
+		stakingtypes.StoreKey, seqtypes.StoreKey,
+		minttypes.StoreKey, distrtypes.StoreKey,
+		govtypes.StoreKey, paramstypes.StoreKey,
+		ibchost.StoreKey, upgradetypes.StoreKey,
+		epochstypes.StoreKey, hubgentypes.StoreKey,
+		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
+		// ethermint keys
+		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		// evmos keys
+		erc20types.StoreKey,
+		claimstypes.StoreKey,
+		denommetadatamoduletypes.StoreKey,
+	}
+)
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
@@ -323,6 +323,7 @@ func NewRollapp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
+
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -722,24 +723,6 @@ func NewRollapp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	h := ante.MustCreateHandler(
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.IBCKeeper,
-		// TODO: use the right keepers
-		// app.FeeMarketKeeper,
-		// app.EvmKeeper,
-		// app.FeeGrantKeeper,
-		nil,
-		nil,
-		nil,
-		encodingConfig.TxConfig,
-		maxGasWanted,
-		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
-			return false
-		},
-	)
-	app.SetAnteHandler(h)
 	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 	app.setPostHandler()
 
@@ -811,7 +794,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 
-	// Passing the dymint sequencers to the sequencer module from RequestInitChain
+	//Passing the dymint sequencers to the sequencer module from RequestInitChain
 	if len(req.Validators) == 0 {
 		panic("Dymint have no sequencers defined on InitChain")
 	}
