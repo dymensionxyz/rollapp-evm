@@ -72,7 +72,7 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		NewPermissionedURLsDecorator(
 			func(ctx sdk.Context, accAddr sdk.AccAddress) bool {
 				return options.hasPermission(ctx, accAddr, vestingtypes.ModuleName)
-			}, []string{ // TODO: can it go here?
+			}, []string{
 				sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
