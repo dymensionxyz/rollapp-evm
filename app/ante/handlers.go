@@ -20,7 +20,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ethante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
 		ethante.NewCanTransferDecorator(options.EvmKeeper),
-		ethante.NewVirtualFrontierContractDecorator(options.EvmKeeper), // prevent transfer to virtual frontier contract
+		// NOTE: the ethermint code has the VFC blocker here, but we don't need it https://github.com/dymensionxyz/rollapp-evm/pull/197#discussion_r1581136564
 		ethante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
 		ethante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
 		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
