@@ -50,6 +50,12 @@ And initialize the rollapp:
 sh scripts/init.sh
 ```
 
+Validate genesis file:
+
+```shell
+rollapp-evm validate-genesis
+```
+
 ### Run rollapp
 
 ```shell
