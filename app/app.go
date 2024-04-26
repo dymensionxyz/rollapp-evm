@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
+
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -121,7 +123,6 @@ import (
 
 	/* ------------------------------ ethermint imports ----------------------------- */
 
-	ethante "github.com/evmos/ethermint/app/ante"
 	"github.com/evmos/ethermint/ethereum/eip712"
 	srvflags "github.com/evmos/ethermint/server/flags"
 	ethermint "github.com/evmos/ethermint/types"
@@ -148,23 +149,21 @@ const (
 	Name = "rollapp_evm"
 )
 
-var (
-	kvstorekeys = []string{
-		authtypes.StoreKey, authzkeeper.StoreKey,
-		feegrant.StoreKey, banktypes.StoreKey,
-		stakingtypes.StoreKey, seqtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey,
-		ibchost.StoreKey, upgradetypes.StoreKey,
-		epochstypes.StoreKey, hubgentypes.StoreKey,
-		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		// ethermint keys
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// evmos keys
-		erc20types.StoreKey,
-		denommetadatamoduletypes.StoreKey,
-	}
-)
+var kvstorekeys = []string{
+	authtypes.StoreKey, authzkeeper.StoreKey,
+	feegrant.StoreKey, banktypes.StoreKey,
+	stakingtypes.StoreKey, seqtypes.StoreKey,
+	minttypes.StoreKey, distrtypes.StoreKey,
+	govtypes.StoreKey, paramstypes.StoreKey,
+	ibchost.StoreKey, upgradetypes.StoreKey,
+	epochstypes.StoreKey, hubgentypes.StoreKey,
+	ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
+	// ethermint keys
+	evmtypes.StoreKey, feemarkettypes.StoreKey,
+	// evmos keys
+	erc20types.StoreKey,
+	denommetadatamoduletypes.StoreKey,
+}
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
@@ -329,7 +328,6 @@ func NewRollapp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -747,31 +745,18 @@ func NewRollapp(
 }
 
 func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	options := ethante.HandlerOptions{
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		EvmKeeper:              app.EvmKeeper,
-		FeegrantKeeper:         app.FeeGrantKeeper,
-		IBCKeeper:              app.IBCKeeper,
-		FeeMarketKeeper:        app.FeeMarketKeeper,
-		SigGasConsumer:         ethante.DefaultSigVerificationGasConsumer,
-		MaxTxGasWanted:         maxGasWanted,
-		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
-		DisabledAuthzMsgs: []string{
-			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
-		},
-	}
-	handler, err := ethante.NewAnteHandler(options)
-	if err != nil {
-		panic(err)
-	}
-
-	app.SetAnteHandler(handler)
+	h := ante.MustCreateHandler(
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.IBCKeeper,
+		app.FeeMarketKeeper,
+		app.EvmKeeper,
+		app.FeeGrantKeeper,
+		txConfig,
+		maxGasWanted,
+		app.SequencersKeeper.HasPermission,
+	)
+	app.SetAnteHandler(h)
 }
 
 func (app *App) setPostHandler() {
