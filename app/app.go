@@ -745,7 +745,7 @@ func NewRollapp(
 }
 
 func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	h := ante.MustCreateAnteHandler(
+	h := ante.MustCreateHandler(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper,
