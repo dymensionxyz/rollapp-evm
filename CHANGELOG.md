@@ -5,6 +5,7 @@
 
 * **app:** fixed bech32 on account keeper to not be hardcoded  ([#165](https://github.com/dymensionxyz/rollapp-evm/issues/165)) ([750d1e7](https://github.com/dymensionxyz/rollapp-evm/commit/750d1e70ad052daf7b2942bcecaf0dddfbc17d90))
 * **deps:** bumps `block-explorer-rpc-cosmos v1.0.3` & `evm-block-explorer-rpc-cosmos` v1.0.3 ([#142](https://github.com/dymensionxyz/rollapp-evm/issues/142)) ([ea5e5fd](https://github.com/dymensionxyz/rollapp-evm/commit/ea5e5fdc854d5a4fa4079c4d79b79732e78cf9d8))
+* **init scripts:** update account-prefix in ibc script ([2646fee](https://github.com/dymensionxyz/rollapp-evm/commit/2646feedc508361d10b6bd5a584fe9ac1b6ef538))
 * **local script:** updated default genesis created on extended guide with EIP 3855 ([#183](https://github.com/dymensionxyz/rollapp-evm/issues/183)) ([d201be4](https://github.com/dymensionxyz/rollapp-evm/commit/d201be4ee6757c912ecae568207c1ea358387cae))
 * multiple fixes to advance readme features ([#141](https://github.com/dymensionxyz/rollapp-evm/issues/141)) ([469d39f](https://github.com/dymensionxyz/rollapp-evm/commit/469d39fc79591cdae4455839db1546cc5bd9c053))
 * **readme:** broken links have been renewed. ([#78](https://github.com/dymensionxyz/rollapp-evm/issues/78)) ([c7df6f2](https://github.com/dymensionxyz/rollapp-evm/commit/c7df6f29c8b9981d7a998be4091d2e96c19647a3))
