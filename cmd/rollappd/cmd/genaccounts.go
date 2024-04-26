@@ -18,6 +18,7 @@ import (
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	rdk_genutiltypes "github.com/dymensionxyz/dymension-rdk/x/genutil/types"
 	ethtutil "github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/hd"
 	ethermint "github.com/evmos/ethermint/types"
@@ -135,7 +136,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			}
 
 			genFile := config.GenesisFile()
-			appState, genDoc, err := GenesisStateFromGenFile(genFile)
+			appState, genDoc, err := rdk_genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}

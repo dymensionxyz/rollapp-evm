@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"log"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	rdk_servertypes "github.com/dymensionxyz/dymension-rdk/server/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis file.
 func (app *App) ExportAppStateAndValidators(
 	forZeroHeight bool, jailAllowedAddrs []string,
-) (servertypes.ExportedApp, error) {
+) (rdk_servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
@@ -30,14 +30,14 @@ func (app *App) ExportAppStateAndValidators(
 	genState := app.mm.ExportGenesis(ctx, app.appCodec)
 	appState, err := json.MarshalIndent(genState, "", "  ")
 	if err != nil {
-		return servertypes.ExportedApp{}, err
+		return rdk_servertypes.ExportedApp{}, err
 	}
 
 	validators, err := staking.WriteValidators(ctx, app.StakingKeeper.Keeper)
 	if err != nil {
-		return servertypes.ExportedApp{}, err
+		return rdk_servertypes.ExportedApp{}, err
 	}
-	return servertypes.ExportedApp{
+	return rdk_servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
 		Height:          height,

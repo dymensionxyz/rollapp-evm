@@ -41,7 +41,9 @@ import (
 
 	ethermintclient "github.com/evmos/ethermint/client"
 
+	rdk_servertypes "github.com/dymensionxyz/dymension-rdk/server/types"
 	rdk_genutilcli "github.com/dymensionxyz/dymension-rdk/x/genutil/client/cli"
+	rdk_genutiltypes "github.com/dymensionxyz/dymension-rdk/x/genutil/types"
 	evmserver "github.com/evmos/ethermint/server"
 	evmconfig "github.com/evmos/ethermint/server/config"
 )
@@ -118,7 +120,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			cfg := serverCtx.Config
 			genFile := cfg.GenesisFile()
 			if tmos.FileExists(genFile) {
-				genDoc, _ := GenesisDocFromFile(genFile)
+				genDoc, _ := rdk_genutiltypes.GenesisDocFromFile(genFile)
 				rdk_utils.SetPrefixes(sdkconfig, genDoc["bech32_prefix"].(string))
 			} else {
 				rdk_utils.SetPrefixes(sdkconfig, "ethm")
@@ -184,7 +186,7 @@ func initRootCmd(
 		config := serverCtx.Config
 		path := config.GenesisFile()
 
-		genDoc, err := GenesisDocFromFile(path)
+		genDoc, err := rdk_genutiltypes.GenesisDocFromFile(path)
 		if err != nil {
 			fmt.Println("Failed to read genesis doc from file", err)
 		}
@@ -316,12 +318,12 @@ func (ac appCreator) appExport(
 	height int64,
 	forZeroHeight bool,
 	jailAllowedAddrs []string,
-	appOpts servertypes.AppOptions,
-) (servertypes.ExportedApp, error) {
+	appOpts rdk_servertypes.AppOptions,
+) (rdk_servertypes.ExportedApp, error) {
 	var rollapp *app.App
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
-		return servertypes.ExportedApp{}, errors.New("application home not set")
+		return rdk_servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
 	loadLatest := height == -1
@@ -339,58 +341,9 @@ func (ac appCreator) appExport(
 
 	if height != -1 {
 		if err := rollapp.LoadHeight(height); err != nil {
-			return servertypes.ExportedApp{}, err
+			return rdk_servertypes.ExportedApp{}, err
 		}
 	}
 
 	return rollapp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
-}
-
-// GenesisStateFromGenFile creates the core parameters for genesis initialization
-// for the application.
-//
-// NOTE: The pubkey input is this machines pubkey.
-func GenesisStateFromGenFile(genFile string) (genesisState map[string]json.RawMessage, genDoc map[string]interface{}, err error) {
-	if !tmos.FileExists(genFile) {
-		return genesisState, genDoc,
-			fmt.Errorf("%s does not exist, run `init` first", genFile)
-	}
-
-	genDoc, err = GenesisDocFromFile(genFile)
-	if err != nil {
-		return genesisState, genDoc, err
-	}
-
-	bz, err := json.Marshal(genDoc["app_state"])
-	if err != nil {
-		return genesisState, genDoc, err
-	}
-
-	err = json.Unmarshal(bz, &genesisState)
-	return genesisState, genDoc, err
-}
-
-// GenesisDocFromFile reads JSON data from a file and unmarshalls it into a GenesisDoc.
-func GenesisDocFromFile(genDocFile string) (map[string]interface{}, error) {
-	jsonBlob, err := os.ReadFile(genDocFile)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't read GenesisDoc file: %w", err)
-	}
-
-	genDoc, err := GenesisDocFromJSON(jsonBlob)
-	if err != nil {
-		return nil, fmt.Errorf("error reading GenesisDoc at %s: %w", genDocFile, err)
-	}
-	return genDoc, nil
-}
-
-// GenesisDocFromJSON unmarshalls JSON data into a GenesisDoc.
-func GenesisDocFromJSON(jsonBlob []byte) (map[string]interface{}, error) {
-	genDoc := make(map[string]interface{})
-	err := json.Unmarshal(jsonBlob, &genDoc)
-	if err != nil {
-		return nil, err
-	}
-
-	return genDoc, err
 }
