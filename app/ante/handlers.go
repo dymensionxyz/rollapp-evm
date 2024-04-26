@@ -67,13 +67,14 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		ethante.NewAuthzLimiterDecorator(options.DisabledAuthzMsgs),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(extensionChecker),
-		NewPermissionedURLsDecorator(func(ctx sdk.Context, accAddr sdk.AccAddress) bool {
-			return options.hasPermission(ctx, accAddr, vestingtypes.ModuleName)
-		}, []string{ // TODO: can it go here?
-			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
-		}),
+		NewPermissionedURLsDecorator(
+			func(ctx sdk.Context, accAddr sdk.AccAddress) bool {
+				return options.hasPermission(ctx, accAddr, vestingtypes.ModuleName)
+			}, []string{ // TODO: can it go here?
+				sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
+				sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
+			}),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
