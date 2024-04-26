@@ -5,18 +5,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
 )
+
+type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, permission string) bool
 
 // PermissionedVestingDecorator prevents invalid msg types from being executed
 type PermissionedVestingDecorator struct {
-	sequencerKeeper     seqkeeper.Keeper
+	hasPermission       HasPermission
 	disabledMsgTypeURLs []string
 }
 
-func NewPermissionedVestingDecorator(sequencerKeeper seqkeeper.Keeper, msgTypeURLs []string) PermissionedVestingDecorator {
+func NewPermissionedVestingDecorator(hasPermission HasPermission, msgTypeURLs []string) PermissionedVestingDecorator {
 	return PermissionedVestingDecorator{
-		sequencerKeeper:     sequencerKeeper,
+		hasPermission:       hasPermission,
 		disabledMsgTypeURLs: msgTypeURLs,
 	}
 }
@@ -34,7 +35,7 @@ func (pvd PermissionedVestingDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 				}
 
 				signer := msg.GetSigners()[0]
-				if !pvd.sequencerKeeper.HasPermission(ctx, signer, vestingtypes.ModuleName) {
+				if !pvd.hasPermission(ctx, signer, vestingtypes.ModuleName) {
 					return ctx, sdkerrors.ErrUnauthorized
 				}
 			}

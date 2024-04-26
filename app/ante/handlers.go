@@ -1,12 +1,11 @@
 package ante
 
 import (
-	"cosmossdk.io/errors"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errors2 "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	ethante "github.com/evmos/ethermint/app/ante"
 )
@@ -31,7 +30,11 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		cosmosDecorators(options, options.ExtensionOptionChecker, ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler))...,
+		cosmosDecorators(
+			options,
+			options.ExtensionOptionChecker, // make sure there are no extension options
+			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
+		)...,
 	)
 }
 
@@ -40,15 +43,21 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 	// TODO: do we need anything extra? See hub decorators https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L38-L39
 	return sdk.ChainAnteDecorators(
-		cosmosDecorators(options, func(c *codectypes.Any) bool {
-			return true
-		},
+		cosmosDecorators(
+			options,
+			func(c *codectypes.Any) bool {
+				return true
+			},
 			ethante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
 		)...,
 	)
 }
 
 func cosmosDecorators(options HandlerOptions, extensionChecker authante.ExtensionOptionChecker, sigChecker sdk.AnteDecorator) []sdk.AnteDecorator {
+	sigGasConsumer := options.SigGasConsumer
+	if sigGasConsumer == nil {
+		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
+	}
 	// TODO: do we need anything extra? See hub decorators
 	//  https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L79-L80
 	//  https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L38-L39
@@ -58,6 +67,11 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		ethante.NewAuthzLimiterDecorator(options.DisabledAuthzMsgs),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(extensionChecker),
+		NewPermissionedVestingDecorator(options.hasPermission, []string{ // TODO: can it go here?
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
+		}),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
@@ -67,59 +81,10 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
 		sigChecker,
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	}
-}
-
-// NewHandler returns an AnteHandler that checks and increments sequence
-// numbers, checks signatures & account numbers, and deducts fees from the first
-// signer.
-func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
-	// From x/auth/ante.go
-	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(errors2.ErrLogic, "account keeper is required for ante builder")
-	}
-
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(errors2.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(errors2.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
-	return sdk.ChainAnteDecorators(Decorators(options)...), nil
-}
-
-func Decorators(options HandlerOptions) []sdk.AnteDecorator {
-	sigGasConsumer := options.SigGasConsumer
-	if sigGasConsumer == nil {
-		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
-	}
-
-	anteDecorators := []sdk.AnteDecorator{
-		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-
-		authante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-
-		authante.NewValidateBasicDecorator(),
-		authante.NewTxTimeoutHeightDecorator(),
-
-		authante.NewValidateMemoDecorator(options.AccountKeeper),
-		authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
-		authante.NewValidateSigCountDecorator(options.AccountKeeper),
-		authante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
-		authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
-	}
-
-	anteDecorators = append(anteDecorators, ibcante.NewRedundantRelayDecorator(options.IBCKeeper))
-
-	return anteDecorators
 }

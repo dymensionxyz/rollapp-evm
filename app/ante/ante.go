@@ -54,10 +54,22 @@ type HandlerOptions struct {
 	ethante.HandlerOptions
 	authanteOps authante.HandlerOptions
 
-	IBCKeeper *ibckeeper.Keeper
+	hasPermission HasPermission
+	IBCKeeper     *ibckeeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {
+	if o.AccountKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	}
+
+	if o.BankKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	}
+
+	if o.SignModeHandler == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	}
 	return nil // TODO:
 }
 
