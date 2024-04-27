@@ -113,7 +113,7 @@ jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_ad
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
-if [ "$answer" != "${answer#[Nn]}" ] ; then
+if [ ! "$answer" != "${answer#[Nn]}" ] ;then
   "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
