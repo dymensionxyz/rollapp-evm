@@ -50,12 +50,6 @@ And initialize the rollapp:
 sh scripts/init.sh
 ```
 
-Validate genesis file:
-
-```shell
-rollapp-evm validate-genesis
-```
-
 ### Run rollapp
 
 ```shell
@@ -169,6 +163,12 @@ sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HO
 
 ```shell
 sh scripts/update_genesis_file.sh
+```
+
+Validate genesis file:
+
+```shell
+rollapp-evm validate-genesis
 ```
 
 ```shell
