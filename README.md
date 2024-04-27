@@ -23,7 +23,7 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 Build and install the ```rollapp-evm``` binary:
 
 ```shell
-make install
+make install BECH32_PREFIX=ethm
 ```
 
 ### Initial configuration
