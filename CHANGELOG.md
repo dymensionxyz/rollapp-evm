@@ -1,9 +1,10 @@
-# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-26)
+# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-27)
 
 
 ### Bug Fixes
 
 * **app:** fixed bech32 on account keeper to not be hardcoded  ([#165](https://github.com/dymensionxyz/rollapp-evm/issues/165)) ([750d1e7](https://github.com/dymensionxyz/rollapp-evm/commit/750d1e70ad052daf7b2942bcecaf0dddfbc17d90))
+* **app:** initialize transferkeeper before denommetadatakeeper to avoid nil pointer error ([#194](https://github.com/dymensionxyz/rollapp-evm/issues/194)) ([8050f59](https://github.com/dymensionxyz/rollapp-evm/commit/8050f59de96fde9130b00738048462860ce51be8))
 * **deps:** bumps `block-explorer-rpc-cosmos v1.0.3` & `evm-block-explorer-rpc-cosmos` v1.0.3 ([#142](https://github.com/dymensionxyz/rollapp-evm/issues/142)) ([ea5e5fd](https://github.com/dymensionxyz/rollapp-evm/commit/ea5e5fdc854d5a4fa4079c4d79b79732e78cf9d8))
 * **init scripts:** update account-prefix in ibc script ([#190](https://github.com/dymensionxyz/rollapp-evm/issues/190)) ([25be6c3](https://github.com/dymensionxyz/rollapp-evm/commit/25be6c3dda7885870d514438548e10daad45f4d7))
 * **local script:** updated default genesis created on extended guide with EIP 3855 ([#183](https://github.com/dymensionxyz/rollapp-evm/issues/183)) ([d201be4](https://github.com/dymensionxyz/rollapp-evm/commit/d201be4ee6757c912ecae568207c1ea358387cae))
