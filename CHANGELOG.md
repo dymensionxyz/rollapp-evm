@@ -14,6 +14,7 @@
 * **scripts:** add an option to skip evm base fees ([#162](https://github.com/dymensionxyz/rollapp-evm/issues/162)) ([ea51eee](https://github.com/dymensionxyz/rollapp-evm/commit/ea51eee8d66dbba587d6ec00395418a1f08b99a8))
 * **scripts:** fix hubgenesis tokens in update genesis ([#172](https://github.com/dymensionxyz/rollapp-evm/issues/172)) ([8d37db8](https://github.com/dymensionxyz/rollapp-evm/commit/8d37db874902eb483293894333416d54bd051e72))
 * **scripts:** remove redundant line in setup ibc script ([#161](https://github.com/dymensionxyz/rollapp-evm/issues/161)) ([57d4f17](https://github.com/dymensionxyz/rollapp-evm/commit/57d4f170779dbaeac0e877d1005709d48a4df2f0))
+* **scripts:** fix wrong logic in init.sh ([4c5e876](https://github.com/dymensionxyz/rollapp-evm/pull/202/commits/4c5e876d387255aa711f295c1e95fee29b3727da))
 * **test scripts:** make alice and bob keys in .rollap dir ([#147](https://github.com/dymensionxyz/rollapp-evm/issues/147)) ([b6ee646](https://github.com/dymensionxyz/rollapp-evm/commit/b6ee64640af1b528728414bded6a70216a4b5fdf))
 * updated block size and evm `no_base_fee` ([#160](https://github.com/dymensionxyz/rollapp-evm/issues/160)) ([876ccad](https://github.com/dymensionxyz/rollapp-evm/commit/876ccad96765d0d3bd279903c552ab483ecf6b9a))
 
