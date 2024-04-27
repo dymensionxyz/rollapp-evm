@@ -23,7 +23,8 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 Build and install the ```rollapp-evm``` binary:
 
 ```shell
-make install BECH32_PREFIX=ethm
+export BECH32_PREFIX=ethm
+make install BECH32_PREFIX=$BECH32_PREFIX
 ```
 
 ### Initial configuration
@@ -32,7 +33,7 @@ export the following variables:
 
 ```shell
 export EXECUTABLE="rollapp-evm"
-
+export BECH32_PREFIX="ethm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
