@@ -137,12 +137,12 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "ethm"
-	Name                 = "rollapp_evm"
+	Name = "rollapp_evm"
 )
 
 var (
-	kvstorekeys = []string{
+	AccountAddressPrefix string
+	kvstorekeys          = []string{
 		authtypes.StoreKey, banktypes.StoreKey,
 		stakingtypes.StoreKey, seqtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey,
