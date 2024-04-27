@@ -176,6 +176,20 @@ rollapp-evm validate-genesis
 sh scripts/add_vesting_accounts_to_genesis_file.sh
 ```
 
+### Change to 3s block time for ibc connection initialization
+
+Linux:
+
+```shell
+sed -i 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
+Mac:
+
+```shell
+sed -i '' 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
 ### Run rollapp locally
 
 ```shell
