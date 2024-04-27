@@ -23,7 +23,8 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 Build and install the ```rollapp-evm``` binary:
 
 ```shell
-make install BECH32_PREFIX=ethm
+export BECH32_PREFIX=ethm
+make install BECH32_PREFIX=$BECH32_PREFIX
 ```
 
 ### Initial configuration
@@ -32,7 +33,7 @@ export the following variables:
 
 ```shell
 export EXECUTABLE="rollapp-evm"
-
+export BECH32_PREFIX="ethm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
@@ -165,9 +166,29 @@ sed -i '' 's|rollapp_id =.*|rollapp_id = '\"$ROLLAPP_CHAIN_ID\"'|' "${ROLLAPP_HO
 sh scripts/update_genesis_file.sh
 ```
 
+Validate genesis file:
+
+```shell
+rollapp-evm validate-genesis
+```
+
 ```shell
 # this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
 sh scripts/add_vesting_accounts_to_genesis_file.sh
+```
+
+### Change to 3s block time for ibc connection initialization
+
+Linux:
+
+```shell
+sed -i 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
+```
+
+Mac:
+
+```shell
+sed -i '' 's/empty_blocks_max_time = "1h0m0s"/empty_blocks_max_time = "3s"/' ${ROLLAPP_HOME_DIR}/config/dymint.toml
 ```
 
 ### Run rollapp locally
