@@ -3,6 +3,9 @@
 PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
+ifndef BECH32_PREFIX
+    $(error BECH32_PREFIX is not set)
+endif
 
 # don't override user values
 ifeq (,$(VERSION))
@@ -27,7 +30,8 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=rollapp-evm \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION)
+	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX)
 
 
 
