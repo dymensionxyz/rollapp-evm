@@ -94,7 +94,7 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
 		sigChecker,
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
