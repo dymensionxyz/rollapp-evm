@@ -62,7 +62,7 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
 	}
 	return []sdk.AnteDecorator{
-		cosmosante.NewRejectMessagesDecorator(evmosante.BlockedMessages()), // reject MsgEthereumTxs
+		cosmosante.NewRejectMessagesDecorator(evmosante.BlockedMessages()), // TODO: only reject eth ones, not vesting ones
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
 			evmosante.BlockedMessages()...,
 		),
