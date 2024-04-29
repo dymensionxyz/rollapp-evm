@@ -731,8 +731,13 @@ func NewRollapp(
 		encodingConfig.TxConfig,
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
-			// TODO: impl
-			return false
+			/*
+				TODO: Impl check to see if the account has the permission.
+					We had a plan to use the sequencers module to manager permissions, but that idea was changed
+					For now we will need a simple place in the RDK to store the whitelist
+					This will all get scrapped at some point anyway
+			*/
+			return false // No! you don't have permission
 		},
 	)
 	app.SetAnteHandler(h)
