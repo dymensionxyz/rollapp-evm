@@ -80,10 +80,10 @@ if [ -z "$KEY_NAME_ROLLAPP" ]; then
 fi
 
 # ------------------------------- init rollapp ------------------------------- #
-"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --bech32-prefix "$BECH32"
+"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --bech32-prefix "$BECH32" --home "$ROLLAPP_HOME_DIR"
 
 # ------------------------------- client config ------------------------------ #
-"$EXECUTABLE" config chain-id "$ROLLAPP_CHAIN_ID"
+"$EXECUTABLE" config chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_HOME_DIR"
 
 # -------------------------------- app config -------------------------------- #
 # Detect the operating system
@@ -102,11 +102,11 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 # Local genesis account
-"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
-"$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test
+"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+"$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
 
 # Set sequencer's operator address
-operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
+operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --home "$ROLLAPP_HOME_DIR")
 jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 
@@ -118,4 +118,4 @@ if [ ! "$answer" != "${answer#[Nn]}" ] ;then
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
 
-"$EXECUTABLE" validate-genesis
+"$EXECUTABLE" validate-genesis --home "$ROLLAPP_HOME_DIR"

@@ -87,8 +87,8 @@ export HUB_KEY_WITH_FUNDS="hub-user" # This key should exist on the keyring-back
 create sequencer key using `dymd`
 
 ```shell
-dymd keys add sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test
-SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir ~/.rollapp_evm/sequencer_keys`
+dymd keys add sequencer --keyring-dir $ROLLAPP_HOME_DIR/sequencer_keys --keyring-backend test
+SEQUENCER_ADDR=`dymd keys show sequencer --address --keyring-backend test --keyring-dir $ROLLAPP_HOME_DIR/sequencer_keys`
 ```
 
 fund the sequencer account (if you're using a remote hub node, you must fund the sequencer account or you must have an account with enough funds in your keyring)
