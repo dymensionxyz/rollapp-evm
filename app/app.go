@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
+
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -323,7 +325,6 @@ func NewRollapp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -723,7 +724,24 @@ func NewRollapp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	h := ante.MustCreateHandler(
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.IBCKeeper,
+		// TODO: use the right keepers
+		// app.FeeMarketKeeper,
+		// app.EvmKeeper,
+		// app.FeeGrantKeeper,
+		nil,
+		nil,
+		nil,
+		encodingConfig.TxConfig,
+		maxGasWanted,
+		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
+			return false
+		},
+	)
+	app.SetAnteHandler(h)
 	app.setPostHandler()
 
 	if loadLatest {
@@ -794,7 +812,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 
-	//Passing the dymint sequencers to the sequencer module from RequestInitChain
+	// Passing the dymint sequencers to the sequencer module from RequestInitChain
 	if len(req.Validators) == 0 {
 		panic("Dymint have no sequencers defined on InitChain")
 	}
