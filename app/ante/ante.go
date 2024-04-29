@@ -14,6 +14,7 @@ import (
 	ethtypes "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
+	evmante "github.com/evmos/evmos/v12/app/ante/evm"
 )
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
@@ -22,9 +23,8 @@ func MustCreateHandler(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,
 	ibcKeeper *ibckeeper.Keeper,
-	feeMarketKeeper evmosante.FeeMarketKeeper,
-	evmKeeper evmosante.EVMKeeper,
-	feeGrantKeeper authante.FeegrantKeeper,
+	feeMarketKeeper evmante.FeeMarketKeeper,
+	evmKeeper evmante.EVMKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
 	hasPermission HasPermission,
@@ -34,7 +34,7 @@ func MustCreateHandler(
 		BankKeeper:             bankKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
 		EvmKeeper:              evmKeeper,
-		FeegrantKeeper:         feeGrantKeeper,
+		FeegrantKeeper:         nil,
 		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer, // TODO: check it
