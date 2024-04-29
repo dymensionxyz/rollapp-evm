@@ -1,4 +1,4 @@
-# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-26)
+# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-alpha...v) (2024-04-27)
 
 
 ### Bug Fixes
