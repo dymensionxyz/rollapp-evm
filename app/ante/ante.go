@@ -2,6 +2,9 @@ package ante
 
 import (
 	"fmt"
+	"runtime/debug"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -12,14 +15,19 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v12/app/ante/utils"
 	evmostypes "github.com/evmos/evmos/v12/types"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	evmosvestingtypes "github.com/evmos/evmos/v12/x/vesting/types"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
 
 func MustCreateHandler(
+	codec codec.BinaryCodec,
 	accountKeeper evmtypes.AccountKeeper,
+	stakingKeeper evmosvestingtypes.StakingKeeper,
 	bankKeeper evmtypes.BankKeeper,
 	ibcKeeper *ibckeeper.Keeper,
 	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
@@ -27,18 +35,22 @@ func MustCreateHandler(
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
 	hasPermission HasPermission,
+	distrKeeper anteutils.DistributionKeeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
+		Cdc:                    codec,
 		AccountKeeper:          accountKeeper,
 		BankKeeper:             bankKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
+		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              evmKeeper,
+		StakingKeeper:          stakingKeeper,
 		FeegrantKeeper:         nil,
+		DistributionKeeper:     distrKeeper,
 		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
+		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
 	}
 
@@ -102,6 +114,8 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
+		defer Recover(ctx.Logger(), &err)
+
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
 			opts := txWithExtensions.GetExtensionOptions()
@@ -137,4 +151,23 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 		return anteHandler(ctx, tx, sim)
 	}, nil
+}
+
+func Recover(logger tmlog.Logger, err *error) {
+	if r := recover(); r != nil {
+		*err = errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r)
+
+		if e, ok := r.(error); ok {
+			logger.Error(
+				"ante handler panicked",
+				"error", e,
+				"stack trace", string(debug.Stack()),
+			)
+		} else {
+			logger.Error(
+				"ante handler panicked",
+				"recover", fmt.Sprintf("%v", r),
+			)
+		}
+	}
 }

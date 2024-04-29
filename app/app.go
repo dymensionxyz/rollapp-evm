@@ -723,7 +723,9 @@ func NewRollapp(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	h := ante.MustCreateHandler(
+		app.appCodec,
 		app.AccountKeeper,
+		app.StakingKeeper,
 		app.BankKeeper,
 		app.IBCKeeper,
 		app.FeeMarketKeeper,
@@ -739,6 +741,7 @@ func NewRollapp(
 			*/
 			return app.DenomMetadataKeeper.IsAddressPermissioned(ctx, accAddr.String())
 		},
+		app.DistrKeeper,
 	)
 	app.SetAnteHandler(h)
 	app.setPostHandler()
