@@ -5,11 +5,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	sdkvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
-	evmosante "github.com/evmos/evmos/v12/app/ante"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // NOTE: this function is copied from evmos
@@ -62,9 +63,16 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
 	}
 	return []sdk.AnteDecorator{
-		cosmosante.NewRejectMessagesDecorator(evmosante.BlockedMessages()), // TODO: only reject eth ones, not vesting ones
+		cosmosante.NewRejectMessagesDecorator(
+			[]string{
+				sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
+			},
+		),
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			evmosante.BlockedMessages()...,
+			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
+			sdk.MsgTypeURL(&sdkvestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&sdkvestingtypes.MsgCreatePermanentLockedAccount{}),
+			sdk.MsgTypeURL(&sdkvestingtypes.MsgCreatePeriodicVestingAccount{}),
 		),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(extensionChecker),
