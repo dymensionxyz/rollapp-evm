@@ -13,7 +13,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ethtypes "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	ethante "github.com/evmos/evmos/v12/app/ante"
+	evmosante "github.com/evmos/evmos/v12/app/ante"
 )
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
@@ -22,14 +22,14 @@ func MustCreateHandler(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,
 	ibcKeeper *ibckeeper.Keeper,
-	feeMarketKeeper ethante.FeeMarketKeeper,
-	evmKeeper ethante.EVMKeeper,
+	feeMarketKeeper evmosante.FeeMarketKeeper,
+	evmKeeper evmosante.EVMKeeper,
 	feeGrantKeeper authante.FeegrantKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
 	hasPermission HasPermission,
 ) sdk.AnteHandler {
-	ethOpts := ethante.HandlerOptions{
+	ethOpts := evmosante.HandlerOptions{
 		AccountKeeper:          accountKeeper,
 		BankKeeper:             bankKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
@@ -37,10 +37,10 @@ func MustCreateHandler(
 		FeegrantKeeper:         feeGrantKeeper,
 		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
-		SigGasConsumer:         ethante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:         evmosante.DefaultSigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           ethante.NewDynamicFeeChecker(evmKeeper),
+		TxFeeChecker:           evmosante.NewDynamicFeeChecker(evmKeeper),
 		DisabledAuthzMsgs: []string{
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
@@ -63,7 +63,7 @@ func MustCreateHandler(
 
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
-	ethante.HandlerOptions
+	evmosante.HandlerOptions
 	hasPermission HasPermission
 }
 
@@ -109,7 +109,7 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		defer ethante.Recover(ctx.Logger(), &err)
+		defer evmosante.Recover(ctx.Logger(), &err)
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
