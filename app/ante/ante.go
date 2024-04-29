@@ -16,10 +16,6 @@ import (
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 )
 
-/*
-TODO: check the new*AnteHandler functions match the evmos ones in appropriate places
-*/
-
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
 
 func MustCreateHandler(
@@ -40,7 +36,7 @@ func MustCreateHandler(
 		FeegrantKeeper:         nil,
 		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
-		SigGasConsumer:         evmosante.SigVerificationGasConsumer, // TODO: check it
+		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
