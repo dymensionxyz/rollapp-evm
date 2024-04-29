@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ethtypes "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -45,12 +44,6 @@ func MustCreateHandler(
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
-		DisabledAuthzMsgs: []string{
-			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
-		},
 	}
 
 	opts := HandlerOptions{
