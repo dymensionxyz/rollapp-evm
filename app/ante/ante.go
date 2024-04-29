@@ -79,6 +79,12 @@ func (o HandlerOptions) validate() error {
 	if o.EvmKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper missing")
 	}
+	if o.DistributionKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "distribution keeper missing")
+	}
+	if o.StakingKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "staking keeper missing")
+	}
 
 	/*
 	 Our stuff
