@@ -83,8 +83,8 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 				return options.hasPermission(ctx, accAddr, vestingtypes.ModuleName)
 			}, []string{
 				sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}),
+				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 			}),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
