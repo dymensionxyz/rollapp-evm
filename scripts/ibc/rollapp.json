@@ -2,7 +2,7 @@
   "type": "cosmos",
   "value": {
     "key": "relayer-rollapp-key",
-    "chain-id": "rollappevm_8888-1",
+    "chain-id": "rollappevm_1234-1",
     "rpc-addr": "tcp://localhost:26657",
     "account-prefix": "ethm",
     "keyring-backend": "test",

@@ -55,6 +55,11 @@ if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
   exit 1
 fi
 
+if [ "$ROLLAPP_HOME_DIR" = "" ]; then
+  echo "ROLLAPP_HOME_DIR is not set"
+  exit 1
+fi
+
 # Verify that a genesis file doesn't exists for the dymension chain
 if [ -f "$GENESIS_FILE" ]; then
   printf "\n======================================================================================================\n"
@@ -102,11 +107,11 @@ set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
 # Local genesis account
-"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --keyring-dir "$ROLLAPP_HOME_DIR"
 "$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOKEN_AMOUNT" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
 
 # Set sequencer's operator address
-operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --home "$ROLLAPP_HOME_DIR")
+operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --keyring-dir $ROLLAPP_HOME_DIR --bech val --home "$ROLLAPP_HOME_DIR")
 jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_address"] = $addr' "$GENESIS_FILE" > "$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 
@@ -114,7 +119,7 @@ jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_ad
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
 if [ ! "$answer" != "${answer#[Nn]}" ] ;then
-  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --keyring-dir $ROLLAPP_HOME_DIR --home "$ROLLAPP_HOME_DIR"
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
 

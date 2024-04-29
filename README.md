@@ -174,7 +174,7 @@ sh scripts/add_vesting_accounts_to_genesis_file.sh
 ### Run rollapp locally
 
 ```shell
-rollapp-evm start
+rollapp-evm start --home $ROLLAPP_HOME_DIR
 ```
 
 ## Setup IBC between rollapp and local dymension hub node

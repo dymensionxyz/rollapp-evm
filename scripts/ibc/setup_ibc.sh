@@ -15,8 +15,8 @@ SETTLEMENT_RPC_FOR_RELAYER=$("$SETTLEMENT_EXECUTABLE" config | jq -r '."node"')
 SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
 
 # rollapp config
-ROLLAPP_CHAIN_ID=$("$EXECUTABLE" config | jq -r '."chain-id"')
-ROLLAPP_RPC_FOR_RELAYER=$("$EXECUTABLE" config | jq -r '."node"')
+ROLLAPP_CHAIN_ID=$("$EXECUTABLE" config --home $ROLLAPP_HOME_DIR | jq -r '."chain-id"')
+ROLLAPP_RPC_FOR_RELAYER=$("$EXECUTABLE" config --home $ROLLAPP_HOME_DIR | jq -r '."node"')
 
 RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
 RELAYER_KEY_FOR_HUB="relayer-hub-key"
@@ -77,8 +77,7 @@ DYM_BALANCE=$(${SETTLEMENT_EXECUTABLE} q bank balances ${RLY_HUB_ADDR} -o json |
 if [ "$(echo "$DYM_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_HUB_ADDR} already funded"
 else
-  "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RE
-LAYER" -y
+  "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y
 fi
 
 echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"'].. --------------------------------'
@@ -88,7 +87,7 @@ RA_BALANCE=$(${EXECUTABLE} q bank balances ${RLY_ROLLAPP_ADDR} -o json | jq -r '
 if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_ROLLAPP_ADDR} already funded"
 else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000$BASE_DENOM
+  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --keyring-dir $ROLLAPP_HOME_DIR --broadcast-mode block -y --fees 4000000000$BASE_DENOM
 fi
 
 echo '--------------------------------- Creating IBC path... --------------------------------'
