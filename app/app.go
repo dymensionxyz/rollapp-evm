@@ -726,12 +726,8 @@ func NewRollapp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper,
-		// TODO: use the right keepers
 		app.FeeMarketKeeper,
 		app.EvmKeeper,
-		nil,
-		// nil,
-		// nil,
 		encodingConfig.TxConfig,
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {

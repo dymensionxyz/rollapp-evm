@@ -14,7 +14,7 @@ import (
 	ethtypes "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
-	evmante "github.com/evmos/evmos/v12/app/ante/evm"
+	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 )
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
@@ -23,8 +23,8 @@ func MustCreateHandler(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,
 	ibcKeeper *ibckeeper.Keeper,
-	feeMarketKeeper evmante.FeeMarketKeeper,
-	evmKeeper evmante.EVMKeeper,
+	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
+	evmKeeper evmosanteevm.EVMKeeper,
 	txConfig client.TxConfig,
 	maxGasWanted uint64,
 	hasPermission HasPermission,
@@ -40,7 +40,7 @@ func MustCreateHandler(
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer, // TODO: check it
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(evmKeeper),
+		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
 		DisabledAuthzMsgs: []string{
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
