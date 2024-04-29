@@ -731,6 +731,7 @@ func NewRollapp(
 		encodingConfig.TxConfig,
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
+			// TODO: impl
 			return false
 		},
 	)

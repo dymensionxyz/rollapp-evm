@@ -17,6 +17,10 @@ import (
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 )
 
+/*
+TODO: check the new*AnteHandler functions match the evmos ones in appropriate places
+*/
+
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
 
 func MustCreateHandler(
