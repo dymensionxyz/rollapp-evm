@@ -47,11 +47,10 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 // Deprecated: NewLegacyCosmosAnteHandlerEip712 creates an AnteHandler to process legacy EIP-712
 // transactions, as defined by the presence of an ExtensionOptionsWeb3Tx extension.
 func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
-	// TODO: do we need anything extra? See hub decorators https://github.com/dymensionxyz/dymension/blob/7b27f5ff6c7ae499bac708a3a1d5975686e54dd7/app/ante/handlers.go#L38-L39
 	return sdk.ChainAnteDecorators(
 		cosmosDecorators(
 			options,
-			func(c *codectypes.Any) bool { return true },                                                       // allows any extension
+			func(c *codectypes.Any) bool { return true },                                                       // allows any extension, this is consistent with the evmos behavior
 			cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
 		)...,
 	)
