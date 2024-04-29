@@ -37,10 +37,10 @@ func MustCreateHandler(
 		FeegrantKeeper:         feeGrantKeeper,
 		IBCKeeper:              ibcKeeper,
 		FeeMarketKeeper:        feeMarketKeeper,
-		SigGasConsumer:         evmosante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:         evmosante.SigVerificationGasConsumer, // TODO: check it
 		MaxTxGasWanted:         maxGasWanted,
 		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           evmosante.NewDynamicFeeChecker(evmKeeper),
+		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(evmKeeper),
 		DisabledAuthzMsgs: []string{
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
