@@ -51,6 +51,12 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
+build_tags += $(BUILD_TAGS)
+build_tags := $(strip $(build_tags))
+
+whitespace :=
+whitespace += $(whitespace)
+comma := ,
 build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
@@ -69,6 +75,7 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 ###########
 # Install #
 ###########
+
 
 all: install
 
