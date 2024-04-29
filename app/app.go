@@ -113,8 +113,6 @@ import (
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
 	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
 	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
-	ethante "github.com/evmos/evmos/v12/app/ante"
-	ethanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/evmos/evmos/v12/x/claims"
@@ -754,31 +752,6 @@ func NewRollapp(
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
-}
-
-func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	options := ethante.HandlerOptions{
-		Cdc:                    app.appCodec,
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
-		EvmKeeper:              app.EvmKeeper,
-		StakingKeeper:          app.StakingKeeper,
-		FeegrantKeeper:         nil,
-		DistributionKeeper:     app.DistrKeeper,
-		IBCKeeper:              app.IBCKeeper,
-		FeeMarketKeeper:        app.FeeMarketKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         ethante.SigVerificationGasConsumer,
-		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(app.EvmKeeper),
-	}
-
-	if err := options.Validate(); err != nil {
-		panic(err)
-	}
-
-	app.SetAnteHandler(ethante.NewAnteHandler(options))
 }
 
 func (app *App) setPostHandler() {
