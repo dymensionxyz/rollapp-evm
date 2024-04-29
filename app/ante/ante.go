@@ -11,9 +11,9 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ethtypes "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
