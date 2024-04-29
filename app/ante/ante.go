@@ -109,8 +109,6 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		defer evmosante.Recover(ctx.Logger(), &err)
-
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
 			opts := txWithExtensions.GetExtensionOptions()
