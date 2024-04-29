@@ -113,7 +113,7 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 				switch typeURL := opts[0].GetTypeUrl(); typeURL {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx. It will get checked by the EVM handler to make sure it is.
-					anteHandler = newEthAnteHandler(options)
+					anteHandler = newEVMAnteHandler(options)
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
 					// Deprecated: Handle as normal Cosmos SDK tx, except signature is checked for Legacy EIP712 representation
 					anteHandler = newLegacyCosmosAnteHandlerEip712(options)
