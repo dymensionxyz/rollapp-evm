@@ -73,6 +73,8 @@ Templates for Unreleased:
 
 ## Unreleased
 
+- [#214](https://github.com/dymensionxyz/rollapp-evm/pull/214) Fix the Ledger support on the CLI
+
 ### Improvements
 
 - (deps) [#138](https://github.com/dymensionxyz/rollapp-evm/issues/138) Bumps `block-explorer-rpc-cosmos v1.0.2` & `evm-block-explorer-rpc-cosmos v1.0.2`
