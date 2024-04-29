@@ -732,12 +732,12 @@ func NewRollapp(
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
 			/*
-				TODO: Impl check to see if the account has the permission.
+				TODO:
 					We had a plan to use the sequencers module to manager permissions, but that idea was changed
-					For now we will need a simple place in the RDK to store the whitelist
-					This will all get scrapped at some point anyway
+					For now, we just assume the only account with permission is the denom one
+					We will eventually replace with something more substantial
 			*/
-			return false // No! you don't have permission
+			return app.DenomMetadataKeeper.IsAddressPermissioned(ctx, accAddr.String())
 		},
 	)
 	app.SetAnteHandler(h)
