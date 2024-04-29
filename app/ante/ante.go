@@ -10,9 +10,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	ethtypes "github.com/evmos/ethermint/types"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
+	evmostypes "github.com/evmos/evmos/v12/types"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
@@ -38,7 +38,7 @@ func MustCreateHandler(
 		FeeMarketKeeper:        feeMarketKeeper,
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		ExtensionOptionChecker: ethtypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
 	}
 

@@ -11,7 +11,6 @@ require (
 	github.com/dymensionxyz/dymension-rdk v1.6.0-rc02
 	github.com/dymensionxyz/dymint v1.1.0-rc05
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/evmos/ethermint v0.22.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
 	github.com/pkg/errors v0.9.1
