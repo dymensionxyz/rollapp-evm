@@ -1,6 +1,6 @@
 module github.com/dymensionxyz/rollapp-evm
 
-go 1.22.1
+go 1.22.2
 
 require (
 	cosmossdk.io/errors v1.0.1
@@ -8,7 +8,7 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.1-de
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.1.0-rc02
+	github.com/dymensionxyz/dymension-rdk v1.5.0-beta.0.20240426131823-98d128a4a379
 	github.com/dymensionxyz/dymint v1.1.0-rc01
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/ethermint v0.22.0

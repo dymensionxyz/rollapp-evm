@@ -109,6 +109,7 @@ import (
 	stakingkeeper "github.com/dymensionxyz/dymension-rdk/x/staking/keeper"
 
 	"github.com/dymensionxyz/dymension-rdk/x/sequencers"
+	seqclient "github.com/dymensionxyz/dymension-rdk/x/sequencers/client/cli"
 	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
 	seqtypes "github.com/dymensionxyz/dymension-rdk/x/sequencers/types"
 
@@ -179,6 +180,8 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		erc20client.RegisterCoinProposalHandler,
 		erc20client.RegisterERC20ProposalHandler,
 		erc20client.ToggleTokenConversionProposalHandler,
+		seqclient.GrantPermissionsHandler,
+		seqclient.RevokePermissionsHandler,
 	)
 
 	return govProposalHandlers

@@ -549,8 +549,8 @@ github.com/dvsekhvalnov/jose2go v1.5.0 h1:3j8ya4Z4kMCwT5nXIKFSV84YS+HdqSSO0VsTQx
 github.com/dvsekhvalnov/jose2go v1.5.0/go.mod h1:QsHjhyTlD/lAVqn/NSbVZmSCGeDehTB/mPZadG+mhXU=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240421130646-b8980ec7aade h1:LHbwDuI4hPNGSA+gWQz4ev0xt8p+ztPLEcZWR7e5YzA=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240421130646-b8980ec7aade/go.mod h1:UxhLdtWOWg7l6+5Hpkm39Khd23wcr5H62YxM04rMbh8=
-github.com/dymensionxyz/dymension-rdk v1.1.0-rc02 h1:SpBEv1QgEkatsonE1DsqxoqpqJAd23YEFJQk6Z1mJg8=
-github.com/dymensionxyz/dymension-rdk v1.1.0-rc02/go.mod h1:17+Fcqq3VXwWwhBshPxlLe3WzPEwdl4zDEYEiP5SiZ8=
+github.com/dymensionxyz/dymension-rdk v1.5.0-beta.0.20240426131823-98d128a4a379 h1:xE301iHVjHScELcWZnbdJC0QPtb0W0VXWItIRlCRBbw=
+github.com/dymensionxyz/dymension-rdk v1.5.0-beta.0.20240426131823-98d128a4a379/go.mod h1:17+Fcqq3VXwWwhBshPxlLe3WzPEwdl4zDEYEiP5SiZ8=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 h1:cmpJYdRviuUfmlJdHrcAND8Jd6JIY4rp63bWAQzPr54=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56/go.mod h1:3Pfrr8j/BR9ztNKztGfC5PqDiO6CcrzMLCJtFtPEVW4=
 github.com/dymensionxyz/dymint v1.1.0-rc01 h1:kiN+HSXOMi7V3cVOPvjrWTRIS0kyKJnooJ1T8v/2umk=
