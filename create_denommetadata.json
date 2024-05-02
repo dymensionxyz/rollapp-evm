@@ -1,0 +1,486 @@
+[
+    {
+        "token_metadata": {
+            "description": "The native token of the Celestia chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/8AF3F289A9DD8BD6FF5437F10DD96D5B2CF20E59CD7AD643BA7D87F81422FF99",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/45D6B52CAD911A15BD9C2F5FFDA80E26AFCB05C7CD520070790ABC86D2B24229",
+                        "utia"
+                    ]
+                },
+                {
+                    "denom": "TIA",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/8AF3F289A9DD8BD6FF5437F10DD96D5B2CF20E59CD7AD643BA7D87F81422FF99",
+            "display": "TIA",
+            "name": "TIA",
+            "symbol": "TIA",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-4/utia"
+    },
+    {
+        "token_metadata": {
+            "description": "USDC from the Noble chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/E2341B75AC852F89DF665F950D1C6F3EA57D69C4FEBF5ABC42E50F2468B7CD0F",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4",
+                        "uusdc"
+                    ]
+                },
+                {
+                    "denom": "USDC",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/E2341B75AC852F89DF665F950D1C6F3EA57D69C4FEBF5ABC42E50F2468B7CD0F",
+            "display": "USDC",
+            "name": "USDC",
+            "symbol": "USDC",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-6/uusdc"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Cosmos Hub chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/D219F3A490310B65BDC312B5A644B0D56FFF1789D894B902A49FBF9D2F560B32",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9",
+                        "uatom"
+                    ]
+                },
+                {
+                    "denom": "ATOM",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/D219F3A490310B65BDC312B5A644B0D56FFF1789D894B902A49FBF9D2F560B32",
+            "display": "ATOM",
+            "name": "ATOM",
+            "symbol": "ATOM",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-1/uatom"
+    },
+    {
+        "token_metadata": {
+            "description": "USDT from the Kava chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/80101A88D4D0C56398E612AF076A808DAA1819D8CC6C8AB3EE77127926E4DD91",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/B72B5B3F7AD44783584921DC33354BCE07C8EB0A7F0349247C3DAD38C3B6E6A5",
+                        "erc20/tether/usdt"
+                    ]
+                },
+                {
+                    "denom": "USDT",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/80101A88D4D0C56398E612AF076A808DAA1819D8CC6C8AB3EE77127926E4DD91",
+            "display": "USDT",
+            "name": "USDT",
+            "symbol": "USDT",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-3/erc20/tether/usdt"
+    },
+    {
+        "token_metadata": {
+            "description": "stTIA from the Stride chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/B16581AE68B1278753B75B6D83335AB81771EF6F478D37662FC0FDD238A45657",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/F46BA5EDCA6DAA5F7EFD3838430E03647CDC786BB1B89BC9FDD1CBE16B099645",
+                        "stutia"
+                    ]
+                },
+                {
+                    "denom": "stTIA",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/B16581AE68B1278753B75B6D83335AB81771EF6F478D37662FC0FDD238A45657",
+            "display": "stTIA",
+            "name": "stTIA",
+            "symbol": "stTIA",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-0/stutia"
+    },
+    {
+        "token_metadata": {
+            "description": "stDYM from the Stride chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/A70BBBCFD653125A9F0C41F6036DD823203B0C1D63D78FAB0DA8483D7B47234C",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/AB30D2F9C131AE1EFA8449C74490326BD5ACC40EF69A2D8563994AA05CE0B258",
+                        "stadym"
+                    ]
+                },
+                {
+                    "denom": "stDYM",
+                    "exponent": 18,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/A70BBBCFD653125A9F0C41F6036DD823203B0C1D63D78FAB0DA8483D7B47234C",
+            "display": "stDYM",
+            "name": "stDYM",
+            "symbol": "stDYM",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-0/stadym"
+    },
+    {
+        "token_metadata": {
+            "description": "milkTIA from the Osmosis chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/8F750EE271CF25913503F6A3A5FD6399C9BFE1CB37D9723B34AA0EEAFE518926",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/F428C5D24BEF8CA22EE74810A583422C12F02865ADAC185678C73015A88227B3",
+                        "factory/osmo1f5vfcph2dvfeqcqkhetwv75fda69z7e5c2dldm3kvgj23crkv6wqcn47a0/umilkTIA"
+                    ]
+                },
+                {
+                    "denom": "milkTIA",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/8F750EE271CF25913503F6A3A5FD6399C9BFE1CB37D9723B34AA0EEAFE518926",
+            "display": "milkTIA",
+            "name": "milkTIA",
+            "symbol": "milkTIA",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-2/factory/osmo1f5vfcph2dvfeqcqkhetwv75fda69z7e5c2dldm3kvgj23crkv6wqcn47a0/umilkTIA"
+    },
+    {
+        "token_metadata": {
+            "description": "Wrapped Ether on Axelar chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/F2D1B6955925E07BA70F8388543E26C15EBB7C19412D73244F000E3B626C5B05",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/E3AB0DFDE9E782262B770C32DF94AC2A92B93DC4825376D6F6C874D3C877864E",
+                        "weth-wei"
+                    ]
+                },
+                {
+                    "denom": "WETH",
+                    "exponent": 18,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/F2D1B6955925E07BA70F8388543E26C15EBB7C19412D73244F000E3B626C5B05",
+            "display": "WETH",
+            "name": "WETH",
+            "symbol": "WETH",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-5/weth-wei"
+    },
+    {
+        "token_metadata": {
+            "description": "Wrapped Bitcoin from the Osmosis chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/18B84F7282ADAD97D0A2142B7D484F6C22DDE99253D3C13D7CB1D98DEC952B37",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/BEE9A8F835D60717548FFE9AC9E90F18AB8096574EB1211F88074CB3511B7860",
+                        "factory/osmo1z0qrq605sjgcqpylfl4aa6s90x738j7m58wyatt0tdzflg2ha26q67k743/wbtc"
+                    ]
+                },
+                {
+                    "denom": "WBTC",
+                    "exponent": 8,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/18B84F7282ADAD97D0A2142B7D484F6C22DDE99253D3C13D7CB1D98DEC952B37",
+            "display": "WBTC",
+            "name": "WBTC",
+            "symbol": "WBTC",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-2/factory/osmo1z0qrq605sjgcqpylfl4aa6s90x738j7m58wyatt0tdzflg2ha26q67k743/wbtc"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Osmosis chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/A9956B5C1B862098A5643C951DCF8687800A70E72B40043C37C68B0EE7C356E1",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/13B2C536BB057AC79D5616B8EA1B9540EC1F2170718CAFF6F0083C966FFFED0B",
+                        "uosmo"
+                    ]
+                },
+                {
+                    "denom": "OSMO",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/A9956B5C1B862098A5643C951DCF8687800A70E72B40043C37C68B0EE7C356E1",
+            "display": "OSMO",
+            "name": "OSMO",
+            "symbol": "OSMO",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-2/uosmo"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Stride chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/E83BADFA7F390C31D365AF01AD4A2D3D452AF7828E2CA6CA81DB9FB7C0D7B18E",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/FF6C2E86490C1C4FBBD24F55032831D2415B9D7882F85C3CC9C2401D79362BEA",
+                        "ustrd"
+                    ]
+                },
+                {
+                    "denom": "STRD",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/E83BADFA7F390C31D365AF01AD4A2D3D452AF7828E2CA6CA81DB9FB7C0D7B18E",
+            "display": "STRD",
+            "name": "STRD",
+            "symbol": "STRD",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-0/ustrd"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Neutron chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/429D8A22A1DE82212C922184831016EB35C2311702D1174CE870689697D04A06",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/2F2F132E47342479A8B7A8DB241F276609C53A1478CEB9A57411A910C9B061DB",
+                        "untrn"
+                    ]
+                },
+                {
+                    "denom": "NTRN",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/429D8A22A1DE82212C922184831016EB35C2311702D1174CE870689697D04A06",
+            "display": "NTRN",
+            "name": "NTRN",
+            "symbol": "NTRN",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-9/untrn"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Kujira chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/E7BF5621FA474FF64EABF3D2814EA1E8AD3A8038159D2375A4F4AE8B923411A7",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/B22B4DD21586965DAEF42A7600BA371EA77C02E90FC8A7F2330BF9F9DE129B07",
+                        "ukuji"
+                    ]
+                },
+                {
+                    "denom": "KUJI",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/E7BF5621FA474FF64EABF3D2814EA1E8AD3A8038159D2375A4F4AE8B923411A7",
+            "display": "KUJI",
+            "name": "KUJI",
+            "symbol": "KUJI",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-10/ukuji"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Axelar chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/AEA26B26AEF7CDDFB2FF34DDE8DF2C1978E2E3842570A4CD95AA8CA91B37CB29",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/D934516FBE457F3A98AFABD87E0EFF7F95A15325C191EA8CDD7763C702FDDEC2",
+                        "uaxl"
+                    ]
+                },
+                {
+                    "denom": "AXL",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/AEA26B26AEF7CDDFB2FF34DDE8DF2C1978E2E3842570A4CD95AA8CA91B37CB29",
+            "display": "AXL",
+            "name": "AXL",
+            "symbol": "AXL",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-5/uaxl"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Secret chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/0470518ADD1C1C8A3E86CC843E715CE52C150C7B0411A1526E250525D513B7A4",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/27A5DE18D796A595123D97078F9AB9EAEFC23540724384F219EACED2BD5511F5",
+                        "uscrt"
+                    ]
+                },
+                {
+                    "denom": "SCRT",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/0470518ADD1C1C8A3E86CC843E715CE52C150C7B0411A1526E250525D513B7A4",
+            "display": "SCRT",
+            "name": "SCRT",
+            "symbol": "SCRT",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-35/uscrt"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Evmos chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/A564DD102257EBC16935C7E7F74A3AFB3E256C29CBC3A758F9AA315C34717718",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/04E01477A69DF1E5EE99F85C15B66D68D23292275357CAA44B2E0527310A405E",
+                        "aevmos"
+                    ]
+                },
+                {
+                    "denom": "EVMOS",
+                    "exponent": 18,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/A564DD102257EBC16935C7E7F74A3AFB3E256C29CBC3A758F9AA315C34717718",
+            "display": "EVMOS",
+            "name": "EVMOS",
+            "symbol": "EVMOS",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-37/aevmos"
+    },
+    {
+        "token_metadata": {
+            "description": "The native token of the Archway chain",
+            "denom_units": [
+                {
+                    "denom": "ibc/8916B3A2C14278CB2020439A96C1BC40D1049B212A2DADB07AB8E820AB642AF0",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/5C58CC109FB067073F1B80481EE9C3A8484330FECB35D2591B28E7E1A6FCF64C",
+                        "aarch"
+                    ]
+                },
+                {
+                    "denom": "ARCH",
+                    "exponent": 18,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/8916B3A2C14278CB2020439A96C1BC40D1049B212A2DADB07AB8E820AB642AF0",
+            "display": "ARCH",
+            "name": "ARCH",
+            "symbol": "ARCH",
+            "uri": "",
+            "uriHash": ""
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-45/aarch"
+    },
+    {
+        "token_metadata": {
+            "description": "Used to unlock Dymension RollApps Block Explorer features",
+            "denom_units": [
+                {
+                    "denom": "ibc/775F0FBE312978E4D9A11D4F3ED2822D7956FC32EA57B0B919FB0EA404CE0C6D",
+                    "exponent": 0,
+                    "aliases": [
+                        "ibc/5620289B0E1106C8A2421F212FEC4EB19E3CBA964662DB61754CCDE8FAAC29FF",
+                        "udrbe"
+                    ]
+                },
+                {
+                    "denom": "Dr.BE",
+                    "exponent": 6,
+                    "aliases": []
+                }
+            ],
+            "base": "ibc/775F0FBE312978E4D9A11D4F3ED2822D7956FC32EA57B0B919FB0EA404CE0C6D",
+            "display": "Dr.BE",
+            "name": "Dr.BE",
+            "symbol": "Dr.BE"
+        },
+        "denom_trace": "transfer/channel-0/transfer/channel-46/udrbe"
+    }
+]
