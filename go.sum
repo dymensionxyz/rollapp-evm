@@ -297,8 +297,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.1.1/go.mod h1:Wi0EBZwiz/K44YliU0EKxq
 github.com/aws/smithy-go v1.1.0/go.mod h1:EzMw8dbp/YJL4A5/sbhGddag+NPT7q084agLbB9LgIw=
 github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.7 h1:iKBQH4glCNzuXwjsEya893r3c41SYxOoJKamob9nZdQ=
 github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.7/go.mod h1:AWXHI5ICXK4wB+A59dNddzq5Xdc1wtQDRiIXfMw8cwc=
-github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.2 h1:EOsjOIaqlqgIz1V2zpIf4Av2OkPZsbGY2WQbhFTorr0=
-github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.2/go.mod h1:krYTATKzetOs629qD/rHKaBxRc4eDmNgI9KmrEv5aXQ=
+github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.3 h1:j/tzqUrYOL+Uwopfl4p56nHhoIzHSldTP8VLqzhmuus=
+github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.3/go.mod h1:OFU5T7Zc38gC45ZxBwX9lQT997G553lj++j6SQTipcE=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/benbjohnson/clock v1.3.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/benbjohnson/clock v1.3.5 h1:VvXlSJBzZpA/zum6Sj74hxwYI2DIxRWuNIoXAzHZz5o=
