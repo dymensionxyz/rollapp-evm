@@ -295,8 +295,8 @@ github.com/aws/aws-sdk-go-v2/service/route53 v1.1.1/go.mod h1:rLiOUrPLW/Er5kRcQ7
 github.com/aws/aws-sdk-go-v2/service/sso v1.1.1/go.mod h1:SuZJxklHxLAXgLTc1iFXbEWkXs7QRTQpCLGaKIprQW0=
 github.com/aws/aws-sdk-go-v2/service/sts v1.1.1/go.mod h1:Wi0EBZwiz/K44YliU0EKxqTCJGUfYTWXrrBwkq736bM=
 github.com/aws/smithy-go v1.1.0/go.mod h1:EzMw8dbp/YJL4A5/sbhGddag+NPT7q084agLbB9LgIw=
-github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.2 h1:/FRrJTDPr1CEDxkR58xnVd4FBJVetfeG+R9G4/EnXYI=
-github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.2/go.mod h1:AWXHI5ICXK4wB+A59dNddzq5Xdc1wtQDRiIXfMw8cwc=
+github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.3 h1:nF9aC1/fTW4hb/DWO+/D4+FWD+NIh1QHp7sVjzWdJZY=
+github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.3/go.mod h1:AWXHI5ICXK4wB+A59dNddzq5Xdc1wtQDRiIXfMw8cwc=
 github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.3 h1:j/tzqUrYOL+Uwopfl4p56nHhoIzHSldTP8VLqzhmuus=
 github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.3/go.mod h1:OFU5T7Zc38gC45ZxBwX9lQT997G553lj++j6SQTipcE=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
