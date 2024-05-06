@@ -1,0 +1,42 @@
+name: Auto Changelog Update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensure all history is fetched
+
+      - name: Setup Node.js (if using a Node.js tool for changelog generation)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Generate Changelog Update
+        run: |
+          # Example: Using conventional-changelog to update CHANGELOG.md
+          npm install -g conventional-changelog-cli
+          conventional-changelog -p angular -i CHANGELOG.md -s
+
+      - name: Create or Update Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: "Update CHANGELOG.md [skip ci]"
+          title: "Automated Changelog Update [skip ci]"
+          body: "Update the CHANGELOG.md with recent commits. [skip ci]"
+          branch: auto-changelog-update-${{ github.run_number }}
+          delete-branch: true
+          branch-suffix: timestamp
+
+      - name: Check if PR needs to be updated
+        if: steps.cpr.outputs.pull-request-operation == 'updated'
+        run: |
+          echo "Changelog PR updated due to new commit to main."
