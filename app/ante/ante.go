@@ -24,7 +24,18 @@ import (
 
 type HasPermission = func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool
 
-func MustCreateHandler(codec codec.BinaryCodec, txConfig client.TxConfig, maxGasWanted uint64, hasPermission HasPermission, accountKeeper evmtypes.AccountKeeper, stakingKeeper evmosvestingtypes.StakingKeeper, bankKeeper evmtypes.BankKeeper, feeMarketKeeper evmosanteevm.FeeMarketKeeper, evmKeeper evmosanteevm.EVMKeeper, ibcKeeper *ibckeeper.Keeper, distrKeeper anteutils.DistributionKeeper) sdk.AnteHandler {
+func MustCreateHandler(codec codec.BinaryCodec,
+	txConfig client.TxConfig,
+	maxGasWanted uint64,
+	hasPermission HasPermission,
+	accountKeeper evmtypes.AccountKeeper,
+	stakingKeeper evmosvestingtypes.StakingKeeper,
+	bankKeeper evmtypes.BankKeeper,
+	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
+	evmKeeper evmosanteevm.EVMKeeper,
+	ibcKeeper *ibckeeper.Keeper,
+	distrKeeper anteutils.DistributionKeeper,
+) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                    codec,
 		AccountKeeper:          accountKeeper,
