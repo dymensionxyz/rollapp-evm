@@ -4,12 +4,12 @@ go 1.22.2
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.0
-	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.0
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.4
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.2
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.6.0-rc02
-	github.com/dymensionxyz/dymint v1.1.0-rc05
+	github.com/dymensionxyz/dymension-rdk v1.6.0
+	github.com/dymensionxyz/dymint v1.1.3-rc02
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
@@ -321,7 +321,7 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
-	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.1
+	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/libp2p/go-libp2p-pubsub => github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231219183151-4504d4995913
