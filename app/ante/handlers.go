@@ -40,7 +40,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosDecorators(
 			options,
-			options.ExtensionOptionChecker, // make sure there are no extension options
+			options.ExtensionOptionChecker, // make sure there are no unwanted extension options
 			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
 		)...,
 	)
