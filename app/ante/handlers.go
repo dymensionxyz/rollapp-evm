@@ -8,6 +8,7 @@ import (
 	sdkvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
+	etherminttypes "github.com/evmos/ethermint/types"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
@@ -51,7 +52,10 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		cosmosDecorators(
 			options,
-			func(c *codectypes.Any) bool { return true },                                                       // allows any extension, this is consistent with the evmos behavior
+			func(c *codectypes.Any) bool {
+				_, ok := c.GetCachedValue().(*etherminttypes.ExtensionOptionsWeb3Tx)
+				return ok
+			},
 			cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
 		)...,
 	)
