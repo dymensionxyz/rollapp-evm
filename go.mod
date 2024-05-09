@@ -4,8 +4,8 @@ go 1.22.2
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.0
-	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.0
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.1.4
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.2
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.6.0
@@ -19,6 +19,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/tendermint/tendermint v0.34.29
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
+	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
 	google.golang.org/grpc v1.61.0
 )
 
@@ -289,7 +290,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a // indirect
 	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
