@@ -163,9 +163,7 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// handle as totally normal Cosmos SDK tx
 		switch tx.(type) {
 		case sdk.Tx:
-			options.ExtensionOptionChecker = func(*codectypes.Any) bool {
-				return false
-			}
+			// we reject any extension
 			anteHandler = cosmosHandler(
 				options,
 				authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
