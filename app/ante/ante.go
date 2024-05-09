@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	errorsmod "cosmossdk.io/errors"
@@ -37,20 +41,19 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	distrKeeper anteutils.DistributionKeeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
-		Cdc:                    codec,
-		AccountKeeper:          accountKeeper,
-		BankKeeper:             bankKeeper,
-		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
-		EvmKeeper:              evmKeeper,
-		StakingKeeper:          stakingKeeper,
-		FeegrantKeeper:         nil,
-		DistributionKeeper:     distrKeeper,
-		IBCKeeper:              ibcKeeper,
-		FeeMarketKeeper:        feeMarketKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
-		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           evmosanteevm.NewDynamicFeeChecker(evmKeeper),
+		Cdc:                codec,
+		AccountKeeper:      accountKeeper,
+		BankKeeper:         bankKeeper,
+		EvmKeeper:          evmKeeper,
+		StakingKeeper:      stakingKeeper,
+		FeegrantKeeper:     nil,
+		DistributionKeeper: distrKeeper,
+		IBCKeeper:          ibcKeeper,
+		FeeMarketKeeper:    feeMarketKeeper,
+		SignModeHandler:    txConfig.SignModeHandler(),
+		SigGasConsumer:     evmosante.SigVerificationGasConsumer,
+		MaxTxGasWanted:     maxGasWanted,
+		TxFeeChecker:       evmosanteevm.NewDynamicFeeChecker(evmKeeper),
 	}
 
 	opts := HandlerOptions{
@@ -131,10 +134,21 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 					anteHandler = newEVMAnteHandler(options)
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
 					// Deprecated: Handle as normal Cosmos SDK tx, except signature is checked for Legacy EIP712 representation
-					anteHandler = newLegacyCosmosAnteHandlerEip712(options)
+					options.ExtensionOptionChecker = func(c *codectypes.Any) bool {
+						_, ok := c.GetCachedValue().(*evmostypes.ExtensionOptionsWeb3Tx)
+						return ok
+					}
+					anteHandler = cosmosHandler(
+						options,
+						cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
+					)
 				case "/ethermint.types.v1.ExtensionOptionDynamicFeeTx": // TODO: can delete?
 					// cosmos-sdk tx with dynamic fee extension
-					anteHandler = newCosmosAnteHandler(options)
+					options.ExtensionOptionChecker = evmostypes.HasDynamicFeeExtensionOption
+					anteHandler = cosmosHandler(
+						options,
+						authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
+					)
 				default:
 					return ctx, errorsmod.Wrapf(
 						sdkerrors.ErrUnknownExtensionOptions,
@@ -149,7 +163,13 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// handle as totally normal Cosmos SDK tx
 		switch tx.(type) {
 		case sdk.Tx:
-			anteHandler = newCosmosAnteHandler(options)
+			options.ExtensionOptionChecker = func(*codectypes.Any) bool {
+				return false
+			}
+			anteHandler = cosmosHandler(
+				options,
+				authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
+			)
 		default:
 			return ctx, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
 		}

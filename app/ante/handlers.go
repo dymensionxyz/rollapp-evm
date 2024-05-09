@@ -1,7 +1,6 @@
 package ante
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -10,7 +9,6 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
-	evmostypes "github.com/evmos/evmos/v12/types"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
@@ -36,40 +34,12 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	)
 }
 
-func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
-	return sdk.ChainAnteDecorators(
-		cosmosDecorators(
-			options,
-			options.ExtensionOptionChecker, // make sure there are no unwanted extension options
-			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use modern signature verification
-		)...,
-	)
-}
-
-// Deprecated: NewLegacyCosmosAnteHandlerEip712 creates an AnteHandler to process legacy EIP-712
-// transactions, as defined by the presence of an ExtensionOptionsWeb3Tx extension.
-func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
-	return sdk.ChainAnteDecorators(
-		cosmosDecorators(
-			options,
-			func(c *codectypes.Any) bool {
-				if options.ExtensionOptionChecker(c) {
-					return true
-				}
-				_, ok := c.GetCachedValue().(*evmostypes.ExtensionOptionsWeb3Tx)
-				return ok
-			},
-			cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
-		)...,
-	)
-}
-
-func cosmosDecorators(options HandlerOptions, extensionChecker authante.ExtensionOptionChecker, sigChecker sdk.AnteDecorator) []sdk.AnteDecorator {
+func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.AnteHandler {
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
 	}
-	return []sdk.AnteDecorator{
+	return sdk.ChainAnteDecorators(
 		cosmosante.NewRejectMessagesDecorator(
 			[]string{
 				sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
@@ -82,7 +52,7 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 			sdk.MsgTypeURL(&sdkvestingtypes.MsgCreatePeriodicVestingAccount{}),
 		),
 		ante.NewSetUpContextDecorator(),
-		ante.NewExtensionOptionsDecorator(extensionChecker),
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		NewPermissionedURLsDecorator(
@@ -105,5 +75,5 @@ func cosmosDecorators(options HandlerOptions, extensionChecker authante.Extensio
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-	}
+	)
 }
