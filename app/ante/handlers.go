@@ -10,6 +10,7 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
+	evmostypes "github.com/evmos/evmos/v12/types"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
@@ -52,7 +53,11 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		cosmosDecorators(
 			options,
 			func(c *codectypes.Any) bool {
-				return true
+				if options.ExtensionOptionChecker(c) {
+					return true
+				}
+				_, ok := c.GetCachedValue().(*evmostypes.ExtensionOptionsWeb3Tx)
+				return ok
 			},
 			cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
 		)...,
