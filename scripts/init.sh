@@ -23,11 +23,16 @@ set_denom() {
   fi
 }
 
+set_consensus_params() {
+  BLOCK_SIZE="500000"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["block"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["evidence"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+}
+
 SKIP_BASE_FEE=${SKIP_EVM_BASE_FEE-false}
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_bytes"] = "500000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq --arg skip "$SKIP_BASE_FEE" '.app_state["feemarket"]["params"]["no_base_fee"] = ($skip == "true")' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
@@ -99,6 +104,7 @@ else
     sed -i "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$BASE_DENOM\"/" "$APP_CONFIG_FILE"
 fi
 set_denom "$BASE_DENOM"
+set_consensus_params
 set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
