@@ -32,9 +32,6 @@ set_consensus_params() {
 SKIP_BASE_FEE=${SKIP_EVM_BASE_FEE-false}
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_bytes"] = "500000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.consensus_params["evidence"]["max_bytes"] = "500000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq --arg skip "$SKIP_BASE_FEE" '.app_state["feemarket"]["params"]["no_base_fee"] = ($skip == "true")' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
