@@ -24,8 +24,9 @@ set_denom() {
 }
 
 set_consensus_params() {
-  jq '.consensus_params["block"]["max_bytes"] = "500000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.consensus_params["evidence"]["max_bytes"] = "500000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  BLOCK_SIZE="500000"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["block"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["evidence"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
 
