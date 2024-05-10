@@ -6,6 +6,7 @@ IBC_PORT=transfer
 IBC_VERSION=ics20-1
 
 RELAYER_EXECUTABLE="rly"
+RELAYER_VERSION="0.3.1-v2.5.2-relayer"
 
 # settlement config
 SETTLEMENT_EXECUTABLE="dymd"
@@ -24,8 +25,43 @@ RELAYER_PATH="hub-rollapp"
 
 if ! command -v "$RELAYER_EXECUTABLE" >/dev/null; then
   echo "$RELAYER_EXECUTABLE does not exist"
-  echo "please run make install of github.com/dymensionxyz/dymension-relayer"
-  exit 1
+  echo "Downloading $RELAYER_EXECUTABLE version $RELAYER_VERSION"
+
+    # Determine OS and Architecture
+  OS=$(uname -s | tr '[:upper:]' '[:lower:]')  # Outputs darwin or linux
+  ARCH=$(uname -m)
+  case $ARCH in
+    x86_64)
+      ARCH="amd64"
+      ;;
+    arm64)
+      ARCH="arm64"
+      ;;
+    aarch64)
+      ARCH="arm64"
+      ;;
+    *)
+      echo "Unsupported architecture: $ARCH"
+      exit 1
+      ;;
+  esac
+
+  URL="https://github.com/dymensionxyz/go-relayer/releases/download/v${RELAYER_VERSION}/Cosmos.Relayer_${RELAYER_VERSION}_${OS}_${ARCH}.tar.gz"
+
+  # Define the path where the executable should be placed
+  TARGET_PATH="$GOPATH/bin/$RELAYER_EXECUTABLE"
+
+  # Download the new version
+  curl -L $URL -o "./$RELAYER_EXECUTABLE.tar.gz"
+  tar -xzf "./$RELAYER_EXECUTABLE.tar.gz" -C "${GOPATH}/bin" --strip-components=1
+
+  # Make sure the extracted file is named correctly and is executable
+  chmod +x "$TARGET_PATH"
+
+  # Cleanup downloaded tar.gz
+  rm "./$RELAYER_EXECUTABLE.tar.gz"
+
+  echo "$RELAYER_EXECUTABLE installed successfully to $TARGET_PATH"
 fi
 
 # --------------------------------- rly init --------------------------------- #
