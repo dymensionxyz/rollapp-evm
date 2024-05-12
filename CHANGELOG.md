@@ -1,3 +1,13 @@
+# [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-rc01...v) (2024-05-12)
+
+
+### Bug Fixes
+
+* **ci:** Update changelog workflow ([#224](https://github.com/dymensionxyz/rollapp-evm/issues/224)) ([32b141a](https://github.com/dymensionxyz/rollapp-evm/commit/32b141a77fef558b459307ae712eed9ee1f5aacc))
+* **readme:** fixed init script with broken consensus params ([#240](https://github.com/dymensionxyz/rollapp-evm/issues/240)) ([302762d](https://github.com/dymensionxyz/rollapp-evm/commit/302762d175c934d906b47537873821f9d92d5979))
+
+
+
 <!--
 Guiding Principles:
 
