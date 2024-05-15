@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -130,6 +131,9 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
+
+	// Upgrade handlers
+	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -720,6 +724,7 @@ func NewRollapp(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+	app.setupUpgradeHandlers()
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	h := ante.MustCreateHandler(
@@ -1024,4 +1029,32 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func (app *App) setupUpgradeHandlers() {
+	UpgradeName := "v2.2.0"
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		UpgradeName,
+		v2_2_0_upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	// Pre upgrade handler
+	switch upgradeInfo.Name {
+	// do nothing
+	}
+
+	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storetypes.StoreUpgrades{}))
+	}
 }
