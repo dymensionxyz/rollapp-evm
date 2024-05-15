@@ -202,7 +202,7 @@ rollapp-evm start
 ### Install dymension relayer
 
 ```shell
-git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.0-v2.5.2-relayer
+git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.1-v2.5.2-relayer
 cd go-relayer && make install
 ```
 
@@ -216,6 +216,16 @@ sh scripts/ibc/setup_ibc.sh
 ```
 
 After successful run, the new established channels will be shown
+
+### Set channel-filter
+
+After successful run, set channel-filter for flush to work properly, e.g:
+
+```shell
+src-channel-filter:
+      rule: \"allowlist\"
+      channel-list: [\"channel-0\", \"channel-49\"]
+```
 
 ### Configure empty block time to 1hr
 

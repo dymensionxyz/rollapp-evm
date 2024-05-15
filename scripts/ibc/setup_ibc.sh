@@ -63,6 +63,9 @@ jq --arg rpc "$SETTLEMENT_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$HUB_IBC_
 rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
 rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
 
+echo -e '--------------------------------- Setting min-loop-duration to 100ms in rly config... --------------------------------'
+sed -i.bak '/min-loop-duration:/s/.*/            min-loop-duration: 100ms/' "$RLY_CONFIG_FILE"
+
 echo -e '--------------------------------- Creating keys for rly... --------------------------------'
 
 rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAP" --coin-type 60
