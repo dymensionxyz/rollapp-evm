@@ -1029,7 +1029,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 }
 
 func (app *App) setupUpgradeHandlers() {
-	UpgradeName := "v1"
+	UpgradeName := "v2.2.0"
 
 	app.UpgradeKeeper.SetUpgradeHandler(
 		UpgradeName,
