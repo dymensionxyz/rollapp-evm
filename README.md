@@ -223,8 +223,8 @@ After successful run, set channel-filter for flush to work properly, e.g:
 
 ```shell
 src-channel-filter:
-      rule: \"allowlist\"
-      channel-list: [\"channel-0\", \"channel-49\"]
+      rule: "allowlist"
+      channel-list: ["channel-0", "channel-49"]
 ```
 
 ### Configure empty block time to 1hr
