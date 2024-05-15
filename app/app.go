@@ -132,6 +132,9 @@ import (
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
+	// Upgrade handlers
+	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
+
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
@@ -1033,7 +1036,7 @@ func (app *App) setupUpgradeHandlers() {
 
 	app.UpgradeKeeper.SetUpgradeHandler(
 		UpgradeName,
-		CreateUpgradeHandler(
+		v2_2_0_upgrade.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
@@ -1053,14 +1056,5 @@ func (app *App) setupUpgradeHandlers() {
 
 	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storetypes.StoreUpgrades{}))
-	}
-}
-
-func CreateUpgradeHandler(
-	mm *module.Manager,
-	configurator module.Configurator,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
