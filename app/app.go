@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
+
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -111,8 +113,6 @@ import (
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
 	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
 	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
-	ethante "github.com/evmos/evmos/v12/app/ante"
-	ethanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/evmos/evmos/v12/x/claims"
@@ -323,7 +323,6 @@ func NewRollapp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -723,7 +722,28 @@ func NewRollapp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	h := ante.MustCreateHandler(
+		app.appCodec,
+		encodingConfig.TxConfig,
+		maxGasWanted,
+		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
+			/*
+				TODO:
+					We had a plan to use the sequencers module to manager permissions, but that idea was changed
+					For now, we just assume the only account with permission is the denom one
+					We will eventually replace with something more substantial
+			*/
+			return app.DenomMetadataKeeper.IsAddressPermissioned(ctx, accAddr.String())
+		},
+		app.AccountKeeper,
+		app.StakingKeeper,
+		app.BankKeeper,
+		app.FeeMarketKeeper,
+		app.EvmKeeper,
+		app.IBCKeeper,
+		app.DistrKeeper,
+	)
+	app.SetAnteHandler(h)
 	app.setPostHandler()
 
 	if loadLatest {
@@ -736,31 +756,6 @@ func NewRollapp(
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
-}
-
-func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	options := ethante.HandlerOptions{
-		Cdc:                    app.appCodec,
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
-		EvmKeeper:              app.EvmKeeper,
-		StakingKeeper:          app.StakingKeeper,
-		FeegrantKeeper:         nil,
-		DistributionKeeper:     app.DistrKeeper,
-		IBCKeeper:              app.IBCKeeper,
-		FeeMarketKeeper:        app.FeeMarketKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         ethante.SigVerificationGasConsumer,
-		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(app.EvmKeeper),
-	}
-
-	if err := options.Validate(); err != nil {
-		panic(err)
-	}
-
-	app.SetAnteHandler(ethante.NewAnteHandler(options))
 }
 
 func (app *App) setPostHandler() {
@@ -794,7 +789,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 
-	//Passing the dymint sequencers to the sequencer module from RequestInitChain
+	// Passing the dymint sequencers to the sequencer module from RequestInitChain
 	if len(req.Validators) == 0 {
 		panic("Dymint have no sequencers defined on InitChain")
 	}
