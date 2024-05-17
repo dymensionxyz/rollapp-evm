@@ -265,4 +265,12 @@ sh ./scripts/settlement/trigger_hub_genesis_event.sh
 
 ## Developers guide
 
-TODO
+For support, join our [Discord](http://discord.gg/dymension) community and find us in the Developer section.
+
+### Setup push hooks
+
+To setup push hooks, run the following command:
+
+```sh
+./scripts/setup_push_hooks.sh
+```
