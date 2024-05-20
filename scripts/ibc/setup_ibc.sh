@@ -104,18 +104,20 @@ rly tx channel "$RELAYER_PATH"
 
 echo '# -------------------------------- IBC channel established ------------------------------- #'
 echo "Channel Information:"
-echo "$(rly q channels "$ROLLAPP_CHAIN_ID" | jq '{ "rollapp-channel": .channel_id, "hub-channel": .counterparty.channel_id }')"
+
+channel_info=$(rly q channels "$ROLLAPP_CHAIN_ID" | jq '{ "rollapp-channel": .channel_id, "hub-channel": .counterparty.channel_id }')
+rollapp_channel=$(echo "$channel_info" | jq -r '.["rollapp-channel"]')
+hub_channel=$(echo "$channel_info" | jq -r '.["hub-channel"]')
+
+echo "$channel_info"
 
 echo -e '--------------------------------- Set channel-filter --------------------------------'
 
-read -p "Enter the first channel: " channel1
-read -p "Enter the second channel: " channel2
-
-if [ -z "$channel1" ] || [ -z "$channel2" ]; then
-  echo "Both channels must be provided. Exiting."
+if [ -z "$rollapp_channel" ] || [ -z "$hub_channel" ]; then
+  echo "Both channels must be provided. Something is wrong. Exiting."
   exit 1
 fi
 
 sed -i.bak '/rule:/s/.*/            rule: "allowlist"/' "$RLY_CONFIG_FILE"
-sed -i.bak '/channel-list:/s/.*/            channel-list: ["'"$channel1"'","'"$channel2"'"]/' "$RLY_CONFIG_FILE"
+sed -i.bak '/channel-list:/s/.*/            channel-list: ["'"$rollapp_channel"'","'"$hub_channel"'"]/' "$RLY_CONFIG_FILE"
 echo "Config file updated successfully."
