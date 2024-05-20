@@ -202,7 +202,7 @@ rollapp-evm start
 ### Install dymension relayer
 
 ```shell
-git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.1-v2.5.2-relayer
+git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.3-v2.5.2-relayer
 cd go-relayer && make install
 ```
 
