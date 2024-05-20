@@ -7,7 +7,7 @@
     "account-prefix": "abc",
     "keyring-backend": "test",
     "gas-adjustment": 1.2,
-    "gas-prices": "0.0arax",
+    "gas-prices": "100000000arax",
     "debug": true,
     "timeout": "10s",
     "output-format": "json",
