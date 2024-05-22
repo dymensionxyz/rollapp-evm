@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/dymensionxyz/dymension-rdk/x/hub-genesis/foo"
-
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -561,7 +559,11 @@ func NewRollapp(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	transferStack = foo.NewOnChanOpenConfirmInterceptor(transferStack)
+	transferStack = hubgenkeeper.NewOnChanOpenConfirmInterceptor(
+		app.HubGenesisKeeper,
+		app.TransferKeeper,
+		transferStack,
+	)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
