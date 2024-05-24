@@ -22,17 +22,9 @@ jq '.app_state.bank.supply[0].amount = "2000000000000000000000000000"' "$GENESIS
 genesis_accounts=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/genesis_accounts.json)
 jq --argjson genesis_accounts "$genesis_accounts" '.app_state.hubgenesis.state.genesis_accounts = $genesis_accounts' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-# ---------------------------- add elevated account ---------------------------- # TODO: can I remove it?
-elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | jq -r .address)
-elevated_address_json=$(jq -n \
-  --arg address "$elevated_address" \
-  '[{
-        "address": $address
-    }]')
-jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenesis.params.genesis_triggerer_allowlist += $elevated_address_json' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-
 # ---------------------------- add denom metadata ---------------------------- #
 denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
+elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | jq -r .address)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
