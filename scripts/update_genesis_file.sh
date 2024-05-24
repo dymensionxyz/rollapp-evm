@@ -21,7 +21,7 @@ dasel put string -f "$GENESIS_FILE" -p json 'app_state.bank.supply.0.amount' '20
 genesis_accounts=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/genesis_accounts.json)
 dasel put value -f "$GENESIS_FILE" -p json 'app_state.hubgenesis.state.genesis_accounts' -v "$genesis_accounts"
 
-# ---------------------------- add elevated account ---------------------------- # TODO: can I remove it?
+# ---------------------------- add elevated account ----------------------------
 elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | dasel -r json -p json '.address')
 
 # ---------------------------- add denom metadata ---------------------------- #
