@@ -51,24 +51,16 @@ module_account_balance=$(
   }]'
 )
 
-hubgenesis_tokens=$(
-jq -n \
-  --arg denom "$BASE_DENOM" \
-  --arg amount "60000000000000000000000" \
-  '[{
-    "denom": $denom,
-    "amount": $amount
-  }]'
-)
-
-jq --argjson hubgenesis_tokens "$hubgenesis_tokens" '.app_state.hubgenesis.state.genesis_tokens = $hubgenesis_tokens' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-
 jq '.app_state.bank.balances[0].coins[0].amount = "2000000000000000000000000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --argjson module_account_balance "$module_account_balance" '.app_state.bank.balances += $module_account_balance' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
 jq '.app_state.bank.supply[0].amount = "2000060000000000000000000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 
-# ---------------------------- add elevated account ---------------------------- #
+# ---------------------------- add genesis accounts for the hub ---------------------------- #
+genesis_accounts=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/genesis_accounts.json)
+jq --argjson genesis_accounts "$genesis_accounts" '.app_state.hubgenesis.state.genesis_accounts = $genesis_accounts' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+# ---------------------------- add elevated account ---------------------------- # TODO: can I remove it?
 elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test --output json | jq -r .address)
 elevated_address_json=$(jq -n \
   --arg address "$elevated_address" \
