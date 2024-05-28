@@ -54,7 +54,7 @@ jq --arg key "$RELAYER_KEY_FOR_ROLLAP" '.value.key = $key' "$ROLLAPP_IBC_CONF_FI
 jq --arg chain "$ROLLAPP_CHAIN_ID" '.value."chain-id" = $chain' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 jq --arg bech "$BECH32_PREFIX" '.value["account-prefix"] = $bech' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 jq --arg rpc "$ROLLAPP_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
-jq --arg denom "0.0$BASE_DENOM" '.value."gas-prices" = $denom' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
+jq --arg denom "100000000$BASE_DENOM" '.value."gas-prices" = $denom' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 
 jq --arg key "$RELAYER_KEY_FOR_HUB" '.value.key = $key' "$HUB_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$HUB_IBC_CONF_FILE"
 jq --arg chain "$SETTLEMENT_CHAIN_ID" '.value."chain-id" = $chain' "$HUB_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$HUB_IBC_CONF_FILE"
@@ -87,7 +87,7 @@ RA_BALANCE=$(${EXECUTABLE} q bank balances ${RLY_ROLLAPP_ADDR} -o json | jq -r '
 if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_ROLLAPP_ADDR} already funded"
 else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000$BASE_DENOM
+  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000000$BASE_DENOM
 fi
 
 echo '--------------------------------- Creating IBC path... --------------------------------'

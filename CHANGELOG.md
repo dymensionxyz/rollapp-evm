@@ -1,7 +1,3 @@
-#  (2024-05-27)
-
-
-
 # [](https://github.com/dymensionxyz/rollapp-evm/compare/v2.2.0-rc01...v) (2024-05-20)
 
 
