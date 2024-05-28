@@ -63,6 +63,9 @@ jq --arg rpc "$SETTLEMENT_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$HUB_IBC_
 rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
 rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
 
+echo -e '--------------------------------- Setting min-loop-duration to 100ms in rly config... --------------------------------'
+sed -i.bak '/min-loop-duration:/s/.*/            min-loop-duration: 100ms/' "$RLY_CONFIG_FILE"
+
 echo -e '--------------------------------- Creating keys for rly... --------------------------------'
 
 rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAP" --coin-type 60
@@ -94,11 +97,27 @@ echo '--------------------------------- Creating IBC path... -------------------
 
 rly paths new "$ROLLAPP_CHAIN_ID" "$SETTLEMENT_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 
-rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
+rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
 # Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
 # Which messed up with channel creation as part of tx link.
 rly tx channel "$RELAYER_PATH"
 
 echo '# -------------------------------- IBC channel established ------------------------------- #'
 echo "Channel Information:"
-echo "$(rly q channels "$ROLLAPP_CHAIN_ID" | jq '{ "rollapp-channel": .channel_id, "hub-channel": .counterparty.channel_id }')"
+
+channel_info=$(rly q channels "$ROLLAPP_CHAIN_ID" | jq '{ "rollapp-channel": .channel_id, "hub-channel": .counterparty.channel_id }')
+rollapp_channel=$(echo "$channel_info" | jq -r '.["rollapp-channel"]')
+hub_channel=$(echo "$channel_info" | jq -r '.["hub-channel"]')
+
+echo "$channel_info"
+
+echo -e '--------------------------------- Set channel-filter --------------------------------'
+
+if [ -z "$rollapp_channel" ] || [ -z "$hub_channel" ]; then
+  echo "Both channels must be provided. Something is wrong. Exiting."
+  exit 1
+fi
+
+sed -i.bak '/rule:/s/.*/            rule: "allowlist"/' "$RLY_CONFIG_FILE"
+sed -i.bak '/channel-list:/s/.*/            channel-list: ["'"$rollapp_channel"'","'"$hub_channel"'"]/' "$RLY_CONFIG_FILE"
+echo "Config file updated successfully."
