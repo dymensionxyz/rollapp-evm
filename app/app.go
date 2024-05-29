@@ -566,7 +566,9 @@ func NewRollapp(
 			_, err := app.TransferKeeper.Transfer(sdk.WrapSDKContext(ctx), transfer)
 			return err
 		},
-		app.HubGenesisKeeper)
+		app.HubGenesisKeeper,
+		app.BankKeeper.GetDenomMetaData,
+	)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
