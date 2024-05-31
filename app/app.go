@@ -1,11 +1,14 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -111,8 +114,6 @@ import (
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
 	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
 	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
-	ethante "github.com/evmos/evmos/v12/app/ante"
-	ethanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/evmos/evmos/v12/x/claims"
@@ -130,6 +131,9 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
+
+	// Upgrade handlers
+	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -323,7 +327,6 @@ func NewRollapp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -721,9 +724,31 @@ func NewRollapp(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+	app.setupUpgradeHandlers()
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	h := ante.MustCreateHandler(
+		app.appCodec,
+		encodingConfig.TxConfig,
+		maxGasWanted,
+		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
+			/*
+				TODO:
+					We had a plan to use the sequencers module to manager permissions, but that idea was changed
+					For now, we just assume the only account with permission is the denom one
+					We will eventually replace with something more substantial
+			*/
+			return app.DenomMetadataKeeper.IsAddressPermissioned(ctx, accAddr.String())
+		},
+		app.AccountKeeper,
+		app.StakingKeeper,
+		app.BankKeeper,
+		app.FeeMarketKeeper,
+		app.EvmKeeper,
+		app.IBCKeeper,
+		app.DistrKeeper,
+	)
+	app.SetAnteHandler(h)
 	app.setPostHandler()
 
 	if loadLatest {
@@ -736,31 +761,6 @@ func NewRollapp(
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
-}
-
-func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	options := ethante.HandlerOptions{
-		Cdc:                    app.appCodec,
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
-		EvmKeeper:              app.EvmKeeper,
-		StakingKeeper:          app.StakingKeeper,
-		FeegrantKeeper:         nil,
-		DistributionKeeper:     app.DistrKeeper,
-		IBCKeeper:              app.IBCKeeper,
-		FeeMarketKeeper:        app.FeeMarketKeeper,
-		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         ethante.SigVerificationGasConsumer,
-		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           ethanteevm.NewDynamicFeeChecker(app.EvmKeeper),
-	}
-
-	if err := options.Validate(); err != nil {
-		panic(err)
-	}
-
-	app.SetAnteHandler(ethante.NewAnteHandler(options))
 }
 
 func (app *App) setPostHandler() {
@@ -794,7 +794,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 
-	//Passing the dymint sequencers to the sequencer module from RequestInitChain
+	// Passing the dymint sequencers to the sequencer module from RequestInitChain
 	if len(req.Validators) == 0 {
 		panic("Dymint have no sequencers defined on InitChain")
 	}
@@ -1029,4 +1029,32 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func (app *App) setupUpgradeHandlers() {
+	UpgradeName := "v2.2.0"
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		UpgradeName,
+		v2_2_0_upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	// Pre upgrade handler
+	switch upgradeInfo.Name {
+	// do nothing
+	}
+
+	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storetypes.StoreUpgrades{}))
+	}
 }
