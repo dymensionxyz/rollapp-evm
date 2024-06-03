@@ -17,7 +17,7 @@ jq '.app_state.gov.voting_params.voting_period = "300s"' "$GENESIS_FILE" >"$tmp"
 
 # this is a static module account for the hubgenesis module
 # retrieved using  'rollapp-evm q auth module-accounts' command
-module_account_address="ethm1748tamme3jj3v9wq95fc3pmglxtqscljdy7483"
+module_account_address=$(rollapp-evm debug addr F54EBEEF798CA51615C02D13888768F9960863F2 | grep "Bech32 Acc" | awk '{print $3}')
 
 # Construct the JSON object with the obtained address
 module_account=$(jq -n \
@@ -81,3 +81,7 @@ jq --argjson elevated_address_json "$elevated_address_json" '.app_state.hubgenes
 denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
 jq --argjson denom_metadata "$denom_metadata" '.app_state.bank.denom_metadata = $denom_metadata' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 jq --arg elevated_address "$elevated_address" '.app_state.denommetadata.params.allowed_addresses += [$elevated_address]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+
+# ----------------------------- update evm params ---------------------------- #
+
+jq '.app_state.evm.params.extra_eips = [3855]' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"

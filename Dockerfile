@@ -1,4 +1,4 @@
-FROM golang:1.22.1-alpine3.18 as go-builder
+FROM golang:1.22.2-alpine3.18 as go-builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev python3
 
 RUN apk add --no-cache $PACKAGES
 
-RUN make build
+RUN make build BECH32_PREFIX=ethm
 
 FROM alpine:3.16.1
 

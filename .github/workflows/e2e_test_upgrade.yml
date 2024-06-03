@@ -1,4 +1,4 @@
-name: E2E Tests
+name: E2E Tests Upgrade
 
 on:
   workflow_dispatch:
@@ -10,10 +10,8 @@ on:
       - synchronize
       # trigger workflow if PR is marked ready for review.
       - ready_for_review
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'LICENSE'
+    paths:
+      - 'app/upgrades/**'
 
 permissions:
   contents: read
@@ -22,10 +20,17 @@ permissions:
 jobs:   
   build-image:
     runs-on: ubuntu-latest
+    outputs:
+      UPGRADE_NAME: ${{ steps.set-output.outputs.upgrade }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set environment variable
+        id: set-output
+        run: |
+          upgradeName=$(ls -d -- ./app/upgrades/v* | sort -Vr | head -n 1 | xargs basename)
+          echo "upgrade=$upgradeName" >> $GITHUB_OUTPUT
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -37,14 +42,17 @@ jobs:
           outputs: type=docker,dest=/tmp/e2e.tar
           platforms: linux/amd64
           tags: |
-              ghcr.io/dymensionxyz/rollapp-evm:e2e
+              ghcr.io/dymensionxyz/dymension:e2e
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: e2e
           path: /tmp/e2e.tar  
-  e2e-tests:
+
+  e2e-tests-upgrade:
     needs: build-image
-    uses: dymensionxyz/e2e-tests/.github/workflows/e2e-test-evm-workflow-call.yml@main
+    uses: dymensionxyz/e2e-tests/.github/workflows/e2e-test-rollapp-evm-upgrade-workflow-call.yml@main
     with:
-      rollapp_evm_ci: "e2e"
+      dymension_ci: "e2e"
+      upgrade_name: "${{ needs.build-image.outputs.UPGRADE_NAME }}"

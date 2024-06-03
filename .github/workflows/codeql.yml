@@ -35,7 +35,7 @@ jobs:
           queries: crypto-com/cosmos-sdk-codeql@main,security-and-quality
 
       - name: Build
-        run: make build
+        run: make build BECH32_PREFIX=ethm
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

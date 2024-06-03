@@ -23,12 +23,18 @@ set_denom() {
   fi
 }
 
+set_consensus_params() {
+  BLOCK_SIZE="500000"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["block"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq --arg block_size "$BLOCK_SIZE" '.consensus_params["evidence"]["max_bytes"] = $block_size' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+}
+
 SKIP_BASE_FEE=${SKIP_EVM_BASE_FEE-false}
 
 set_EVM_params() {
-  jq '.consensus_params["block"]["max_gas"] = "400000000"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
   jq --arg skip "$SKIP_BASE_FEE" '.app_state["feemarket"]["params"]["no_base_fee"] = ($skip == "true")' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
-  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "0.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
+  jq '.app_state["feemarket"]["params"]["min_gas_price"] = "10000000.0"' "$GENESIS_FILE" >"$tmp" && mv "$tmp" "$GENESIS_FILE"
 }
 
 # ---------------------------- initial parameters ---------------------------- #
@@ -98,6 +104,7 @@ else
     sed -i "s/^minimum-gas-prices *= .*/minimum-gas-prices = \"0$BASE_DENOM\"/" "$APP_CONFIG_FILE"
 fi
 set_denom "$BASE_DENOM"
+set_consensus_params
 set_EVM_params
 
 # --------------------- adding keys and genesis accounts --------------------- #
@@ -113,8 +120,8 @@ jq --arg addr "$operator_address" '.app_state["sequencers"]["genesis_operator_ad
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
-if [ "$answer" != "${answer#[Nn]}" ] ; then
-  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+if [ ! "$answer" != "${answer#[Nn]}" ] ;then
+  "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR" --fees 4000000000000$BASE_DENOM
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
 
