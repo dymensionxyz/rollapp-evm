@@ -11,7 +11,7 @@ fi
 ALICE_MNEMONIC="mimic ten evoke card crowd upset tragic race borrow final vibrant gesture armed alley figure orange shock strike surge jaguar deposit hockey erosion taste"
 BOB_MNEMONIC="matrix venture pair label proud ignore manual crunch brand board welcome suspect purity steak melt atom stadium vanish bullet hill angry bulk visa analyst"
 echo $ALICE_MNEMONIC |  dymd keys add alice-genesis --keyring-backend test --keyring-dir ${ROLLAPP_HOME_DIR} --recover
-echo $BOB_MNEMONIC |  keys add bob-genesis --keyring-backend test --keyring-dir ${ROLLAPP_HOME_DIR} --recover
+echo $BOB_MNEMONIC |  dymd keys add bob-genesis --keyring-backend test --keyring-dir ${ROLLAPP_HOME_DIR} --recover
 
 tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/genesis_accounts.json" >/dev/null <<EOF
 [
