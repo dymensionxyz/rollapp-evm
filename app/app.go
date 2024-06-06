@@ -563,7 +563,8 @@ func NewRollapp(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	transferStack = hubgenkeeper.NewOnChanOpenConfirmInterceptor(transferStack,
+	transferStack = hubgenkeeper.NewOnChanOpenConfirmInterceptor(
+		transferStack,
 		func(ctx sdk.Context, transfer *ibctransfertypes.MsgTransfer) error {
 			_, err := app.TransferKeeper.Transfer(sdk.WrapSDKContext(ctx), transfer)
 			return err
