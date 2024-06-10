@@ -4,12 +4,12 @@ go 1.22.2
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.3
-	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.3
+	github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.4
+	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.6.0
-	github.com/dymensionxyz/dymint v1.1.3-rc02
+	github.com/dymensionxyz/dymension-rdk v1.6.1-rc01
+	github.com/dymensionxyz/dymint v1.1.3-rc04
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
@@ -52,8 +52,9 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
+	github.com/celestiaorg/celestia-openrpc v0.4.0-rc.1 // indirect
 	github.com/celestiaorg/go-fraud v0.2.0 // indirect
-	github.com/celestiaorg/go-header v0.4.0 // indirect
+	github.com/celestiaorg/go-header v0.4.1 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/nmt v0.20.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.11.0 // indirect
@@ -250,7 +251,6 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rjeczalik/notify v0.9.3 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/rollkit/celestia-openrpc v0.0.0-00010101000000-000000000000 // indirect
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
@@ -324,9 +324,8 @@ replace (
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
-	github.com/libp2p/go-libp2p-pubsub => github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20231219183151-4504d4995913
+	github.com/libp2p/go-libp2p-pubsub => github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20240513081713-3ecd83c19ea2
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
-	github.com/rollkit/celestia-openrpc => github.com/celestiaorg/celestia-openrpc v0.3.0
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
