@@ -140,6 +140,7 @@ func NewHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 					}
 					anteHandler = cosmosHandler(
 						options,
+						// nolint:staticcheck
 						cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // Use old signature verification: uses EIP instead of the cosmos signature validator
 					)
 				case "/ethermint.types.v1.ExtensionOptionDynamicFeeTx": // TODO: can delete?
