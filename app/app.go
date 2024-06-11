@@ -563,7 +563,7 @@ func NewRollapp(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	transferStack = hubgenkeeper.NewOnChanOpenConfirmInterceptor(
+	transferStack = hubgenkeeper.NewIBCModule(
 		transferStack,
 		func(ctx sdk.Context, transfer *ibctransfertypes.MsgTransfer) error {
 			_, err := app.TransferKeeper.Transfer(sdk.WrapSDKContext(ctx), transfer)
@@ -571,6 +571,7 @@ func NewRollapp(
 		},
 		app.HubGenesisKeeper,
 		app.BankKeeper.GetDenomMetaData,
+		app.BankKeeper.MintCoins,
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
