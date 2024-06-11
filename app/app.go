@@ -545,8 +545,6 @@ func NewRollapp(
 		appCodec,
 		keys[hubgentypes.StoreKey],
 		app.GetSubspace(hubgentypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		app.BankKeeper,
 		app.AccountKeeper,
 	)
 
@@ -973,7 +971,7 @@ func (app *App) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
-// GetStakingKeeper implements the TestingApp interface.
+// GetStakingKeeperSDK implements the TestingApp interface.
 func (app *App) GetStakingKeeperSDK() stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
