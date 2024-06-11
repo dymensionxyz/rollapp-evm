@@ -474,6 +474,8 @@ func NewRollapp(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.SequencersKeeper, app.UpgradeKeeper, scopedIBCKeeper,
 	)
 
+	app.IBCKeeper.ConnectionKeeper.SetParams(ctx, ibchost.ConnectionP)
+
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
 	// by granting the governance module the right to execute the message.
