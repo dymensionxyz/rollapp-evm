@@ -21,6 +21,7 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" '{"Addresse
   --from "$DEPLOYER" \
   --keyring-backend test \
   --broadcast-mode block \
-  --fees 1dym
+  --fees 1dym \
+  -y
 
 set +x
