@@ -76,9 +76,6 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 # Install #
 ###########
 
-.PHONY: echoflags
-echoflags:
-	echo $(BUILD_FLAGS)
 
 all: install
 
