@@ -2,9 +2,9 @@
 
 ## Rollapp-evm - A template EVM RollApp chain
 
-This repository hosts `$EXECUTABLE`, a template implementation of a dymension rollapp with `EVM` execution layer.
+This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
 
-`$EXECUTABLE` is an example of a working RollApp using `dymension-RDK` and `dymint`.
+`rollapp-evm` is an example of a working RollApp using `dymension-RDK` and `dymint`.
 
 It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/simapp) as a reference, but with the following changes:
 
@@ -20,7 +20,7 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 ## Installing / Getting started
 
-Build and install the ```$EXECUTABLE``` binary:
+Build and install the ```rollapp-evm``` binary:
 
 ```shell
 export BECH32_PREFIX=ethm
@@ -32,7 +32,7 @@ make install BECH32_PREFIX=$BECH32_PREFIX
 export the following variables:
 
 ```shell
-export EXECUTABLE="$EXECUTABLE"
+export EXECUTABLE="rollapp-evm"
 export BECH32_PREFIX="ethm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
