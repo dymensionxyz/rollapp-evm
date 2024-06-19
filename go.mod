@@ -332,7 +332,3 @@ replace (
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
 )
 
-replace (
-	github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
-	github.com/dymensionxyz/dymint => /Users/danwt/Documents/dym/d-dymint
-)
