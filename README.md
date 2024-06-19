@@ -2,9 +2,9 @@
 
 ## Rollapp-evm - A template EVM RollApp chain
 
-This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
+This repository hosts `$EXECUTABLE`, a template implementation of a dymension rollapp with `EVM` execution layer.
 
-`rollapp-evm` is an example of a working RollApp using `dymension-RDK` and `dymint`.
+`$EXECUTABLE` is an example of a working RollApp using `dymension-RDK` and `dymint`.
 
 It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/simapp) as a reference, but with the following changes:
 
@@ -20,7 +20,7 @@ It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/sim
 
 ## Installing / Getting started
 
-Build and install the ```rollapp-evm``` binary:
+Build and install the ```$EXECUTABLE``` binary:
 
 ```shell
 export BECH32_PREFIX=ethm
@@ -32,7 +32,7 @@ make install BECH32_PREFIX=$BECH32_PREFIX
 export the following variables:
 
 ```shell
-export EXECUTABLE="rollapp-evm"
+export EXECUTABLE="$EXECUTABLE"
 export BECH32_PREFIX="ethm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
@@ -54,7 +54,7 @@ sh scripts/init.sh
 ### Run rollapp
 
 ```shell
-rollapp-evm start
+$EXECUTABLE start
 ```
 
 You should have a running local rollapp!
@@ -160,7 +160,7 @@ linux:
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "settlement_layer" -v "dymension"
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "node_address" -v "$HUB_RPC_URL"
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "rollapp_id" -v "$ROLLAPP_CHAIN_ID"
-dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_idle_time" -v "2s" # may want to change to something longer after setup
+dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_idle_time" -v "2s" # may want to change to something longer after setup (see below)
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_proof_time" -v "1s"
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/app.toml "minimum-gas-prices" -v "1arax"
 ```
@@ -174,18 +174,18 @@ sh scripts/update_genesis_file.sh
 Validate genesis file:
 
 ```shell
-rollapp-evm validate-genesis
+$EXECUTABLE validate-genesis
 ```
 
 ```shell
-# this script automatically adds 2 vesting accounts, adjust the timestampts to your liking or skip this step
+# this script automatically adds 2 vesting accounts, adjust the timestamps to your liking or skip this step
 sh scripts/add_vesting_accounts_to_genesis_file.sh
 ```
 
 ### Run rollapp locally
 
 ```shell
-rollapp-evm start  --log_level=debug
+$EXECUTABLE start  --log_level=debug
 ```
 
 ## Setup IBC between rollapp and local dymension hub node
@@ -213,7 +213,7 @@ After successful run, the new established channels will be shown
 Stop the rollapp:
 
 ```shell
-kill $(pgrep rollapp-evm)
+kill $(pgrep $EXECUTABLE)
 ```
 
 Linux:
@@ -225,7 +225,7 @@ dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_idle_time" -v "1h"
 Start the rollapp:
 
 ```shell
-rollapp-evm start
+$EXECUTABLE start
 ```
 
 ### run the relayer
