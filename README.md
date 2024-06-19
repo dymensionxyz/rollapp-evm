@@ -25,6 +25,7 @@ Build and install the ```rollapp-evm``` binary:
 ```shell
 export BECH32_PREFIX=ethm
 make install BECH32_PREFIX=$BECH32_PREFIX
+export EXECUTABLE="rollapp-evm"
 ```
 
 ### Initial configuration
@@ -32,17 +33,27 @@ make install BECH32_PREFIX=$BECH32_PREFIX
 export the following variables:
 
 ```shell
-export EXECUTABLE="rollapp-evm"
-export BECH32_PREFIX="ethm"
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
 export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
-
 export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
 export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
-export SKIP_EVM_BASE_FEE=true # optional, removes fees on the rollapp
+export SKIP_EVM_BASE_FEE=true # optional, disables rollapp fees
+
+$EXECUTABLE config keyring-backend test
+
+# (if running hub too)
+export HUB_KEY_WITH_FUNDS="hub-user"
+export HUB_RPC_ENDPOINT="localhost"
+export HUB_RPC_PORT="36657" # default: 36657
+export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
+export HUB_CHAIN_ID="dymension_100-1"
+
+dymd config chain-id "${HUB_CHAIN_ID}"
+dymd config node "${HUB_RPC_URL}"
+dymd config keyring-backend test
 ```
 
 And initialize the rollapp:
@@ -59,7 +70,7 @@ $EXECUTABLE start
 
 You should have a running local rollapp!
 
-## Run a rollapp with a settlement node
+## Run a settlement node too
 
 ### Run local dymension hub node
 
@@ -67,30 +78,7 @@ Follow the instructions on [Dymension Hub docs](https://docs.dymension.xyz/devel
 
 all scripts are adjusted to use local hub node that's hosted on the default port `localhost:36657`.
 
-configuration with a remote hub node is also supported, the following variables must be set:
-
-```shell
-export EXECUTABLE="rollapp-evm"
-export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
-export KEY_NAME_ROLLAPP="rol-user"
-export BASE_DENOM="arax"
-export DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
-export MONIKER="$ROLLAPP_CHAIN_ID-sequencer"
-export ROLLAPP_HOME_DIR="$HOME/.rollapp_evm"
-export ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
-export BECH32_PREFIX=eth
-export HUB_KEY_WITH_FUNDS="hub-user"
-export SKIP_EVM_BASE_FEE=true
-export HUB_RPC_ENDPOINT="localhost"
-export HUB_RPC_PORT="36657" # default: 36657
-export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
-export HUB_CHAIN_ID="dymension_100-1"
-
-dymd config chain-id "${HUB_CHAIN_ID}"
-dymd config node "${HUB_RPC_URL}"
-dymd config keyring-backend test
-$EXECUTABLE config keyring-backend test
-```
+configuration with a remote hub node is also supported. Configure env vars above appropriately (RPC_URL)
 
 ### Create sequencer keys
 
