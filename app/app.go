@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/dymensionxyz/dymension-rdk/x/staking"
 	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
 	"github.com/gorilla/mux"
@@ -101,7 +102,6 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
 
-	staking "github.com/dymensionxyz/dymension-rdk/x/staking"
 	stakingkeeper "github.com/dymensionxyz/dymension-rdk/x/staking/keeper"
 
 	"github.com/dymensionxyz/dymension-rdk/x/sequencers"
@@ -111,9 +111,6 @@ import (
 	distr "github.com/dymensionxyz/dymension-rdk/x/dist"
 	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
 
-	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
-	denommetadatamodulekeeper "github.com/dymensionxyz/dymension-rdk/x/denommetadata/keeper"
-	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/evmos/evmos/v12/x/claims"
@@ -159,7 +156,6 @@ var (
 		// evmos keys
 		erc20types.StoreKey,
 		claimstypes.StoreKey,
-		denommetadatamoduletypes.StoreKey,
 	}
 )
 
@@ -212,23 +208,21 @@ var (
 		erc20.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		claims.AppModuleBasic{},
-		denommetadata.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:          nil,
-		distrtypes.ModuleName:               nil,
-		minttypes.ModuleName:                {authtypes.Minter},
-		stakingtypes.BondedPoolName:         {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:      {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:                 {authtypes.Burner},
-		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-		evmtypes.ModuleName:                 {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		erc20types.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		claimstypes.ModuleName:              nil,
-		hubgentypes.ModuleName:              {authtypes.Minter},
-		denommetadatamoduletypes.ModuleName: nil,
+		authtypes.FeeCollectorName:     nil,
+		distrtypes.ModuleName:          nil,
+		minttypes.ModuleName:           {authtypes.Minter},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:            {authtypes.Burner},
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		claimstypes.ModuleName:         nil,
+		hubgentypes.ModuleName:         {authtypes.Minter},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -303,8 +297,6 @@ type App struct {
 	// Evmos keepers
 	Erc20Keeper  erc20keeper.Keeper
 	ClaimsKeeper *claimskeeper.Keeper
-
-	DenomMetadataKeeper denommetadatamodulekeeper.Keeper
 
 	// mm is the module manager
 	mm *module.Manager
@@ -522,11 +514,7 @@ func NewRollapp(
 		),
 	)
 
-	denomMetadataHooks := denommetadatamoduletypes.NewMultiDenommetadataHooks(
-		erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
-	)
-
-	genesisTransfersMemoBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper) // ICS4 Wrapper: claims IBC middleware
+	genesisTransfersMemoBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
@@ -534,15 +522,6 @@ func NewRollapp(
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
-	)
-
-	app.DenomMetadataKeeper = denommetadatamodulekeeper.NewKeeper(
-		appCodec,
-		keys[denommetadatamoduletypes.StoreKey],
-		app.BankKeeper,
-		app.TransferKeeper,
-		denomMetadataHooks,
-		app.GetSubspace(denommetadatamoduletypes.ModuleName),
 	)
 
 	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
@@ -613,7 +592,6 @@ func NewRollapp(
 		transferModule,
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper, app.GetSubspace(claimstypes.ModuleName)),
-		denommetadata.NewAppModule(app.DenomMetadataKeeper, app.BankKeeper),
 	}
 
 	app.mm = module.NewManager(modules...)
@@ -644,7 +622,6 @@ func NewRollapp(
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		hubgentypes.ModuleName,
-		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -669,7 +646,6 @@ func NewRollapp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
-		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -701,7 +677,6 @@ func NewRollapp(
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
-		denommetadatamoduletypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
@@ -744,13 +719,7 @@ func NewRollapp(
 		encodingConfig.TxConfig,
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
-			/*
-				TODO:
-					We had a plan to use the sequencers module to manager permissions, but that idea was changed
-					For now, we just assume the only account with permission is the denom one
-					We will eventually replace with something more substantial
-			*/
-			return app.DenomMetadataKeeper.IsAddressPermissioned(ctx, accAddr.String())
+			return true
 		},
 		app.AccountKeeper,
 		app.StakingKeeper,
@@ -1038,7 +1007,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
-	paramsKeeper.Subspace(denommetadatamoduletypes.ModuleName)
 
 	return paramsKeeper
 }
