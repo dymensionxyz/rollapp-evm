@@ -142,8 +142,6 @@ sh scripts/settlement/register_sequencer_to_hub.sh
 
 Modify `dymint.toml` in the chain directory (`~/.rollapp_evm/config`)
 
-linux:
-
 ```shell
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "settlement_layer" -v "dymension"
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "node_address" -v "$HUB_RPC_URL"
