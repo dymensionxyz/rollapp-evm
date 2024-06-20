@@ -514,21 +514,21 @@ func NewRollapp(
 		),
 	)
 
-	genesisTransfersMemoBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
-
-	app.TransferKeeper = transferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		genesisTransfersMemoBlocker,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
-		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
-	)
-
 	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
 		appCodec,
 		keys[hubgentypes.StoreKey],
 		app.GetSubspace(hubgentypes.ModuleName),
 		app.AccountKeeper,
+	)
+
+	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
+
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		genesisTransfersBlocker,
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
