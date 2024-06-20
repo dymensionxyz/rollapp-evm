@@ -519,6 +519,7 @@ func NewRollapp(
 		keys[hubgentypes.StoreKey],
 		app.GetSubspace(hubgentypes.ModuleName),
 		app.AccountKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
