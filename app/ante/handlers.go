@@ -6,6 +6,7 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	conntypes "github.com/cosmos/ibc-go/v6/modules/core/03-connection/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
@@ -43,6 +44,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 		cosmosante.NewRejectMessagesDecorator(
 			[]string{
 				sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
+				sdk.MsgTypeURL(&conntypes.MsgConnectionOpenInit{}), // don't let any connection open from the Rollapp side (it's still possible from the other side)
 			},
 		),
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
