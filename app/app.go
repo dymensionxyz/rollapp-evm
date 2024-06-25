@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/dymensionxyz/dymension-rdk/x/staking"
 	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -109,6 +108,7 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
 
+	"github.com/dymensionxyz/dymension-rdk/x/staking"
 	stakingkeeper "github.com/dymensionxyz/dymension-rdk/x/staking/keeper"
 
 	"github.com/dymensionxyz/dymension-rdk/x/sequencers"
@@ -122,8 +122,6 @@ import (
 	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/evmos/evmos/v12/x/claims"
 	claimskeeper "github.com/evmos/evmos/v12/x/claims/keeper"
-
-	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
 	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
 	"github.com/evmos/evmos/v12/x/erc20"
 	erc20client "github.com/evmos/evmos/v12/x/erc20/client"
@@ -224,26 +222,23 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:          nil,
-		authz.ModuleName:                    nil,
-		distrtypes.ModuleName:               nil,
-		minttypes.ModuleName:                {authtypes.Minter},
-		stakingtypes.BondedPoolName:         {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:      {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:                 {authtypes.Burner},
-		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-		evmtypes.ModuleName:                 {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		erc20types.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		claimstypes.ModuleName:              nil,
-		hubgentypes.ModuleName:              {authtypes.Minter},
-		denommetadatamoduletypes.ModuleName: nil,
+		authtypes.FeeCollectorName:     nil,
+		authz.ModuleName:               nil,
+		distrtypes.ModuleName:          nil,
+		minttypes.ModuleName:           {authtypes.Minter},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:            {authtypes.Burner},
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		claimstypes.ModuleName:         nil,
+		hubgentypes.ModuleName:         {authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		// true = is able to send/receive
-		distrtypes.ModuleName:  true,
-		hubgentypes.ModuleName: true,
+		distrtypes.ModuleName: true,
 	}
 )
 
@@ -538,21 +533,19 @@ func NewRollapp(
 		),
 	)
 
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+	)
+
 	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
 		appCodec,
 		keys[hubgentypes.StoreKey],
 		app.GetSubspace(hubgentypes.ModuleName),
 		app.AccountKeeper,
-	)
-
-	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
-
-	app.TransferKeeper = transferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		genesisTransfersBlocker,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
-		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
@@ -568,12 +561,6 @@ func NewRollapp(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	transferStack = hubgenkeeper.NewIBCModule(
-		transferStack,
-		app.TransferKeeper,
-		app.HubGenesisKeeper,
-		app.BankKeeper,
-	)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
@@ -748,6 +735,14 @@ func NewRollapp(
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
 			return true
+			/*
+				TODO:
+					We had a plan to use the sequencers module to manager permissions, but that idea was changed
+					For now, we just assume the only account with permission is the denom one
+					We will eventually replace with something more substantial
+				TODO:
+					The denom one was ripped out https://github.com/dymensionxyz/dymension-rdk/pull/433/files#diff-2caeed9462180cba822eeaff485f2bb87c9c9464040fb65f0f5dcac66fb0e18fL58-L67
+			*/
 		},
 		app.AccountKeeper,
 		app.StakingKeeper,
