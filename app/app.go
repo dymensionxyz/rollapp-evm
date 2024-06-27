@@ -8,17 +8,11 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
-	hubkeeper "github.com/dymensionxyz/dymension-rdk/x/hub/keeper"
-	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
+	"github.com/gorilla/mux"
+	"github.com/rakyll/statik/fs"
 
 	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
-	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -58,9 +52,6 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -107,13 +98,13 @@ import (
 
 	srvflags "github.com/evmos/evmos/v12/server/flags"
 
-	rollappparams "github.com/dymensionxyz/rollapp-evm/app/params"
-
-	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
 
 	"github.com/dymensionxyz/dymension-rdk/x/staking"
+	// unnamed import of statik for swagger UI support
 	stakingkeeper "github.com/dymensionxyz/dymension-rdk/x/staking/keeper"
+
+	rollappparams "github.com/dymensionxyz/rollapp-evm/app/params"
 
 	"github.com/dymensionxyz/dymension-rdk/x/sequencers"
 	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
@@ -140,7 +131,11 @@ import (
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
+	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
 	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
+	"github.com/dymensionxyz/dymension-rdk/x/hub"
+	hubkeeper "github.com/dymensionxyz/dymension-rdk/x/hub/keeper"
+	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
 
 	// Upgrade handlers
 	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
@@ -157,8 +152,7 @@ const (
 var (
 	AccountAddressPrefix string
 	kvstorekeys          = []string{
-		authtypes.StoreKey, authzkeeper.StoreKey,
-		feegrant.StoreKey, banktypes.StoreKey,
+		authtypes.StoreKey, banktypes.StoreKey,
 		stakingtypes.StoreKey, seqtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey,
@@ -200,7 +194,6 @@ var (
 	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
-		authzmodule.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
@@ -211,11 +204,11 @@ var (
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(getGovProposalHandlers()),
 		params.AppModuleBasic{},
-		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		hubgenesis.AppModuleBasic{},
+		hub.AppModuleBasic{},
 		// Ethermint modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -229,7 +222,6 @@ var (
 	// module account permissions
 	maccPerms = map[string][]string{
 		authtypes.FeeCollectorName:     nil,
-		authz.ModuleName:               nil,
 		distrtypes.ModuleName:          nil,
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
@@ -287,7 +279,6 @@ type App struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	AuthzKeeper      authzkeeper.Keeper
 	BankKeeper       bankkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
@@ -302,7 +293,6 @@ type App struct {
 	ParamsKeeper     paramskeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	TransferKeeper   transferkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -411,13 +401,6 @@ func NewRollapp(
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 	)
 
-	app.AuthzKeeper = authzkeeper.NewKeeper(
-		keys[authzkeeper.StoreKey],
-		appCodec,
-		app.MsgServiceRouter(),
-		app.AccountKeeper,
-	)
-
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec,
 		keys[banktypes.StoreKey],
@@ -454,7 +437,6 @@ func NewRollapp(
 		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
 
-	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
 	// register the staking hooks
@@ -540,16 +522,23 @@ func NewRollapp(
 		),
 	)
 
+	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
+		appCodec,
+		keys[hubgentypes.StoreKey],
+		app.GetSubspace(hubgentypes.ModuleName),
+		app.AccountKeeper,
+	)
+
 	app.HubKeeper = hubkeeper.NewKeeper(
 		appCodec,
 		keys[hubtypes.StoreKey],
-		app.IBCKeeper.ChannelKeeper,
 	)
 
-	denomMetadataMiddleware := denommetadata.NewIBCSendMiddleware(
+	denomMetadataMiddleware := denommetadata.NewICS4Wrapper(
 		app.ClaimsKeeper,
 		app.HubKeeper,
 		app.BankKeeper,
+		app.HubGenesisKeeper.GetState,
 	)
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
@@ -565,16 +554,6 @@ func NewRollapp(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
-	app.HubGenesisKeeper = hubgenkeeper.NewKeeper(
-		appCodec,
-		keys[hubgentypes.StoreKey],
-		app.GetSubspace(hubgentypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		app.BankKeeper,
-		app.AccountKeeper,
-		app.HubKeeper,
-	)
-
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 	// Set the ICS4 wrappers for custom module middlewares
 	app.ClaimsKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
@@ -587,7 +566,7 @@ func NewRollapp(
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
-	transferStack = denommetadata.NewIBCRecvMiddleware(
+	transferStack = denommetadata.NewIBCModule(
 		transferStack,
 		app.BankKeeper,
 		app.TransferKeeper,
@@ -596,6 +575,14 @@ func NewRollapp(
 			erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
 		),
 	)
+
+	transferStack = hubgenkeeper.NewIBCModule(
+		transferStack,
+		app.TransferKeeper,
+		app.HubGenesisKeeper,
+		app.BankKeeper,
+	)
+
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -614,11 +601,9 @@ func NewRollapp(
 			encodingConfig.TxConfig,
 		),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
-		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
@@ -629,6 +614,7 @@ func NewRollapp(
 		ibc.NewAppModule(app.IBCKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper),
+		hub.NewAppModule(appCodec, app.HubKeeper),
 
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
@@ -659,16 +645,15 @@ func NewRollapp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		authtypes.ModuleName,
-		authz.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		genutiltypes.ModuleName,
-		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -680,7 +665,6 @@ func NewRollapp(
 		feemarkettypes.ModuleName,
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
-		authz.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -688,13 +672,13 @@ func NewRollapp(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		genutiltypes.ModuleName,
-		feegrant.ModuleName,
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -707,7 +691,6 @@ func NewRollapp(
 	initGenesisList := []string{
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
-		authz.ModuleName,
 		banktypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
@@ -726,8 +709,8 @@ func NewRollapp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
-		feegrant.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
@@ -770,7 +753,7 @@ func NewRollapp(
 		encodingConfig.TxConfig,
 		maxGasWanted,
 		func(ctx sdk.Context, accAddr sdk.AccAddress, perm string) bool {
-			return true
+			return false
 			/*
 				TODO:
 					We had a plan to use the sequencers module to manager permissions, but that idea was changed
