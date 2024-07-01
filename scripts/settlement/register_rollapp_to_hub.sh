@@ -4,6 +4,7 @@ MAX_SEQUENCERS=1
 
 # this account must be whitelisted on the hub for permissioned deployment setup
 DEPLOYER=${HUB_PERMISSIONED_KEY-"$HUB_KEY_WITH_FUNDS"}
+SEQUENCER_ADDR=$(dymd keys show sequencer --address --keyring-backend test --keyring-dir "$ROLLAPP_HOME_DIR"/sequencer_keys)
 
 if [ "$HUB_RPC_URL" = "" ]; then
   echo "HUB_RPC_URL is not set, using 'http://localhost:36657'"
