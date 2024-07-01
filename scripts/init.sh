@@ -113,6 +113,31 @@ generate_denom_metadata() {
   }
 ]
 EOF
+
+  tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/hub-denommetadata.json" > /dev/null <<EOF
+[
+  {
+    "token_metadata": {
+      "description": "DYM",
+      "denom_units": [
+        {
+          "denom": "ibc/FECACB927EB3102CCCB240FFB3B6FCCEEB8D944C6FEA8DFF079650FEFF59781D",
+          "exponent": 0
+        },
+        {
+          "denom": "DYM",
+          "exponent": 18
+        }
+      ],
+      "base": "ibc/FECACB927EB3102CCCB240FFB3B6FCCEEB8D944C6FEA8DFF079650FEFF59781D",
+      "display": "DYM",
+      "name": "DYM",
+      "symbol": "DYM"
+    },
+    "denom_trace": "transfer/channel-0/adym"
+  }
+]
+EOF
 }
 
 add_denom_metadata() {
@@ -160,6 +185,21 @@ set_EVM_params() {
     echo "An error occurred. Please refer to README.md"
     return 1
   fi
+}
+
+update_configuration() {
+  celestia_namespace_id=$(openssl rand -hex 20)
+  celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
+
+  sudo sed -i "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+  sudo sed -i "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+  sed -i "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+
+  sudo sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
+
+  sudo sed -i '/settlement_node_address =/c\settlement_node_address = '\""$HUB_RPC_URL"\" "${ROLLAPP_HOME_DIRECTORY}/config/dymint.toml"
+  sudo sed -i '/rollapp_id =/c\rollapp_id = '\""$ROLLAPP_CHAIN_ID"\" "${ROLLAPP_HOME_DIRECTORY}/config/dymint.toml"
+  sudo sed -i '/minimum-gas-prices =/c\minimum-gas-prices = '\"1000000000"$BASE_DENOM"\" "${ROLLAPP_HOME_DIRECTORY}/config/app.toml"
 }
 
 # --------------------------------- run init --------------------------------- #
@@ -210,7 +250,6 @@ generate_denom_metadata
 # Set sequencer's operator address
 operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
 dasel put -f "$GENESIS_FILE" '.app_state.sequencers.genesis_operator_address' -v "$operator_address"
-"$EXECUTABLE" validate-genesis
 
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "
