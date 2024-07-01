@@ -241,6 +241,7 @@ set_consensus_params
 set_EVM_params
 add_genesis_accounts
 generate_denom_metadata
+update_configuration
 
 # --------------------- adding keys and genesis accounts --------------------- #
 # Local genesis account
