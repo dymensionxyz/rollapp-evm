@@ -196,7 +196,7 @@ set_EVM_params() {
 }
 
 update_configuration() {
-  celestia_namespace_id=$(openssl rand -hex 20)
+  celestia_namespace_id=$(openssl rand -hex 10)
   if [ ! -d "$CELESTIA_HOME_DIR" ]; then
     echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
     echo "but it does not exist, please initialize the light client or update the 'CELESTIA_HOME_DIR'"
