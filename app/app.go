@@ -240,12 +240,13 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
-		hubgentypes.ModuleName:         {authtypes.Burner},
+		hubgentypes.ModuleName:         {authtypes.Minter},
 	}
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+		distrtypes.ModuleName:  true,
+		hubgentypes.ModuleName: true,
 	}
 )
 
@@ -560,11 +561,13 @@ func NewRollapp(
 		app.HubGenesisKeeper.GetState,
 	)
 
+	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(denomMetadataMiddleware, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
+
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
 		app.GetSubspace(ibctransfertypes.ModuleName),
-		denomMetadataMiddleware, // ICS4 Wrapper: claims IBC middleware
+		genesisTransfersBlocker,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
@@ -595,14 +598,13 @@ func NewRollapp(
 		),
 	)
 
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 	transferStack = hubgenkeeper.NewIBCModule(
 		transferStack,
 		app.TransferKeeper,
 		app.HubGenesisKeeper,
 		app.BankKeeper,
 	)
-
-	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
