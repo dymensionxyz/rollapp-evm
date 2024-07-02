@@ -17,6 +17,16 @@ if [ "$BASE_DENOM" = "" ]; then
   exit 1
 fi
 
+if [ "$HUB_KEY_WITH_FUNDS" = "" ]; then
+  echo "HUB_KEY_WITH_FUNDS is not set"
+  exit 1
+fi
+
+if [ "$KEY_NAME_ROLLAPP" = "" ]; then
+  echo "KEY_NAME_ROLLAPP is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
@@ -65,7 +75,6 @@ echo '--------------------------------- Initializing rly config... -------------
 rly config init
 
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
-tmp=$(mktemp)
 
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
@@ -97,7 +106,7 @@ DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json |
 if [ "$(echo "$DYM_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_HUB_ADDR} already funded"
 else
-  "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y
+  "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --broadcast-mode block --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y || exit 1
 fi
 
 echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"'].. --------------------------------'
@@ -107,7 +116,7 @@ RA_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '
 if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_ROLLAPP_ADDR} already funded"
 else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000000"$BASE_DENOM"
+  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000000"$BASE_DENOM" || exit 1
 fi
 
 echo '--------------------------------- Creating IBC path... --------------------------------'
