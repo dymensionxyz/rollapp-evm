@@ -40,7 +40,16 @@ if [ "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" = "" ]; then
 fi
 
 if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
-  echo "ROLLAPP_CHAIN_ID is not set"
+  echo "ROLLAPP_CHAIN_ID is not set" exit 1
+fi
+
+if [ "$CELESTIA_NETWORK" = "" ]; then
+  echo "CELESTIA_NETWORK is not set"
+  exit 1
+fi
+
+if [ "$CELESTIA_HOME_DIR" = "" ]; then
+  echo "CELESTIA_HOME_DIR is not set"
   exit 1
 fi
 
@@ -188,6 +197,13 @@ set_EVM_params() {
 
 update_configuration() {
   celestia_namespace_id=$(openssl rand -hex 20)
+  if [ ! -d "$CELESTIA_HOME_DIR" ]; then
+    echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
+    echo "but it does not exist, please initialize the light client or update the 'CELESTIA_HOME_DIR'"
+    echo "environment variable"
+    exit 1
+  fi
+
   celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
 
   sudo sed -i "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
