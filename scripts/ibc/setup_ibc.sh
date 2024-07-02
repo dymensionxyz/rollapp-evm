@@ -67,15 +67,15 @@ rly config init
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 tmp=$(mktemp)
 
-jq --arg key "$RELAYER_KEY_FOR_ROLLAPP" '.value.key = $key' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
-jq --arg chain "$ROLLAPP_CHAIN_ID" '.value."chain-id" = $chain' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
-jq --arg bech "$BECH32_PREFIX" '.value["account-prefix"] = $bech' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
-jq --arg rpc "$ROLLAPP_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
-jq --arg denom "100000000$BASE_DENOM" '.value."gas-prices" = $denom' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
+dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
+dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
+dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.account-prefix' -v "$BECH32_PREFIX"
+dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.rpc-addr' -v "$ROLLAPP_RPC_FOR_RELAYER"
+dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.gas-prices' -v "1000000000$BASE_DENOM"
 
-jq --arg key "$RELAYER_KEY_FOR_HUB" '.value.key = $key' "$HUB_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$HUB_IBC_CONF_FILE"
-jq --arg chain "$SETTLEMENT_CHAIN_ID" '.value."chain-id" = $chain' "$HUB_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$HUB_IBC_CONF_FILE"
-jq --arg rpc "$SETTLEMENT_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$HUB_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$HUB_IBC_CONF_FILE"
+dasel put -f "$HUB_IBC_CONF_FILE"  '.value.key' -v "$RELAYER_KEY_FOR_HUB"
+dasel put -f "$HUB_IBC_CONF_FILE"  '.value.chain-id' -v "$SETTLEMENT_CHAIN_ID"
+dasel put -f "$HUB_IBC_CONF_FILE"  '.value.rpc-addr' -v "$SETTLEMENT_RPC_FOR_RELAYER"
 
 rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
 rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
