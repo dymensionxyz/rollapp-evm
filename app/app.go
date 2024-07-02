@@ -136,6 +136,12 @@ import (
 	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
+	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
+	denommetadatamoduletypes "github.com/dymensionxyz/dymension-rdk/x/denommetadata/types"
+	"github.com/dymensionxyz/dymension-rdk/x/hub"
+	hubkeeper "github.com/dymensionxyz/dymension-rdk/x/hub/keeper"
+	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
+
 	// Upgrade handlers
 	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
 
@@ -157,7 +163,7 @@ var (
 		minttypes.StoreKey, distrtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey,
 		ibchost.StoreKey, upgradetypes.StoreKey,
-		epochstypes.StoreKey, hubgentypes.StoreKey,
+		epochstypes.StoreKey, hubtypes.StoreKey, hubgentypes.StoreKey,
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
@@ -210,6 +216,7 @@ var (
 		ibc.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		hubgenesis.AppModuleBasic{},
+		hub.AppModuleBasic{},
 		// Ethermint modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -291,6 +298,7 @@ type App struct {
 	EpochsKeeper     epochskeeper.Keeper
 	DistrKeeper      distrkeeper.Keeper
 	GovKeeper        govkeeper.Keeper
+	HubKeeper        hubkeeper.Keeper
 	HubGenesisKeeper hubgenkeeper.Keeper
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
@@ -541,13 +549,30 @@ func NewRollapp(
 		app.AccountKeeper,
 	)
 
-	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(app.ClaimsKeeper, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
+	app.HubKeeper = hubkeeper.NewKeeper(
+		appCodec,
+		keys[hubtypes.StoreKey],
+	)
+
+	denomMetadataMiddleware := denommetadata.NewICS4Wrapper(
+		app.ClaimsKeeper,
+		app.HubKeeper,
+		app.BankKeeper,
+		app.HubGenesisKeeper.GetState,
+	)
+
+	genesisTransfersBlocker := hubgenkeeper.NewICS4Wrapper(denomMetadataMiddleware, app.HubGenesisKeeper) // ICS4 Wrapper: claims IBC middleware
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		appCodec,
+		keys[ibctransfertypes.StoreKey],
+		app.GetSubspace(ibctransfertypes.ModuleName),
 		genesisTransfersBlocker,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
@@ -563,6 +588,16 @@ func NewRollapp(
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
+	transferStack = denommetadata.NewIBCModule(
+		transferStack,
+		app.BankKeeper,
+		app.TransferKeeper,
+		app.HubKeeper,
+		denommetadatamoduletypes.NewMultiDenommetadataHooks(
+			erc20keeper.NewERC20ContractRegistrationHook(app.Erc20Keeper),
+		),
+	)
+
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 	transferStack = hubgenkeeper.NewIBCModule(
 		transferStack,
@@ -602,6 +637,7 @@ func NewRollapp(
 		ibc.NewAppModule(app.IBCKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper),
+		hub.NewAppModule(appCodec, app.HubKeeper),
 
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
@@ -642,6 +678,7 @@ func NewRollapp(
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -668,6 +705,7 @@ func NewRollapp(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -701,6 +739,7 @@ func NewRollapp(
 		ibctransfertypes.ModuleName,
 		feegrant.ModuleName,
 		hubgentypes.ModuleName,
+		hubtypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
