@@ -233,7 +233,7 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
-		hubgentypes.ModuleName:         {authtypes.Burner},
+		hubgentypes.ModuleName:         {authtypes.Minter},
 	}
 
 	// module accounts that are allowed to receive tokens
