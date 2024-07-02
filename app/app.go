@@ -238,7 +238,8 @@ var (
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+		distrtypes.ModuleName:  true,
+		hubgentypes.ModuleName: true,
 	}
 )
 
