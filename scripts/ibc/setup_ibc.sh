@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ "$BECH32_PREFIX" = "" ]; then
+  echo "BECH32_PREFIX is not set"
+  exit 1
+fi
+
+if [ "$BASE_DENOM" = "" ]; then
+  echo "BASE_DENOM is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
@@ -18,7 +28,7 @@ SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
 ROLLAPP_CHAIN_ID=$("$EXECUTABLE" config | jq -r '."chain-id"')
 ROLLAPP_RPC_FOR_RELAYER=$("$EXECUTABLE" config | jq -r '."node"')
 
-RELAYER_KEY_FOR_ROLLAP="relayer-rollapp-key"
+RELAYER_KEY_FOR_ROLLAPP="relayer-rollapp-key"
 RELAYER_KEY_FOR_HUB="relayer-hub-key"
 RELAYER_PATH="hub-rollapp"
 
@@ -50,7 +60,7 @@ rly config init
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 tmp=$(mktemp)
 
-jq --arg key "$RELAYER_KEY_FOR_ROLLAP" '.value.key = $key' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
+jq --arg key "$RELAYER_KEY_FOR_ROLLAPP" '.value.key = $key' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 jq --arg chain "$ROLLAPP_CHAIN_ID" '.value."chain-id" = $chain' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 jq --arg bech "$BECH32_PREFIX" '.value["account-prefix"] = $bech' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
 jq --arg rpc "$ROLLAPP_RPC_FOR_RELAYER" '.value."rpc-addr" = $rpc' "$ROLLAPP_IBC_CONF_FILE" >"$tmp" && mv "$tmp" "$ROLLAPP_IBC_CONF_FILE"
@@ -68,14 +78,14 @@ sed -i.bak '/min-loop-duration:/s/.*/            min-loop-duration: 100ms/' "$RL
 
 echo -e '--------------------------------- Creating keys for rly... --------------------------------'
 
-rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAP" --coin-type 60
+rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAPP" --coin-type 60
 rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 
 RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
 RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
-DYM_BALANCE=$(${SETTLEMENT_EXECUTABLE} q bank balances ${RLY_HUB_ADDR} -o json | jq -r '.balances[0].amount')
+DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
 
 if [ "$(echo "$DYM_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_HUB_ADDR} already funded"
@@ -85,12 +95,12 @@ fi
 
 echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"'].. --------------------------------'
 
-RA_BALANCE=$(${EXECUTABLE} q bank balances ${RLY_ROLLAPP_ADDR} -o json | jq -r '.balances[0].amount')
+RA_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '.balances[0].amount')
 
 if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
   echo "${RLY_ROLLAPP_ADDR} already funded"
 else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000000$BASE_DENOM
+  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test --broadcast-mode block -y --fees 4000000000000"$BASE_DENOM"
 fi
 
 echo '--------------------------------- Creating IBC path... --------------------------------'
@@ -113,7 +123,7 @@ echo "$channel_info"
 
 echo -e '--------------------------------- Set channel-filter --------------------------------'
 
-if [ -z "$rollapp_channel" ] || [ -z "$hub_channel" ]; then
+if [ "$rollapp_channel" = "" ] || [ "$hub_channel" = "" ]; then
   echo "Both channels must be provided. Something is wrong. Exiting."
   exit 1
 fi
