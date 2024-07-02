@@ -1,4 +1,11 @@
 #!/bin/bash
+EXECUTABLE=$(which rollapp-evm)
+
+if ! command -v "$EXECUTABLE" >/dev/null; then
+  echo "$EXECUTABLE does not exist"
+  echo "please run make install"
+  exit 1
+fi
 
 if [ "$BECH32_PREFIX" = "" ]; then
   echo "BECH32_PREFIX is not set"
