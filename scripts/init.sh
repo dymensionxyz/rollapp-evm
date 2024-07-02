@@ -1,5 +1,4 @@
 #!/bin/bash
-tmp=$(mktemp)
 EXECUTABLE=$(which rollapp-evm)
 
 if ! command -v "$EXECUTABLE" >/dev/null; then
