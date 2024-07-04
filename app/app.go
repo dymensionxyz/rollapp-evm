@@ -875,6 +875,7 @@ func (app *App) ModuleAccountAddrs() map[string]bool {
 func (app *App) BlockedAddrs() map[string]bool {
 	// block all modules by default
 	ret := app.ModuleAccountAddrs()
+	// delete them if they CAN receive tokens
 	for _, acc := range maccCanReceiveTokens {
 		delete(ret, authtypes.NewModuleAddress(acc).String())
 	}
