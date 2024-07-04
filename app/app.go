@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 
 	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
@@ -244,9 +243,9 @@ var (
 	}
 
 	// module accounts that are allowed to receive tokens
-	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName:  true,
-		hubgentypes.ModuleName: true,
+	maccCanReceiveTokens = []string{
+		distrtypes.ModuleName,
+		hubgentypes.ModuleName,
 	}
 )
 
@@ -453,7 +452,7 @@ func NewRollapp(
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
+		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, nil, // TODO: upgrade to https://github.com/dymensionxyz/dymension-rdk/pull/476
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
@@ -864,48 +863,22 @@ func (app *App) LoadHeight(height int64) error {
 
 // ModuleAccountAddrs returns all the app's module account addresses.
 func (app *App) ModuleAccountAddrs() map[string]bool {
-	modAccAddrs := make(map[string]bool)
+	ret := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+		ret[authtypes.NewModuleAddress(acc).String()] = true
 	}
-
-	accs := make([]string, 0, len(maccPerms))
-	for k := range maccPerms {
-		accs = append(accs, k)
-	}
-	sort.Strings(accs)
-	for _, acc := range accs {
-		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
-	}
-
-	return modAccAddrs
-}
-
-// BlockedModuleAccountAddrs returns all the app's blocked module account
-// addresses.
-func (app *App) BlockedModuleAccountAddrs() map[string]bool {
-	modAccAddrs := app.ModuleAccountAddrs()
-	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-
-	return modAccAddrs
+	return ret
 }
 
 // BlockedAddrs returns all the app's module account addresses that are not
-// allowed to receive external tokens.
+// allowed to receive funds. If the map value is true, that account cannot receive funds.
 func (app *App) BlockedAddrs() map[string]bool {
-	blockedAddrs := make(map[string]bool)
-
-	accs := make([]string, 0, len(maccPerms))
-	for k := range maccPerms {
-		accs = append(accs, k)
+	// block all modules by default
+	ret := app.ModuleAccountAddrs()
+	for _, acc := range maccCanReceiveTokens {
+		delete(ret, authtypes.NewModuleAddress(acc).String())
 	}
-	sort.Strings(accs)
-
-	for _, acc := range accs {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
-	}
-
-	return blockedAddrs
+	return ret
 }
 
 // LegacyAmino returns App's amino codec.
@@ -1045,15 +1018,6 @@ func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router) {
 
 	staticServer := http.FileServer(statikFS)
 	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-}
-
-// GetMaccPerms returns a copy of the module account permissions
-func GetMaccPerms() map[string][]string {
-	dupMaccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		dupMaccPerms[k] = v
-	}
-	return dupMaccPerms
 }
 
 // initParamsKeeper init params keeper and its subspaces
