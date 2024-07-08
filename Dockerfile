@@ -1,24 +1,57 @@
-FROM golang:1.22.4-alpine3.19 as go-builder
+# Use Ubuntu as the base image
+FROM ubuntu:latest as go-builder
 
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    wget make git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Go 1.21
+RUN wget https://golang.org/dl/go1.22.4.linux-amd64.tar.gz && \
+    tar -xvf go1.22.4.linux-amd64.tar.gz && \
+    mv go /usr/local && \
+    rm go1.22.4.linux-amd64.tar.gz
+
+# Set Go environment variables
+ENV GOROOT=/usr/local/go
+ENV GOPATH=$HOME/go
+ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+RUN apt-get update -y
+RUN apt-get install build-essential -y
+# Set the working directory
 WORKDIR /app
 
-COPY go.mod go.sum* ./
+# Download go dependencies
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/root/go/pkg/mod \
+    go mod download
 
-RUN go mod download
+# Cosmwasm - Download correct libwasmvm version
+RUN ARCH=$(uname -m) && WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm | sed 's/.* //') && \
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm_muslc.$ARCH.a \
+    -O /lib/libwasmvm_muslc.a && \
+    # verify checksum
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/checksums.txt -O /tmp/checksums.txt && \
+    sha256sum /lib/libwasmvm_muslc.a | grep $(cat /tmp/checksums.txt | grep libwasmvm_muslc.$ARCH | cut -d ' ' -f 1) && \
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.x86_64.so \
+    -O /lib/libwasmvm.x86_64.so && \
+     wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.aarch64.so \
+    -O /lib/libwasmvm.aarch64.so
 
+# Copy the remaining files
 COPY . .
-
-ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev python3
-
-RUN apk add --no-cache $PACKAGES
 
 RUN make build BECH32_PREFIX=ethm
 
-FROM alpine:3.16.1
+FROM ubuntu:latest
 
-RUN apk add curl jq bash vim 
+RUN apt-get update -y
 
 COPY --from=go-builder /app/build/rollapp-evm /usr/local/bin/rollappd
+COPY --from=go-builder /lib/libwasmvm.x86_64.so /lib/libwasmvm.x86_64.so
+COPY --from=go-builder /lib/libwasmvm.aarch64.so /lib/libwasmvm.aarch64.so
 
 WORKDIR /app
 
