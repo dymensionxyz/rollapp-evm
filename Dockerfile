@@ -7,10 +7,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Go 1.21
-RUN wget https://golang.org/dl/go1.21.4.linux-amd64.tar.gz && \
-    tar -xvf go1.21.4.linux-amd64.tar.gz && \
+RUN wget https://golang.org/dl/go1.22.4.linux-amd64.tar.gz && \
+    tar -xvf go1.22.4.linux-amd64.tar.gz && \
     mv go /usr/local && \
-    rm go1.21.4.linux-amd64.tar.gz
+    rm go1.22.4.linux-amd64.tar.gz
 
 # Set Go environment variables
 ENV GOROOT=/usr/local/go
@@ -49,7 +49,7 @@ FROM ubuntu:latest
 
 RUN apt-get update -y
 
-COPY --from=go-builder /app/build/rollapp-wasm /usr/local/bin/rollappd
+COPY --from=go-builder /app/build/rollapp-evm /usr/local/bin/rollappd
 COPY --from=go-builder /lib/libwasmvm.x86_64.so /lib/libwasmvm.x86_64.so
 COPY --from=go-builder /lib/libwasmvm.aarch64.so /lib/libwasmvm.aarch64.so
 
