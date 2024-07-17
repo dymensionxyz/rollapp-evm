@@ -222,7 +222,7 @@ update_configuration() {
     fi
   fi
 
-  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+  if [[ ! $SETTLEMENT_LAYER == "mock" ]]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
       sed -i '' -e "/settlement_node_address =/s/.*/settlement_node_address = \"${HUB_RPC_URL//\//\\/}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
