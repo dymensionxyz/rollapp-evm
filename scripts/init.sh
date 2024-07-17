@@ -53,6 +53,10 @@ if [ "$CELESTIA_HOME_DIR" = "" ]; then
   exit 1
 fi
 
+if [[ $CELESTIA_NETWORK == "mock" ]]; then
+  mkdir -p "$CELESTIA_HOME_DIR"
+fi
+
 set_denom() {
   local denom=$1
   local success=true
@@ -196,35 +200,48 @@ set_EVM_params() {
 }
 
 update_configuration() {
-  celestia_namespace_id=$(openssl rand -hex 10)
-  if [ ! -d "$CELESTIA_HOME_DIR" ]; then
-    echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
-    echo "but it does not exist, please initialize the light client or update the 'CELESTIA_HOME_DIR'"
-    echo "environment variable"
-    exit 1
+  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+    celestia_namespace_id=$(openssl rand -hex 10)
+    if [ ! -d "$CELESTIA_HOME_DIR" ]; then
+      echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
+      echo "but it does not exist, please initialize the light client or update the 'CELESTIA_HOME_DIR'"
+      echo "environment variable"
+      exit 1
+    fi
+
+    celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    else
+      sed -i "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    fi
   fi
 
-  celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
+  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' -e "/settlement_node_address =/s/.*/settlement_node_address = \"${HUB_RPC_URL//\//\\/}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' -e "/rollapp_id =/s/.*/rollapp_id = \"$ROLLAPP_CHAIN_ID\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' -e "/minimum-gas-prices =/s/.*/minimum-gas-prices = \"1000000000${BASE_DENOM}\"/" "${CONFIG_DIRECTORY}/app.toml"
+    else
+      sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '/settlement_node_address =/c\settlement_node_address = '\""$HUB_RPC_URL"\" "${CONFIG_DIRECTORY}/dymint.toml"
+    fi
+  fi
 
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '' "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '' "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-
-    sed -i '' 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '' -e "/settlement_node_address =/s/.*/settlement_node_address = \"${HUB_RPC_URL//\//\\/}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '' -e "/rollapp_id =/s/.*/rollapp_id = \"$ROLLAPP_CHAIN_ID\"/" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '' -e "/minimum-gas-prices =/s/.*/minimum-gas-prices = \"1000000000${BASE_DENOM}\"/" "${CONFIG_DIRECTORY}/app.toml"
   else
-    sed -i "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-
-    sed -i 's/settlement_layer.*/settlement_layer = "dymension"/' "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '/settlement_node_address =/c\settlement_node_address = '\""$HUB_RPC_URL"\" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '/rollapp_id =/c\rollapp_id = '\""$ROLLAPP_CHAIN_ID"\" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '/minimum-gas-prices =/c\minimum-gas-prices = '\"1000000000"$BASE_DENOM"\" "${CONFIG_DIRECTORY}/app.toml"
   fi
+
 }
 
 # --------------------------------- run init --------------------------------- #

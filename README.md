@@ -33,6 +33,9 @@ export EXECUTABLE="rollapp-evm"
 export the following variables:
 
 ```shell
+export CELESTIA_NETWORK="mock" # for a testnet RollApp use "arabica", for mainnet - "celestia"
+export CELESTIA_HOME_DIR="${HOME}/.da"
+
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
 export BASE_DENOM="arax"
@@ -45,6 +48,7 @@ export SKIP_EVM_BASE_FEE=true # optional, disables rollapp fees
 $EXECUTABLE config keyring-backend test
 
 # (if running hub too)
+export SETTLEMENT_LAYER="mock" # when running a local hub or a public network use "dymension"
 export HUB_KEY_WITH_FUNDS="hub-user"
 export HUB_RPC_ENDPOINT="localhost"
 export HUB_RPC_PORT="36657" # default: 36657
