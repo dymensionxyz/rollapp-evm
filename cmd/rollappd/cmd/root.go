@@ -139,12 +139,15 @@ func initAppConfig() (string, interface{}) {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
 
-	//Default pruning for a rollapp, represent 2 weeks of states kept while pruning in intervals of 10 minutes
-	srvCfg.Pruning = pruningtypes.PruningOptionCustom
-	srvCfg.PruningInterval = "18000"
-	srvCfg.PruningKeepRecent = "6048000"
+	// Default to no pruning
+	// With default values when pruning is enabled set to keep 10k blocks, prune states older
+	// then 100 at an interval of 10 states
+	srvCfg.Pruning = pruningtypes.PruningOptionNothing
+	srvCfg.PruningInterval = "10"
+	srvCfg.PruningKeepRecent = "100"
+	srvCfg.MinRetainBlocks = 10000
 
-	//Changing the default address to global instead of localhost
+	// Changing the default address to global instead of localhost
 	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
 	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
 
