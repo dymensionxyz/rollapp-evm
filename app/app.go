@@ -327,6 +327,17 @@ type App struct {
 	configurator module.Configurator
 }
 
+func DymintEndBlocker(endblocker sdk.EndBlocker) sdk.EndBlocker {
+	return func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+		abciEndBlockResponse := endblocker(ctx, req)
+		abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
+			Da:      "celestia",
+			Version: "3.1.1",
+		}
+		return abciEndBlockResponse
+	}
+}
+
 // NewRollapp returns a reference to an initialized blockchain app
 func NewRollapp(
 	logger log.Logger,
@@ -774,7 +785,7 @@ func NewRollapp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetEndBlocker(app.EndBlocker)
+	app.SetEndBlocker(DymintEndBlocker(app.EndBlocker))
 	app.setupUpgradeHandlers()
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
