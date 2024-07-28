@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
 
@@ -31,6 +30,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
+	rdkserverconfig "github.com/dymensionxyz/dymension-rdk/server/config"
 	rdk_utils "github.com/dymensionxyz/dymension-rdk/utils"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	"github.com/dymensionxyz/rollapp-evm/app"
@@ -132,26 +132,20 @@ func initTendermintConfig() *tmcfg.Config {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	customAppTemplate, customAppConfig := evmconfig.AppConfig("")
-
-	srvCfg, ok := customAppConfig.(evmconfig.Config)
-	if !ok {
-		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
-	}
-
-	// Default to no pruning
-	// With default values when pruning is enabled set to keep 10k blocks, prune states older
-	// then 100 at an interval of 10 states
-	srvCfg.Pruning = pruningtypes.PruningOptionNothing
-	srvCfg.PruningInterval = "10"
-	srvCfg.PruningKeepRecent = "100"
-	srvCfg.MinRetainBlocks = 10000
-
-	// Changing the default address to global instead of localhost
-	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
-	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
-
-	return customAppTemplate, srvCfg
+    customAppTemplate, customAppConfig := evmconfig.AppConfig("")
+    
+    srvCfg, ok := customAppConfig.(evmconfig.Config)
+    if !ok {
+        panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+    }
+    
+    rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
+    
+    // Changing the default address to global instead of localhost
+    srvCfg.JSONRPC.Address = "0.0.0.0:8545"
+    srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
+    
+    return customAppTemplate, srvCfg
 }
 
 func initRootCmd(
