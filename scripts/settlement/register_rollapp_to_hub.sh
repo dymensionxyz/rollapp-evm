@@ -21,6 +21,6 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$MAX_SEQUENCERS" "{\"Address
 	"$ROLLAPP_HOME_DIR"/init/denommetadata.json \
 	--genesis-accounts-path "$ROLLAPP_HOME_DIR"/init/genesis_accounts.json \
 	--from "$DEPLOYER" \
-	--keyring-backend test --broadcast-mode sync \
+	--keyring-backend test \
 	--fees 1dym
 set +x
