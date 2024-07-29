@@ -100,9 +100,13 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
 
+	rollappparams "github.com/dymensionxyz/dymension-rdk/x/rollappparams"
+	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
+	rollappparamstypes "github.com/dymensionxyz/dymension-rdk/x/rollappparams/types"
+
 	srvflags "github.com/evmos/evmos/v12/server/flags"
 
-	rollappparams "github.com/dymensionxyz/rollapp-evm/app/params"
+	rollappevmparams "github.com/dymensionxyz/rollapp-evm/app/params"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -166,6 +170,7 @@ var (
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		rollappparamstypes.StoreKey,
 		// evmos keys
 		erc20types.StoreKey,
 		claimstypes.StoreKey,
@@ -219,11 +224,11 @@ var (
 		// Ethermint modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
-
 		// Evmos moudles
 		erc20.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		claims.AppModuleBasic{},
+		rollappparams.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -231,6 +236,7 @@ var (
 		authtypes.FeeCollectorName:     nil,
 		authz.ModuleName:               nil,
 		distrtypes.ModuleName:          nil,
+		rollappparamstypes.ModuleName:  nil,
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -287,24 +293,24 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	AuthzKeeper      authzkeeper.Keeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SequencersKeeper seqkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	EpochsKeeper     epochskeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	HubKeeper        hubkeeper.Keeper
-	HubGenesisKeeper hubgenkeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper   transferkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
-
+	AccountKeeper                authkeeper.AccountKeeper
+	AuthzKeeper                  authzkeeper.Keeper
+	BankKeeper                   bankkeeper.Keeper
+	CapabilityKeeper             *capabilitykeeper.Keeper
+	StakingKeeper                stakingkeeper.Keeper
+	SequencersKeeper             seqkeeper.Keeper
+	MintKeeper                   mintkeeper.Keeper
+	EpochsKeeper                 epochskeeper.Keeper
+	DistrKeeper                  distrkeeper.Keeper
+	GovKeeper                    govkeeper.Keeper
+	HubKeeper                    hubkeeper.Keeper
+	HubGenesisKeeper             hubgenkeeper.Keeper
+	UpgradeKeeper                upgradekeeper.Keeper
+	ParamsKeeper                 paramskeeper.Keeper
+	IBCKeeper                    *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper               transferkeeper.Keeper
+	FeeGrantKeeper               feegrantkeeper.Keeper
+	RollappConsensusParamsKeeper rollappparamskeeper.Keeper
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -327,17 +333,6 @@ type App struct {
 	configurator module.Configurator
 }
 
-func DymintEndBlocker(endblocker sdk.EndBlocker) sdk.EndBlocker {
-	return func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-		abciEndBlockResponse := endblocker(ctx, req)
-		abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
-			Da:      "celestia",
-			Version: "3.1.1",
-		}
-		return abciEndBlockResponse
-	}
-}
-
 // NewRollapp returns a reference to an initialized blockchain app
 func NewRollapp(
 	logger log.Logger,
@@ -347,7 +342,7 @@ func NewRollapp(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig rollappparams.EncodingConfig,
+	encodingConfig rollappevmparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
@@ -355,7 +350,7 @@ func NewRollapp(
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
-	eip712.SetEncodingConfig(rollappparams.EncodingAsSimapp(encodingConfig))
+	eip712.SetEncodingConfig(rollappevmparams.EncodingAsSimapp(encodingConfig))
 
 	// NOTE we use custom transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 	bApp := baseapp.NewBaseApp(
@@ -564,6 +559,10 @@ func NewRollapp(
 		keys[hubtypes.StoreKey],
 	)
 
+	app.RollappConsensusParamsKeeper = rollappparamskeeper.NewKeeper(
+		app.GetSubspace(rollappparamstypes.ModuleName),
+	)
+
 	denomMetadataMiddleware := denommetadata.NewICS4Wrapper(
 		app.ClaimsKeeper,
 		app.HubKeeper,
@@ -648,7 +647,7 @@ func NewRollapp(
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper),
 		hub.NewAppModule(appCodec, app.HubKeeper),
-
+		rollappparams.NewAppModule(appCodec, app.RollappConsensusParamsKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -689,6 +688,7 @@ func NewRollapp(
 		paramstypes.ModuleName,
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
+		rollappparamstypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -716,6 +716,7 @@ func NewRollapp(
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
+		rollappparamstypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -750,6 +751,7 @@ func NewRollapp(
 		feegrant.ModuleName,
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
+		rollappparamstypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
@@ -783,7 +785,7 @@ func NewRollapp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetEndBlocker(DymintEndBlocker(app.EndBlocker))
+	app.SetEndBlocker(app.EndBlocker)
 	app.setupUpgradeHandlers()
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
@@ -846,7 +848,12 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
+	abciEndBlockResponse := app.mm.EndBlock(ctx, req)
+	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
+		Da:      app.RollappConsensusParamsKeeper.GetParams(ctx).Da,
+		Version: app.RollappConsensusParamsKeeper.GetParams(ctx).Version,
+	}
+	return abciEndBlockResponse
 }
 
 // InitChainer application update at chain initialization
@@ -1017,7 +1024,7 @@ func (app *App) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 
 // GetTxConfig implements the TestingApp interface.
 func (app *App) GetTxConfig() client.TxConfig {
-	cfg := rollappparams.MakeEncodingConfig()
+	cfg := rollappevmparams.MakeEncodingConfig()
 	return cfg.TxConfig
 }
 
@@ -1047,6 +1054,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(hubgentypes.ModuleName)
+	paramsKeeper.Subspace(rollappparamstypes.ModuleName)
 
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
