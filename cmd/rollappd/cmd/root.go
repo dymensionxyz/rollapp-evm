@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
 
@@ -31,6 +30,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
+	rdkserverconfig "github.com/dymensionxyz/dymension-rdk/server/config"
 	rdk_utils "github.com/dymensionxyz/dymension-rdk/utils"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	"github.com/dymensionxyz/rollapp-evm/app"
@@ -132,23 +132,20 @@ func initTendermintConfig() *tmcfg.Config {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	customAppTemplate, customAppConfig := evmconfig.AppConfig("")
-
-	srvCfg, ok := customAppConfig.(evmconfig.Config)
-	if !ok {
-		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
-	}
-
-	//Default pruning for a rollapp, represent 2 weeks of states kept while pruning in intervals of 10 minutes
-	srvCfg.Pruning = pruningtypes.PruningOptionCustom
-	srvCfg.PruningInterval = "18000"
-	srvCfg.PruningKeepRecent = "6048000"
-
-	//Changing the default address to global instead of localhost
-	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
-	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
-
-	return customAppTemplate, srvCfg
+    customAppTemplate, customAppConfig := evmconfig.AppConfig("")
+    
+    srvCfg, ok := customAppConfig.(evmconfig.Config)
+    if !ok {
+        panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+    }
+    
+    rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
+    
+    // Changing the default address to global instead of localhost
+    srvCfg.JSONRPC.Address = "0.0.0.0:8545"
+    srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
+    
+    return customAppTemplate, srvCfg
 }
 
 func initRootCmd(
