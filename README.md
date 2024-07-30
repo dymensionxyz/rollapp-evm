@@ -109,7 +109,7 @@ NEW_NUMERIC_PART=$(echo "$NUMERIC_PART + 100000000000000000000" | bc)
 # Append 'adym' back
 TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
 
-dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode block --fees 1dym -y --node ${HUB_RPC_URL}
+dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode sync --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
 ### Generate denommetadata
