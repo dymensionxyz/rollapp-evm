@@ -452,7 +452,7 @@ func NewRollapp(
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName, nil, // TODO: upgrade to https://github.com/dymensionxyz/dymension-rdk/pull/476
+		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName,
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
