@@ -1,4 +1,4 @@
-FROM golang:1.22.2-alpine3.18 as go-builder
+FROM golang:1.22.4-alpine3.19 as go-builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN apk add --no-cache $PACKAGES
 
 RUN make build BECH32_PREFIX=ethm
 
-FROM alpine:3.16.1
+FROM alpine:3.19.1
 
 RUN apk add curl jq bash vim 
 
