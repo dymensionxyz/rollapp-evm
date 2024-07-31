@@ -53,9 +53,36 @@ if [ "$BECH32_PREFIX" = "" ]; then
   exit 1
 fi
 
+if [ "$METADATA_PATH" = "" ]; then
+  DEFAULT_METADATA_PATH="${ROLLAPP_HOME_DIR}/init/rollapp-metadata.json"
+  echo "METADATA_PATH is not set, using '$DEFAULT_METADATA_PATH"
+  METADATA_PATH=$DEFAULT_METADATA_PATH
+
+  if [ ! -f "$METADATA_PATH" ]; then
+    echo "${METADATA_PATH} does not exist, would you like to use a dummy metadata file? (y/n)"
+    read -r answer
+
+    if [ "$answer" != "${answer#[Yy]}" ]; then
+      cat <<EOF > "$METADATA_PATH"
+{
+  "website": "https://dymension.xyz/",
+  "description": "This is a description of the Rollapp.",
+  "logo_data_uri": "data:image/jpeg;base64,/000",
+  "token_logo_uri": "data:image/jpeg;base64,/000",
+  "telegram": "https://t.me/example",
+  "x": "https://x.com/dymension"
+}
+EOF
+    else
+      echo "You can't register a rollapp without rollapp metadata, please create the ${METADATA_PATH} and run the script again"
+      exit 1
+    fi
+  fi
+
+fi
+
 GENESIS_PATH="${ROLLAPP_HOME_DIR}/config/genesis.json"
 GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]*$//')
-METADATA_PATH="${ROLLAPP_HOME_DIR}/init/rollapp-metadata.json"
 SEQUENCER_ADDR=$(dymd keys show "$SEQUENCER_KEY_NAME" --address --keyring-backend test --keyring-dir "$SEQUENCER_KEY_PATH")
 
 set -x
