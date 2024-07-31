@@ -4,7 +4,8 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-
+DA_LAYER=mock
+ 
 ifndef BECH32_PREFIX
     $(error BECH32_PREFIX is not set)
 endif
@@ -65,8 +66,12 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
-		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX)
+	          -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
+		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DefaultVersion=$(COMMIT) \
+                  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DefaultDA=$(DA_LAYER) \
+		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) 
+
 
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
