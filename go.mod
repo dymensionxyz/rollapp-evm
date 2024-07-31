@@ -357,5 +357,5 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.30-0.20240729141427-cb330769820f
+	github.com/tendermint/tendermint => ../cometbft_dym
 )
