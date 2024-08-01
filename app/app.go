@@ -850,8 +850,8 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	abciEndBlockResponse := app.mm.EndBlock(ctx, req)
 	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
-		Da:      app.RollappConsensusParamsKeeper.GetParams(ctx).Da,
-		Version: app.RollappConsensusParamsKeeper.GetParams(ctx).Version,
+		Da:     app.RollappConsensusParamsKeeper.GetParams(ctx).Da,
+		Commit: app.RollappConsensusParamsKeeper.GetParams(ctx).Commit,
 	}
 	return abciEndBlockResponse
 }
