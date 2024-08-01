@@ -68,7 +68,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	          -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
 		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
-		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DefaultVersion=$(COMMIT) \
+		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DefaultCommit=$(COMMIT) \
                   -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DefaultDA=$(DA_LAYER) \
 		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) 
 
