@@ -53,45 +53,6 @@ if [ "$METADATA_PATH" = "" ]; then
     if [ "$answer" != "${answer#[Yy]}" ]; then
       cat <<EOF > "$METADATA_PATH"
 {
-  "moniker": "Sample Moniker",
-  "details": "Some details about the sequencer",
-  "p2p_seeds": [
-    "seed1.example.com:26656",
-    "seed2.example.com:26656"
-  ],
-  "rpcs": [
-    "http://rpc1.example.com:26657",
-    "http://rpc2.example.com:26657"
-  ],
-  "evm_rpcs": [
-    "http://evm-rpc1.example.com:8545",
-    "http://evm-rpc2.example.com:8545"
-  ],
-  "rest_api_url": "http://restapi.example.com",
-  "explorer_url": "http://explorer.example.com",
-  "genesis_urls": [
-    "http://genesis1.example.com",
-    "http://genesis2.example.com"
-  ],
-  "contact_details": {
-    "website": "http://website.example.com",
-    "telegram": "https://t.me/example",
-    "x": "https://twitter.com/example"
-  },
-  "extra_data": "RXh0cmEgZGF0YSBzYW1wbGU=",  // Base64 encoded data
-  "snapshots": [
-    {
-      "snapshot_url": "http://snapshot1.example.com",
-      "height": 123456,
-      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
-    },
-    {
-      "snapshot_url": "http://snapshot2.example.com",
-      "height": 789012,
-      "checksum": "e2fc714c4727ee9395f324cd2e7f331f"
-    }
-  ],
-  "gas_price": "1000000"
 }
 EOF
     else
