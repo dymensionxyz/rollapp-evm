@@ -4,7 +4,7 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-DA_LAYER=mock
+DA_LAYER=celestia
  
 ifndef BECH32_PREFIX
     $(error BECH32_PREFIX is not set)
