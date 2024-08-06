@@ -880,15 +880,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	rollappparams := app.RollappConsensusParamsKeeper.GetParams(ctx)
-	res.RollappConsensusParams = &abci.RollappConsensusParams{
-		Block: &abci.BlockParams{
-			MaxBytes: int64(rollappparams.BlockMaxSize),
-			MaxGas:   int64(rollappparams.BlockMaxGas),
-		},
-		Commit: rollappparams.Commit,
-		Da:     rollappparams.Da,
-	}
+
 	return res
 }
 
