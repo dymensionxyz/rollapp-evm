@@ -848,10 +848,15 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	rollappparams := app.RollappConsensusParamsKeeper.GetParams(ctx)
 	abciEndBlockResponse := app.mm.EndBlock(ctx, req)
 	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
-		Da:     app.RollappConsensusParamsKeeper.GetParams(ctx).Da,
-		Commit: app.RollappConsensusParamsKeeper.GetParams(ctx).Commit,
+		Da:     rollappparams.Da,
+		Commit: rollappparams.Commit,
+		Block: &abci.BlockParams{
+			MaxGas:   int64(rollappparams.BlockMaxGas),
+			MaxBytes: int64(rollappparams.BlockMaxSize),
+		},
 	}
 	return abciEndBlockResponse
 }
@@ -871,6 +876,15 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	rollappparams := app.RollappConsensusParamsKeeper.GetParams(ctx)
+	res.RollappConsensusParams = &abci.RollappConsensusParams{
+		Block: &abci.BlockParams{
+			MaxBytes: int64(rollappparams.BlockMaxSize),
+			MaxGas:   int64(rollappparams.BlockMaxGas),
+		},
+		Commit: rollappparams.Commit,
+		Da:     rollappparams.Da,
+	}
 	return res
 }
 
