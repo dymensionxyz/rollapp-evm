@@ -78,7 +78,7 @@ if [ "$METADATA_PATH" = "" ]; then
     "telegram": "https://t.me/example",
     "x": "https://twitter.com/example"
   },
-  "extra_data": "RXh0cmEgZGF0YSBzYW1wbGU=",  // Base64 encoded data
+  "extra_data": "RXh0cmEgZGF0YSBzYW1wbGU=",
   "snapshots": [
     {
       "snapshot_url": "http://snapshot1.example.com",
