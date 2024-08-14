@@ -3,15 +3,14 @@
 # this account must be whitelisted on the hub for permissioned deployment setup
 DEPLOYER=${HUB_PERMISSIONED_KEY-"$HUB_KEY_WITH_FUNDS"}
 
-if [ "$EXECUTABLE" = "" ]; then
-  DEFAULT_EXECUTABLE=$(which dymd)
+if [ "$HUB_EXECUTABLE" = "" ]; then
+  HUB_EXECUTABLE=$(which dymd)
 
-  if [ "$DEFAULT_EXECUTABLE" = "" ]; then
+  if [ "$HUB_EXECUTABLE" = "" ]; then
     echo "dymd not found in PATH. Exiting."
     exit 1
   fi
-  echo "EXECUTABLE is not set, using '${DEFAULT_EXECUTABLE}'"
-  EXECUTABLE=$DEFAULT_SEQUENCER_KEY_PATH
+  echo "HUB_EXECUTABLE is not set, using '${HUB_EXECUTABLE}'"
 fi
 
 if [ "$SEQUENCER_KEY_PATH" = "" ]; then
@@ -83,10 +82,10 @@ fi
 
 GENESIS_PATH="${ROLLAPP_HOME_DIR}/config/genesis.json"
 GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]*$//')
-SEQUENCER_ADDR=$(dymd keys show "$SEQUENCER_KEY_NAME" --address --keyring-backend test --keyring-dir "$SEQUENCER_KEY_PATH")
+SEQUENCER_ADDR="*"
 
 set -x
-"$EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" \
+"$HUB_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" EVM \
   "$SEQUENCER_ADDR" "$GENESIS_HASH" "$METADATA_PATH" \
 	--from "$DEPLOYER" \
 	--keyring-backend test \

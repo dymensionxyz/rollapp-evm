@@ -105,7 +105,7 @@ require (
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 // indirect
+	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240807121611-4f3f13b5ad2b // indirect
 	github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 // indirect
 	github.com/dymensionxyz/gerr-cosmos v1.0.0 // indirect
 	github.com/dymensionxyz/sdk-utils v0.1.1 // indirect
@@ -352,6 +352,14 @@ replace (
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	// use cometbft
-	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
+
+// use cometbft fork to support v0.47.x events parsing
+// github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20240801115906-a8d9d891c5ea
+
 )
+
+replace github.com/dymensionxyz/dymint => /Users/mtsitrin/Applications/dymension/dymint
+
+replace github.com/dymensionxyz/cosmosclient => /Users/mtsitrin/Applications/dymension/cosmosclient
+
+replace github.com/tendermint/tendermint => /Users/mtsitrin/Applications/dymension/cometbft

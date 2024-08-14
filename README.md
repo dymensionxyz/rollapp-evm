@@ -48,7 +48,7 @@ export SKIP_EVM_BASE_FEE=true # optional, disables rollapp fees
 $EXECUTABLE config keyring-backend test
 
 # (if running hub too)
-export SETTLEMENT_LAYER="mock" # when running a local hub or a public network use "dymension"
+export SETTLEMENT_LAYER="dymension" # when running a local hub or a public network use "dymension"
 export HUB_KEY_WITH_FUNDS="hub-user"
 export HUB_RPC_ENDPOINT="localhost"
 export HUB_RPC_PORT="36657" # default: 36657

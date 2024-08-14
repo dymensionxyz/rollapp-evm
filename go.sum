@@ -425,8 +425,6 @@ github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE
 github.com/coinbase/kryptology v1.8.0/go.mod h1:RYXOAPdzOGUe3qlSFkMGn58i3xUA8hmxYHksuq+8ciI=
 github.com/coinbase/rosetta-sdk-go v0.7.9 h1:lqllBjMnazTjIqYrOGv8h8jxjg9+hJazIGZr9ZvoCcA=
 github.com/coinbase/rosetta-sdk-go v0.7.9/go.mod h1:0/knutI7XGVqXmmH4OQD8OckFrbQ8yMsUZTG7FXCR2M=
-github.com/cometbft/cometbft v0.34.28 h1:gwryf55P1SWMUP4nOXpRVI2D0yPoYEzN+IBqmRBOsDc=
-github.com/cometbft/cometbft v0.34.28/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/cometbft/cometbft v0.37.2 h1:XB0yyHGT0lwmJlFmM4+rsRnczPlHoAKFX6K8Zgc2/Jc=
 github.com/cometbft/cometbft v0.37.2/go.mod h1:Y2MMMN//O5K4YKd8ze4r9jmk4Y7h0ajqILXbH5JQFVs=
 github.com/cometbft/cometbft-db v0.11.0 h1:M3Lscmpogx5NTbb1EGyGDaFRdsoLWrUWimFEyf7jej8=
@@ -557,14 +555,10 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/dvsekhvalnov/jose2go v1.5.0 h1:3j8ya4Z4kMCwT5nXIKFSV84YS+HdqSSO0VsTQxaLAeM=
 github.com/dvsekhvalnov/jose2go v1.5.0/go.mod h1:QsHjhyTlD/lAVqn/NSbVZmSCGeDehTB/mPZadG+mhXU=
-github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 h1:u5yeve5jZR6TdRjjR+vYT/8PWKbhwCZxUmAu+/Tnxyg=
-github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13/go.mod h1:jabDQYXrccscSE0fXkh7eQFYPWJCRiuWKonFGObVq6s=
 github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240729074116-005f2bb6dd18 h1:LAcB7zrQ4S8A4d/j6Hk3mS/1Rq1IPSSyQPejB4KGeHc=
 github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240729074116-005f2bb6dd18/go.mod h1:M7YD1jsbAUYlnpfE0cj0MP0esKI3J6NsrVFAit+Rx+8=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 h1:cmpJYdRviuUfmlJdHrcAND8Jd6JIY4rp63bWAQzPr54=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56/go.mod h1:3Pfrr8j/BR9ztNKztGfC5PqDiO6CcrzMLCJtFtPEVW4=
-github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240822065420-88ba1fee3735 h1:hi2oVpQGpbEW5sgPHa/MAdwckAhlYFK9Tp/g36bc+F4=
-github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240822065420-88ba1fee3735/go.mod h1:XBbyc47FKo/gAe7qvqa+hIGQjnh9d8weyhV8N6pMTFs=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2 h1:aVP3off7u2vsvRH7lHAUPTLdf9/AfnzC/rvvi0wC/co=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=

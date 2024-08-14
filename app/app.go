@@ -154,7 +154,7 @@ const (
 )
 
 var (
-	AccountAddressPrefix string
+	AccountAddressPrefix = "ethm"
 	kvstorekeys          = []string{
 		authtypes.StoreKey, authzkeeper.StoreKey,
 		feegrant.StoreKey, banktypes.StoreKey,
