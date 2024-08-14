@@ -353,13 +353,9 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
-// use cometbft fork to support v0.47.x events parsing
-// github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20240801115906-a8d9d891c5ea
+	// use cometbft fork to support v0.47.x events parsing
+	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20240807121422-5299b866061c
 
 )
 
 replace github.com/dymensionxyz/dymint => /Users/mtsitrin/Applications/dymension/dymint
-
-replace github.com/dymensionxyz/cosmosclient => /Users/mtsitrin/Applications/dymension/cosmosclient
-
-replace github.com/tendermint/tendermint => /Users/mtsitrin/Applications/dymension/cometbft
