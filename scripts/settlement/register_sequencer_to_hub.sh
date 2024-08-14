@@ -35,8 +35,7 @@ if [ "$SEQUENCER_KEY_NAME" = "" ]; then
 fi
 
 #Register Sequencer
-# DESCRIPTION="{\"Moniker\":\"${ROLLAPP_CHAIN_ID}-sequencer\",\"Identity\":\"\",\"Website\":\"\",\"SecurityContact\":\"\",\"Details\":\"\"}"
-SEQ_PUB_KEY="$("$ROLLAPP_EXECUTABLE" dymint show-sequencer)"
+SEQ_PUB_KEY="$("$ROLLAPP_EXECUTABLE" dymint show-sequencer --home "$ROLLAPP_HOME_DIR")"
 BOND_AMOUNT="$("$SETTLEMENT_EXECUTABLE" q sequencer params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_bond.amount')$("$SETTLEMENT_EXECUTABLE" q sequencer params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_bond.denom')"
 
 echo "$BOND_AMOUNT"
@@ -67,28 +66,28 @@ if [ "$METADATA_PATH" = "" ]; then
     "http://evm-rpc1.example.com:8545",
     "http://evm-rpc2.example.com:8545"
   ],
-  "rest_api_url": "http://restapi.example.com",
+    "rest_api_urls": [
+      "http://restapi1.example.com",
+      "http://restapi2.example.com"
+    ],
   "explorer_url": "http://explorer.example.com",
   "genesis_urls": [
     "http://genesis1.example.com",
     "http://genesis2.example.com"
   ],
   "contact_details": {
-    "website": "http://website.example.com",
-    "telegram": "https://t.me/example",
-    "x": "https://twitter.com/example"
+      "email": "contact@example.com",
+      "phone": "+1234567890"
   },
   "extra_data": "RXh0cmEgZGF0YSBzYW1wbGU=",
   "snapshots": [
     {
-      "snapshot_url": "http://snapshot1.example.com",
-      "height": 123456,
-      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+        "height": 1000,
+        "hash": "abc123"
     },
     {
-      "snapshot_url": "http://snapshot2.example.com",
-      "height": 789012,
-      "checksum": "e2fc714c4727ee9395f324cd2e7f331f"
+        "height": 2000,
+        "hash": "def456"
     }
   ],
   "gas_price": "1000000"

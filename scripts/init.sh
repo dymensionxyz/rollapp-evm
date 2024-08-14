@@ -261,7 +261,7 @@ if [ -f "$GENESIS_FILE" ]; then
 fi
 
 # ------------------------------- init rollapp ------------------------------- #
-"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID"
+"$EXECUTABLE" init "$MONIKER" --chain-id "$ROLLAPP_CHAIN_ID" --home "$ROLLAPP_HOME_DIR"
 
 if [ ! -d "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" ]; then
   mkdir -p "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"
@@ -287,11 +287,11 @@ update_configuration
 
 # --------------------- adding keys and genesis accounts --------------------- #
 # Local genesis account
-"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test
-"$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOTAL_SUPPLY$BASE_DENOM" --keyring-backend test
+"$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
+"$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOTAL_SUPPLY$BASE_DENOM" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
 
 # Set sequencer's operator address
-operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val)
+operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --home "$ROLLAPP_HOME_DIR")
 dasel put -f "$GENESIS_FILE" '.app_state.sequencers.genesis_operator_address' -v "$operator_address"
 
 # Ask if to include a governor on genesis
@@ -303,4 +303,4 @@ if [ ! "$answer" != "${answer#[Nn]}" ] ;then
 fi
 
 update_genesis_params
-"$EXECUTABLE" validate-genesis
+"$EXECUTABLE" validate-genesis --home "$ROLLAPP_HOME_DIR"
