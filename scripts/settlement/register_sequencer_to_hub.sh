@@ -63,7 +63,7 @@ EOF
 fi
 
 set -x
-"$SETTLEMENT_EXECUTABLE" tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$METADATA_PATH" "$BOND_AMOUNT" \
+"$SETTLEMENT_EXECUTABLE" tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$BOND_AMOUNT" "$METADATA_PATH"\
   --from "$SEQUENCER_KEY_NAME" \
   --keyring-dir "$SEQUENCER_KEY_PATH" \
   --keyring-backend test \
