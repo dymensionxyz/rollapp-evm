@@ -9,7 +9,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240729074116-005f2bb6dd18
-	github.com/dymensionxyz/dymint v1.2.0-rc03
+	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240822065420-88ba1fee3735
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gorilla/mux v1.8.1
@@ -41,7 +41,6 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
-	github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/avast/retry-go/v4 v4.5.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
@@ -81,7 +80,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
-	github.com/cosmos/gogoproto v1.4.11 // indirect
+	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.6 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.4 // indirect
@@ -94,7 +93,6 @@ require (
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/base58 v1.0.4 // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.1 // indirect
-	github.com/decred/dcrd/dcrec/edwards v1.0.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
@@ -107,7 +105,7 @@ require (
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/dymensionxyz/cosmosclient v0.4.2-beta // indirect
+	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 // indirect
 	github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 // indirect
 	github.com/dymensionxyz/gerr-cosmos v1.0.0 // indirect
 	github.com/dymensionxyz/sdk-utils v0.1.1 // indirect
