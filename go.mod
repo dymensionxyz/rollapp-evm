@@ -8,7 +8,7 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240729074116-005f2bb6dd18
+	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240825105050-28628bcb329a
 	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240822065420-88ba1fee3735
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
