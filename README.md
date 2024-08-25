@@ -1,22 +1,14 @@
 # Dymension EVM Rollapp
 
-## Rollapp-evm - A template EVM RollApp chain
+## Rollapp-evm - A Standard EVM RollApp Chain
 
-This repository hosts `rollapp-evm`, a template implementation of a dymension rollapp with `EVM` execution layer.
+This repository hosts `rollapp-evm`, a standard implementation of a dymension rollapp with `EVM` execution layer.
 
-`rollapp-evm` is an example of a working RollApp using `dymension-RDK` and `dymint`.
-
-It uses Cosmos-SDK's [simapp](https://github.com/cosmos/cosmos-sdk/tree/main/simapp) as a reference, but with the following changes:
-
-- minimal app setup
-- wired with EVM and ERC20 modules by [Evmos](https://github.com/evmos/evmos)
-- wired IBC for [ICS 20 Fungible Token Transfers](https://github.com/cosmos/ibc/tree/main/spec/app/ics-020-fungible-token-transfer)
-- Uses `dymint` for block sequencing and replacing `tendermint`
-- Uses modules from `dymension-RDK` to sync with `dymint` and provide RollApp custom logic
+`rollapp-evm` is ran by using [dymension-RDK](https://github.com/dymensionxyz/dymension-rdk) as its application framework and [dymint](https://github.com/dymensionxyz/dymint) as its sequencing engine.
 
 ## Overview
 
-**Note**: Requires [Go 1.22.1](https://go.dev/dl/). Requires [Dasel](https://formulae.brew.sh/formula/dasel) and [JQ](https://formulae.brew.sh/formula/jq).
+**Note**: Requires [Go 1.22.4](https://go.dev/dl/). Requires [Dasel](https://formulae.brew.sh/formula/dasel) and [JQ](https://formulae.brew.sh/formula/jq).
 
 ## Installing / Getting started
 
@@ -33,8 +25,8 @@ export EXECUTABLE="rollapp-evm"
 export the following variables:
 
 ```shell
-export CELESTIA_NETWORK="mock" # for a testnet RollApp use "arabica", for mainnet - "celestia"
-export CELESTIA_HOME_DIR="${HOME}/.da"
+export DA_NETWORK="mock" # for a testnet RollApp use "arabica", for mainnet - "celestia"
+export DA_HOME_DIR="${HOME}/.da"
 
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"

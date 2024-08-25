@@ -43,18 +43,18 @@ if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
   echo "ROLLAPP_CHAIN_ID is not set" exit 1
 fi
 
-if [ "$CELESTIA_NETWORK" = "" ]; then
-  echo "CELESTIA_NETWORK is not set"
+if [ "$DA_NETWORK" = "" ]; then
+  echo "DA_NETWORK is not set"
   exit 1
 fi
 
-if [ "$CELESTIA_HOME_DIR" = "" ]; then
-  echo "CELESTIA_HOME_DIR is not set"
+if [ "$DA_NETWORK" = "" ]; then
+  echo "DA_NETWORK is not set"
   exit 1
 fi
 
-if [[ $CELESTIA_NETWORK == "mock" ]]; then
-  mkdir -p "$CELESTIA_HOME_DIR"
+if [[ $DA_NETWORK == "mock" ]]; then
+  mkdir -p "$DA_NETWORK"
 fi
 
 set_denom() {
@@ -200,16 +200,16 @@ set_EVM_params() {
 }
 
 update_configuration() {
-  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+  if [[ ! $DA_NETWORK == "mock" ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
-    if [ ! -d "$CELESTIA_HOME_DIR" ]; then
-      echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
-      echo "but it does not exist, please initialize the light client or update the 'CELESTIA_HOME_DIR'"
+    if [ ! -d "$DA_NETWORK" ]; then
+      echo "Celestia light client is expected to be initialized in this directory: $DA_NETWORK"
+      echo "but it does not exist, please initialize the light client or update the 'DA_NETWORK'"
       echo "environment variable"
       exit 1
     fi
 
-    celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
+    celestia_token=$(celestia light auth admin --p2p.network "$DA_NETWORK" --node.store "$DA_NETWORK")
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
