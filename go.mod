@@ -8,6 +8,7 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
+	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13
 	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240825105050-28628bcb329a
 	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240903082125-b7fe984f1ab5
 	github.com/ethereum/go-ethereum v1.12.0
@@ -108,7 +109,6 @@ require (
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 // indirect
 	github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 // indirect
 	github.com/dymensionxyz/gerr-cosmos v1.0.0 // indirect
 	github.com/dymensionxyz/sdk-utils v0.1.1 // indirect
@@ -248,7 +248,6 @@ require (
 	github.com/multiformats/go-multistream v0.5.0 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
@@ -345,11 +344,11 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/decentrio/wasmd v0.33.0-sdk46.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.0.12-avail-1.4.0-rc1-5e286e3
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
-	github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
-	github.com/dymensionxyz/dymint => ../dymint
+	github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240826155536-0c04374ce1e5
+	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240826154623-f1ca94a20ceb
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
-	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2
+	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20240826143159-0ea2ad7d5dab
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/libp2p/go-libp2p-pubsub => github.com/dymensionxyz/go-libp2p-pubsub v0.0.0-20240513081713-3ecd83c19ea2
@@ -357,5 +356,5 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
+	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20240826103935-3b56e9ae1680
 )
