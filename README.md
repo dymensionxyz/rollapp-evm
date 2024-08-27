@@ -33,7 +33,7 @@ export EXECUTABLE="rollapp-evm"
 export the following variables:
 
 ```shell
-export CELESTIA_NETWORK="mock" # for a testnet RollApp use "arabica", for mainnet - "celestia"
+export CELESTIA_NETWORK="mock" # for a testnet RollApp use "mocha", for mainnet - "celestia"
 export CELESTIA_HOME_DIR="${HOME}/.da"
 
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
