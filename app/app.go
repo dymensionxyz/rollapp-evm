@@ -854,6 +854,9 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
 		Da:      rollappparams.Da,
 		Version: rollappparams.Version,
+		Block: &abci.BlockParams{
+			MaxBytes: rollappparams.BlockMaxBytes,
+		}
 	}
 	return abciEndBlockResponse
 }
