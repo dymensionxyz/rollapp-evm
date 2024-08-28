@@ -290,10 +290,6 @@ update_configuration
 "$EXECUTABLE" keys add "$KEY_NAME_ROLLAPP" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
 "$EXECUTABLE" add-genesis-account "$KEY_NAME_ROLLAPP" "$TOTAL_SUPPLY$BASE_DENOM" --keyring-backend test --home "$ROLLAPP_HOME_DIR"
 
-# Set sequencer's operator address
-operator_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" -a --keyring-backend test --bech val --home "$ROLLAPP_HOME_DIR")
-dasel put -f "$GENESIS_FILE" '.app_state.sequencers.genesis_operator_address' -v "$operator_address"
-
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
