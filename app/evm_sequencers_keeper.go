@@ -14,6 +14,8 @@ type EVMWrappedSeqKeeper struct {
 	seqkeeper.Keeper
 }
 
+var _ evmtypes.StakingKeeper = &EVMWrappedSeqKeeper{}
+
 func (w EVMWrappedSeqKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool) {
 	ret, ok := w.Keeper.GetValidatorByConsAddr(ctx, consAddr)
 	if !ok {
@@ -27,5 +29,3 @@ func (w EVMWrappedSeqKeeper) generateValidator() stakingtypes.Validator {
 	operator, _ := bech32.ConvertAndEncode(pref, []byte("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
 	return stakingtypes.Validator{OperatorAddress: operator}
 }
-
-var _ evmtypes.StakingKeeper = &EVMWrappedSeqKeeper{}
