@@ -491,7 +491,6 @@ func NewRollapp(
 		keys[feemarkettypes.StoreKey],
 		tkeys[feemarkettypes.TransientKey],
 		app.GetSubspace(feemarkettypes.ModuleName),
-		app.RollappConsensusParamsKeeper,
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
@@ -855,10 +854,6 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
 		Da:      rollappparams.Da,
 		Version: rollappparams.Version,
-		Block: &abci.BlockParams{
-			MaxGas:   int64(rollappparams.Blockmaxgas),
-			MaxBytes: int64(rollappparams.Blockmaxsize),
-		},
 	}
 	return abciEndBlockResponse
 }
