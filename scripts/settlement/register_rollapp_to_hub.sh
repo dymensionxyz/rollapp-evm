@@ -80,13 +80,15 @@ EOF
 
 fi
 
-GENESIS_PATH="${ROLLAPP_HOME_DIR}/config/genesis.json"
-GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]*$//')
+GENESIS_HASH="aaaaaaaaaa"
 SEQUENCER_ADDR="*"
 
 set -x
-"$HUB_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" EVM \
-  "$SEQUENCER_ADDR" "$GENESIS_HASH" "$METADATA_PATH" \
+"$HUB_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
+  --init-sequencer "$SEQUENCER_ADDR" \
+  --genesis-checksum "$GENESIS_HASH" \
+  --metadata "$METADATA_PATH" \
+  --bech32-prefix "$BECH32_PREFIX" \
 	--from "$DEPLOYER" \
 	--keyring-backend test \
   --gas auto --gas-adjustment 1.2 \
