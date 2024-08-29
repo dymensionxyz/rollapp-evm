@@ -87,7 +87,6 @@ all: install
 install: build
 	@echo "--> installing rollapp-evm"
 	mv build/rollapp-evm $(GOPATH)/bin/rollapp-evm
-	@echo $(COMMIT)
 
 .PHONY: build
 build: go.sum ## Compiles the rollapd binary
