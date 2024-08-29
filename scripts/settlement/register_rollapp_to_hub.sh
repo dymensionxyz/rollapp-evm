@@ -86,7 +86,7 @@ GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]
 SEQUENCER_ADDR=$(dymd keys show "$SEQUENCER_KEY_NAME" --address --keyring-backend test --keyring-dir "$SEQUENCER_KEY_PATH")
 
 set -x
-"$EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" \
+"$SETTLEMENT_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" \
   "$SEQUENCER_ADDR" "$GENESIS_HASH" "$METADATA_PATH" \
 	--from "$DEPLOYER" \
 	--keyring-backend test \
