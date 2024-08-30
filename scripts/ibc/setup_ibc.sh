@@ -123,7 +123,7 @@ echo '--------------------------------- Creating IBC path... -------------------
 
 rly paths new "$SETTLEMENT_CHAIN_ID" "$ROLLAPP_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 
-rly tx link-then-start "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
+rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
 
 # TODO: del?
   # Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
