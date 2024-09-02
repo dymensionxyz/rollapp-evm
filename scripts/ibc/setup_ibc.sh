@@ -82,7 +82,9 @@ rly config init
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 
 dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
-dasel put -r yaml -f "$RLY_CONFIG_FILE" 'global.rollapp' -v true -t bool; # tell the relayer we are relaying between hub and rollapp
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.is-dym-hub" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.is-dym-rollapp" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.trust-period" -v "240h"; # 10 days
 
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
