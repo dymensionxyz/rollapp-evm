@@ -79,6 +79,7 @@ update_genesis_params() {
   dasel put -f "$GENESIS_FILE" '.app_state.gov.voting_params.voting_period' -v "300s" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.bank.balances.[0].coins.[0].amount' -v "$TOTAL_SUPPLY" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.bank.supply.[0].amount' -v "$TOTAL_SUPPLY" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1209600" || success=false # 2 weeks
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
