@@ -76,6 +76,8 @@ rly config init
 
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 
+dasel put -f "RLY_CONFIG_FILE" 'global.rollapp' -v "true" # tell the relayer we are relaying between hub and rollapp
+
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.account-prefix' -v "$BECH32_PREFIX"
