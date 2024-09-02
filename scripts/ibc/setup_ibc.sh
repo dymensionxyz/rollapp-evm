@@ -81,11 +81,6 @@ rly config init
 
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 
-dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
-dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.is-dym-hub" -v true -t bool;
-dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.is-dym-rollapp" -v true -t bool;
-dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.trust-period" -v "240h"; # 10 days
-
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.account-prefix' -v "$BECH32_PREFIX"
@@ -132,6 +127,11 @@ fi
 echo '--------------------------------- Creating IBC path... --------------------------------'
 
 rly paths new "$SETTLEMENT_CHAIN_ID" "$ROLLAPP_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
+
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.is-dym-hub" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.is-dym-rollapp" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.trust-period" -v "240h"; # 10 days
 
 rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
 
