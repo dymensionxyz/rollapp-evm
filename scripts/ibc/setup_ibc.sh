@@ -27,6 +27,11 @@ if [ "$KEY_NAME_ROLLAPP" = "" ]; then
   exit 1
 fi
 
+if [ "$HUB_REST_URL" = "" ]; then
+  echo "HUB_REST_URL is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
@@ -76,6 +81,7 @@ rly config init
 
 echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
 dasel put -r yaml -f "$RLY_CONFIG_FILE" 'global.rollapp' -v true -t bool; # tell the relayer we are relaying between hub and rollapp
 
 dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"

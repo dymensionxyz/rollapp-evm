@@ -53,6 +53,7 @@ export HUB_KEY_WITH_FUNDS="hub-user"
 export HUB_RPC_ENDPOINT="localhost"
 export HUB_RPC_PORT="36657" # default: 36657
 export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
+export HUB_REST_URL="localhost:1318" # required for relayer
 export HUB_CHAIN_ID="dymension_100-1"
 
 dymd config chain-id "${HUB_CHAIN_ID}"
