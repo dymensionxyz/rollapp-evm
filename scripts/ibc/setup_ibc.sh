@@ -125,11 +125,6 @@ rly paths new "$SETTLEMENT_CHAIN_ID" "$ROLLAPP_CHAIN_ID" "$RELAYER_PATH" --src-p
 
 rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
 
-# TODO: del?
-  # Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
-  # Which messed up with channel creation as part of tx link.
-  #rly tx channel "$RELAYER_PATH"
-
 echo '# -------------------------------- IBC channel established ------------------------------- #'
 echo "Channel Information:"
 
