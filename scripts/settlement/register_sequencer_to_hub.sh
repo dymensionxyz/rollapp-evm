@@ -67,7 +67,7 @@ if [ "$METADATA_PATH" = "" ]; then
     "http://evm-rpc1.example.com:8545",
     "http://evm-rpc2.example.com:8545"
   ],
-  "rest_api_url": "http://restapi.example.com",
+  "rest_api_urls": ["http://restapi.example.com"],
   "explorer_url": "http://explorer.example.com",
   "genesis_urls": [
     "http://genesis1.example.com",

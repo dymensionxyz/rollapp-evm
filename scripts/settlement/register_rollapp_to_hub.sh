@@ -85,9 +85,14 @@ GENESIS_PATH="${ROLLAPP_HOME_DIR}/config/genesis.json"
 GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]*$//')
 SEQUENCER_ADDR=$(dymd keys show "$SEQUENCER_KEY_NAME" --address --keyring-backend test --keyring-dir "$SEQUENCER_KEY_PATH")
 
+echo "deployer" $DEPLOYER;
+
 set -x
-"$SETTLEMENT_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" \
-  "$SEQUENCER_ADDR" "$GENESIS_HASH" "$METADATA_PATH" \
+"$SETTLEMENT_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
+  --bech32-prefix "$BECH32_PREFIX" \
+  --init-sequencer "$SEQUENCER_ADDR" \
+  --genesis-checksum "$GENESIS_HASH" \
+  --metadata "$METADATA_PATH" \
 	--from "$DEPLOYER" \
 	--keyring-backend test \
   --gas auto --gas-adjustment 1.2 \
