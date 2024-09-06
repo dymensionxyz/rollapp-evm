@@ -397,7 +397,6 @@ func NewRollapp(
 
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable()))
-
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
@@ -854,9 +853,6 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
 		Da:      rollappparams.Da,
 		Version: rollappparams.Version,
-		Block: &abci.BlockParams{
-			MaxBytes: int64(rollappparams.Blockmaxbytes),
-		},
 	}
 	return abciEndBlockResponse
 }
