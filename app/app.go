@@ -293,24 +293,24 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper                authkeeper.AccountKeeper
-	AuthzKeeper                  authzkeeper.Keeper
-	BankKeeper                   bankkeeper.Keeper
-	CapabilityKeeper             *capabilitykeeper.Keeper
-	StakingKeeper                stakingkeeper.Keeper
-	SequencersKeeper             seqkeeper.Keeper
-	MintKeeper                   mintkeeper.Keeper
-	EpochsKeeper                 epochskeeper.Keeper
-	DistrKeeper                  distrkeeper.Keeper
-	GovKeeper                    govkeeper.Keeper
-	HubKeeper                    hubkeeper.Keeper
-	HubGenesisKeeper             hubgenkeeper.Keeper
-	UpgradeKeeper                upgradekeeper.Keeper
-	ParamsKeeper                 paramskeeper.Keeper
-	IBCKeeper                    *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper               transferkeeper.Keeper
-	FeeGrantKeeper               feegrantkeeper.Keeper
-	RollappConsensusParamsKeeper rollappparamskeeper.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	AuthzKeeper         authzkeeper.Keeper
+	BankKeeper          bankkeeper.Keeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	SequencersKeeper    seqkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	EpochsKeeper        epochskeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	HubKeeper           hubkeeper.Keeper
+	HubGenesisKeeper    hubgenkeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper      transferkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	RollappParamsKeeper rollappparamskeeper.Keeper
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -481,7 +481,7 @@ func NewRollapp(
 	// ... other modules keepers
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	app.RollappConsensusParamsKeeper = rollappparamskeeper.NewKeeper(
+	app.RollappParamsKeeper = rollappparamskeeper.NewKeeper(
 		app.GetSubspace(rollappparamstypes.ModuleName),
 	)
 	// Create Ethermint keepers
@@ -647,7 +647,7 @@ func NewRollapp(
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper),
 		hub.NewAppModule(appCodec, app.HubKeeper),
-		rollappparams.NewAppModule(appCodec, app.RollappConsensusParamsKeeper),
+		rollappparams.NewAppModule(appCodec, app.RollappParamsKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -848,9 +848,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	rollappparams := app.RollappConsensusParamsKeeper.GetParams(ctx)
+	rollappparams := app.RollappParamsKeeper.GetParams(ctx)
 	abciEndBlockResponse := app.mm.EndBlock(ctx, req)
-	abciEndBlockResponse.RollappConsensusParamUpdates = &abci.RollappConsensusParams{
+	abciEndBlockResponse.RollappParamUpdates = &abci.RollappParams{
 		Da:      rollappparams.Da,
 		Version: rollappparams.Version,
 	}
