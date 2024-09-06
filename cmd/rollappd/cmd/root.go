@@ -103,8 +103,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			//create dymint toml config file
 			home := serverCtx.Viper.GetString(tmcli.HomeFlag)
-			chainID := client.GetClientContextFromCmd(cmd).ChainID
-			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home, chainID))
+			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home))
 
 			//create Block Explorer Json-RPC toml config file
 			berpcconfig.EnsureRoot(home, berpcconfig.DefaultBeJsonRpcConfig())
@@ -132,20 +131,20 @@ func initTendermintConfig() *tmcfg.Config {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-    customAppTemplate, customAppConfig := evmconfig.AppConfig("")
-    
-    srvCfg, ok := customAppConfig.(evmconfig.Config)
-    if !ok {
-        panic(fmt.Errorf("unknown app config type %T", customAppConfig))
-    }
-    
-    rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
-    
-    // Changing the default address to global instead of localhost
-    srvCfg.JSONRPC.Address = "0.0.0.0:8545"
-    srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
-    
-    return customAppTemplate, srvCfg
+	customAppTemplate, customAppConfig := evmconfig.AppConfig("")
+
+	srvCfg, ok := customAppConfig.(evmconfig.Config)
+	if !ok {
+		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+	}
+
+	rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
+
+	// Changing the default address to global instead of localhost
+	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
+	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
+
+	return customAppTemplate, srvCfg
 }
 
 func initRootCmd(
