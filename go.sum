@@ -356,8 +356,8 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
-github.com/celestiaorg/celestia-openrpc v0.4.1-0.20240826163012-baf4c0b6c915 h1:aCHDuyf21W+Gxa6WFvqjA8cH7Ux54reGxNKtM1P2BSY=
-github.com/celestiaorg/celestia-openrpc v0.4.1-0.20240826163012-baf4c0b6c915/go.mod h1:UZfG4lOO4ycQ+JLwpyFkSY13NblnyZDyiq2x42FEj80=
+github.com/celestiaorg/celestia-openrpc v0.4.1-0.20240828130104-089b92870cb6 h1:CL3ESQnOsFnErzKCMMhi9m/zmerrKTZM03ZT8zEdjuA=
+github.com/celestiaorg/celestia-openrpc v0.4.1-0.20240828130104-089b92870cb6/go.mod h1:I0b//K7q/RP1g6gtnQ1xi//ocGwrql4gcQeJEOhDifw=
 github.com/celestiaorg/go-fraud v0.2.0 h1:aaq2JiW0gTnhEdac3l51UCqSyJ4+VjFGTTpN83V4q7I=
 github.com/celestiaorg/go-fraud v0.2.0/go.mod h1:lNY1i4K6kUeeE60Z2VK8WXd+qXb8KRzfBhvwPkK6aUc=
 github.com/celestiaorg/go-header v0.4.1 h1:bjbUcKDnhrJJ9EoE7vtPpgleNLVjc2S+cB4/qe8nQmo=
@@ -564,12 +564,12 @@ github.com/dymensionxyz/cometbft v0.34.29-0.20240906093934-57cd50faef13 h1:Bz7Hm
 github.com/dymensionxyz/cometbft v0.34.29-0.20240906093934-57cd50faef13/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 h1:u5yeve5jZR6TdRjjR+vYT/8PWKbhwCZxUmAu+/Tnxyg=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13/go.mod h1:jabDQYXrccscSE0fXkh7eQFYPWJCRiuWKonFGObVq6s=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906094207-9a136ed6037f h1:/mYz4xCktM1sf2BH0tdz6eQwhrt3HvB9FUWMyTi2K3A=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906094207-9a136ed6037f/go.mod h1:+A1PT2nfnu2qAoPIUSb+CWgeuVGVdkkdc/5kIe/d9zU=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906134803-79c7d1157304 h1:gajr6B+nkWw54ALxTcyVCIrCXVC4INo57WuZqrd3fKU=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906134803-79c7d1157304/go.mod h1:+A1PT2nfnu2qAoPIUSb+CWgeuVGVdkkdc/5kIe/d9zU=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 h1:cmpJYdRviuUfmlJdHrcAND8Jd6JIY4rp63bWAQzPr54=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56/go.mod h1:3Pfrr8j/BR9ztNKztGfC5PqDiO6CcrzMLCJtFtPEVW4=
-github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240906094827-16df4ecd9912 h1:NUeM8EZ9Kwpwv60z0G/nv3uWIgUFWZ0qjxXU37UaNO4=
-github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240906094827-16df4ecd9912/go.mod h1:0ql58LBQlBOxTUi7qlRO1s5loyXRufvnYTFIi7Hlp3s=
+github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240906140403-5de7192a93fc h1:S8GxbeX7xa8OIrffMp7NHx8rx7IHaiseRJseDaWzbYE=
+github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240906140403-5de7192a93fc/go.mod h1:Y8DpM7SrcEu21yXscW8xsTR+H0eZ9QYE04YccPNRR1I=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2 h1:aVP3off7u2vsvRH7lHAUPTLdf9/AfnzC/rvvi0wC/co=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=
