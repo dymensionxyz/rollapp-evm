@@ -564,8 +564,8 @@ github.com/dymensionxyz/cometbft v0.34.29-0.20240906143736-1e3959c2826e h1:A5FIv
 github.com/dymensionxyz/cometbft v0.34.29-0.20240906143736-1e3959c2826e/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 h1:u5yeve5jZR6TdRjjR+vYT/8PWKbhwCZxUmAu+/Tnxyg=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13/go.mod h1:jabDQYXrccscSE0fXkh7eQFYPWJCRiuWKonFGObVq6s=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906134803-79c7d1157304 h1:gajr6B+nkWw54ALxTcyVCIrCXVC4INo57WuZqrd3fKU=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906134803-79c7d1157304/go.mod h1:+A1PT2nfnu2qAoPIUSb+CWgeuVGVdkkdc/5kIe/d9zU=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906162337-29cc11bb36f6 h1:JUmYfxzDumZ7SjzPDrq5n3VdvrWAp/na/Mk1Eb+Ka+k=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240906162337-29cc11bb36f6/go.mod h1:/4liuSPJFSyxlLg19KLngisZynYpa3clYuPuB460des=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 h1:cmpJYdRviuUfmlJdHrcAND8Jd6JIY4rp63bWAQzPr54=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56/go.mod h1:3Pfrr8j/BR9ztNKztGfC5PqDiO6CcrzMLCJtFtPEVW4=
 github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240906150633-2da988fd0994 h1:d6ALAcl9D8aqgPTJX44IEegOq3An6Srea8ZLKU0xO+I=
@@ -576,8 +576,8 @@ github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj51
 github.com/dymensionxyz/gerr-cosmos v1.0.0/go.mod h1:n+0olxPogzWqFKba45mCpvrHLGmeS8W9UZjggHnWk6c=
 github.com/dymensionxyz/rpc v1.3.1 h1:7EXWIobaBes5zldRvTIg7TmNsEKjicrWA/OjCc0NaGs=
 github.com/dymensionxyz/rpc v1.3.1/go.mod h1:f+WpX8ysy8wt95iGc6auYlHcnHj2bUkhiRVkkKNys8c=
-github.com/dymensionxyz/sdk-utils v0.1.1 h1:QX/4S0t+wUhbRlAw34fz2kEF+RP1D+tEVQ/S5QRa5X0=
-github.com/dymensionxyz/sdk-utils v0.1.1/go.mod h1:5fmenxP75quS5D1gPynbmh5qE6vla64Kks2O/hM+gi4=
+github.com/dymensionxyz/sdk-utils v0.1.2-0.20240905104639-19dc09f5c6f5 h1:o6Jh8D4QZ7yifvOWV7/uoIugLZE0mTSOdz05ScaNNdU=
+github.com/dymensionxyz/sdk-utils v0.1.2-0.20240905104639-19dc09f5c6f5/go.mod h1:5fmenxP75quS5D1gPynbmh5qE6vla64Kks2O/hM+gi4=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=

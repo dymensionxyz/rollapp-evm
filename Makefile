@@ -4,7 +4,11 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-DA_LAYER=mock
+
+#ifndef $(CELESTIA_NETWORK)
+#    CELESTIA_NETWORK=mock
+#    export CELESTIA_NETWORK
+#endif
 
 ifndef BECH32_PREFIX
     $(error BECH32_PREFIX is not set)
@@ -69,7 +73,6 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 	    -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
 		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
 		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.Version=$(COMMIT) \
-        -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.DA=$(DA_LAYER) \
 		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) 
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
