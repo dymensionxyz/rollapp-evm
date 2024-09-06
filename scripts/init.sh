@@ -179,6 +179,7 @@ set_consensus_params() {
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.evidence.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.version' -v "$COMMIT" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.da' -v "$CELESTIA_NETWORK" || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
