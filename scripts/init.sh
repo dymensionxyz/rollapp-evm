@@ -175,11 +175,26 @@ set_consensus_params() {
   BLOCK_SIZE="500000"
   COMMIT=$(git log -1 --format='%H')
 
+  DA="mock"
+  case $CELESTIA_NETWORK in
+
+    "celestia" | "mocha")
+    DA="celestia"
+    ;;
+    "mock")
+    DA="mock"
+    ;;
+
+    *) 
+    DA="mock"
+    ;;
+  esac 
+
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_gas' -v "400000000" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.evidence.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.version' -v "$COMMIT" || success=false
-  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.da' -v "$CELESTIA_NETWORK" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.da' -v "$DA" || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
