@@ -103,7 +103,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			//create dymint toml config file
 			home := serverCtx.Viper.GetString(tmcli.HomeFlag)
-			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home))
+			//chainID := client.GetClientContextFromCmd(cmd).ChainID
+			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home, ""))
 
 			//create Block Explorer Json-RPC toml config file
 			berpcconfig.EnsureRoot(home, berpcconfig.DefaultBeJsonRpcConfig())
