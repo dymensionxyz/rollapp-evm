@@ -204,7 +204,7 @@ $EXECUTABLE tx sequencer create-sequencer sequencerConsensusKey --from $KEY_NAME
 ### Install dymension relayer
 
 ```shell
-git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.4-v2.5.2-relayer-canon-2
+git clone https://github.com/dymensionxyz/go-relayer.git --branch v0.3.4-v2.5.2-relayer-canon-3
 cd go-relayer && make install
 ```
 
