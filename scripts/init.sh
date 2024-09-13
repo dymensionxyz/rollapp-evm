@@ -158,10 +158,8 @@ add_denom_metadata() {
   local success=true
 
   denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
-  elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test -a)
 
   dasel put -f "$GENESIS_FILE" '.app_state.bank.denom_metadata' -v "$denom_metadata" || success=false
-  dasel put -t json -f "$GENESIS_FILE" '.app_state.denommetadata.params.allowed_addresses.' -v "$elevated_address" || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
