@@ -27,6 +27,11 @@ if [ "$KEY_NAME_ROLLAPP" = "" ]; then
   exit 1
 fi
 
+if [ "$HUB_REST_URL" = "" ]; then
+  echo "HUB_REST_URL is not set"
+  exit 1
+fi
+
 BASEDIR=$(dirname "$0")
 
 IBC_PORT=transfer
@@ -98,7 +103,6 @@ rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAPP" --coin-type 60
 rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 
 RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
-RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
 echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
 DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
@@ -109,24 +113,16 @@ else
   "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y || exit 1
 fi
 
-echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"'].. --------------------------------'
-
-RA_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '.balances[0].amount')
-
-if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
-  echo "${RLY_ROLLAPP_ADDR} already funded"
-else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test -y --fees 4000000000000"$BASE_DENOM" || exit 1
-fi
-
 echo '--------------------------------- Creating IBC path... --------------------------------'
 
 rly paths new "$SETTLEMENT_CHAIN_ID" "$ROLLAPP_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
 
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.is-dym-hub" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.is-dym-rollapp" -v true -t bool;
+dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.trust-period" -v "240h"; # 10 days
+
 rly tx link "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION" --max-clock-drift 70m
-# Channel is currently not created in the tx link since we changed the relayer to support on demand blocks
-# Which messed up with channel creation as part of tx link.
-rly tx channel "$RELAYER_PATH"
 
 echo '# -------------------------------- IBC channel established ------------------------------- #'
 echo "Channel Information:"

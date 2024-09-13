@@ -67,7 +67,7 @@ if [ "$METADATA_PATH" = "" ]; then
     "http://evm-rpc1.example.com:8545",
     "http://evm-rpc2.example.com:8545"
   ],
-  "rest_api_url": "http://restapi.example.com",
+  "rest_api_urls": ["http://restapi.example.com"],
   "explorer_url": "http://explorer.example.com",
   "genesis_urls": [
     "http://genesis1.example.com",
@@ -100,9 +100,8 @@ EOF
     fi
   fi
 fi
-
 set -x
-"$SETTLEMENT_EXECUTABLE" tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$METADATA_PATH" "$BOND_AMOUNT" \
+"$SETTLEMENT_EXECUTABLE" tx sequencer create-sequencer "$SEQ_PUB_KEY" "$ROLLAPP_CHAIN_ID" "$BOND_AMOUNT" "$METADATA_PATH"\
   --from "$SEQUENCER_KEY_NAME" \
   --keyring-dir "$SEQUENCER_KEY_PATH" \
   --keyring-backend test \

@@ -81,13 +81,45 @@ EOF
 
 fi
 
+if [ "$NATIVE_DENOM_PATH" = "" ]; then
+  DEFAULT_NATIVE_DENOM_PATH="${ROLLAPP_HOME_DIR}/init/rollapp-native-denom.json"
+  echo "NATIVE_DENOM_PATH is not set, using '$DEFAULT_NATIVE_DENOM_PATH"
+  NATIVE_DENOM_PATH=$DEFAULT_NATIVE_DENOM_PATH
+
+  if [ ! -f "$NATIVE_DENOM_PATH" ]; then
+    echo "${NATIVE_DENOM_PATH} does not exist, would you like to use a dummy native-denom file? (y/n)"
+    read -r answer
+
+    if [ "$answer" != "${answer#[Yy]}" ]; then
+      cat <<EOF > "$NATIVE_DENOM_PATH"
+{
+  "display": "DEN",
+  "base": "aden",
+  "exponent": 18
+}
+EOF
+    else
+      echo "You can't register a rollapp without a native denom, please create the ${NATIVE_DENOM_PATH} and run the script again"
+      exit 1
+    fi
+  fi
+
+fi
+
 GENESIS_PATH="${ROLLAPP_HOME_DIR}/config/genesis.json"
 GENESIS_HASH=$(sha256sum "$GENESIS_PATH" | awk '{print $1}' | sed 's/[[:space:]]*$//')
 SEQUENCER_ADDR=$(dymd keys show "$SEQUENCER_KEY_NAME" --address --keyring-backend test --keyring-dir "$SEQUENCER_KEY_PATH")
 
+echo "deployer" $DEPLOYER;
+
 set -x
-"$EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" "$BECH32_PREFIX" \
-  "$SEQUENCER_ADDR" "$GENESIS_HASH" "$METADATA_PATH" \
+"$SETTLEMENT_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
+  --bech32-prefix "$BECH32_PREFIX" \
+  --init-sequencer "$SEQUENCER_ADDR" \
+  --genesis-checksum "$GENESIS_HASH" \
+  --metadata "$METADATA_PATH" \
+  --native-denom "$NATIVE_DENOM_PATH" \
+  --initial-supply 1 \
 	--from "$DEPLOYER" \
 	--keyring-backend test \
   --gas auto --gas-adjustment 1.2 \

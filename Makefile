@@ -5,6 +5,11 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
 
+#ifndef $(CELESTIA_NETWORK)
+#    CELESTIA_NETWORK=mock
+#    export CELESTIA_NETWORK
+#endif
+
 ifndef BECH32_PREFIX
     $(error BECH32_PREFIX is not set)
 endif
@@ -65,11 +70,13 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
-		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX)
-
+	    -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
+		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.Version=$(COMMIT) \
+		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) 
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
+
 
 
 ###########
@@ -83,7 +90,6 @@ all: install
 install: build
 	@echo "--> installing rollapp-evm"
 	mv build/rollapp-evm $(GOPATH)/bin/rollapp-evm
-
 
 .PHONY: build
 build: go.sum ## Compiles the rollapd binary

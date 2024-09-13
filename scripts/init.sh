@@ -79,6 +79,8 @@ update_genesis_params() {
   dasel put -f "$GENESIS_FILE" '.app_state.gov.voting_params.voting_period' -v "300s" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.bank.balances.[0].coins.[0].amount' -v "$TOTAL_SUPPLY" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.bank.supply.[0].amount' -v "$TOTAL_SUPPLY" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
+  dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
@@ -156,10 +158,8 @@ add_denom_metadata() {
   local success=true
 
   denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
-  elevated_address=$("$EXECUTABLE" keys show "$KEY_NAME_ROLLAPP" --keyring-backend test -a)
 
   dasel put -f "$GENESIS_FILE" '.app_state.bank.denom_metadata' -v "$denom_metadata" || success=false
-  dasel put -t json -f "$GENESIS_FILE" '.app_state.denommetadata.params.allowed_addresses.' -v "$elevated_address" || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
@@ -171,10 +171,28 @@ set_consensus_params() {
   local success=true
 
   BLOCK_SIZE="500000"
+  COMMIT=$(git log -1 --format='%H')
+
+  DA="mock"
+  case $CELESTIA_NETWORK in
+
+    "celestia" | "mocha")
+    DA="celestia"
+    ;;
+    "mock")
+    DA="mock"
+    ;;
+
+    *) 
+    DA="mock"
+    ;;
+  esac 
 
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_gas' -v "400000000" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.evidence.max_bytes' -v "$BLOCK_SIZE" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.version' -v "$COMMIT" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.da' -v "$DA" || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
