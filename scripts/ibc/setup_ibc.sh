@@ -116,14 +116,6 @@ fi
 
 echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"'].. --------------------------------'
 
-RA_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '.balances[0].amount')
-
-if [ "$(echo "$RA_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
-  echo "${RLY_ROLLAPP_ADDR} already funded"
-else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" 100000000000000000000"$BASE_DENOM" --keyring-backend test -y --fees 4000000000000"$BASE_DENOM" --gas auto --gas-adjustment 1.3 || exit 1
-fi
-
 echo '--------------------------------- Creating IBC path... --------------------------------'
 
 rly paths new "$SETTLEMENT_CHAIN_ID" "$ROLLAPP_CHAIN_ID" "$RELAYER_PATH" --src-port "$IBC_PORT" --dst-port "$IBC_PORT" --version "$IBC_VERSION"
