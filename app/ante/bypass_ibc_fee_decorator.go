@@ -1,10 +1,9 @@
 package ante
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	conntypes "github.com/cosmos/ibc-go/v6/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 )
 
 type anteHandler interface {
@@ -33,34 +32,36 @@ func (n BypassIBCFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 
 // isIBCRelayerMsg checks if all the messages in the transaction are IBC relayer messages
 func isIBCRelayerMsg(msgs []sdk.Msg) bool {
-	isIBCRelayer := false
+	ibcMsgTypes := map[string]struct{}{
+		// IBC Client Messages
+		"*clienttypes.MsgCreateClient":       {},
+		"*clienttypes.MsgUpdateClient":       {},
+		"*clienttypes.MsgUpgradeClient":      {},
+		"*clienttypes.MsgSubmitMisbehaviour": {},
+		// IBC Connection Messages
+		"*conntypes.MsgConnectionOpenInit":    {},
+		"*conntypes.MsgConnectionOpenTry":     {},
+		"*conntypes.MsgConnectionOpenAck":     {},
+		"*conntypes.MsgConnectionOpenConfirm": {},
+		// IBC Channel Messages
+		"*channeltypes.MsgChannelOpenInit":     {},
+		"*channeltypes.MsgChannelOpenTry":      {},
+		"*channeltypes.MsgChannelOpenAck":      {},
+		"*channeltypes.MsgChannelOpenConfirm":  {},
+		"*channeltypes.MsgChannelCloseInit":    {},
+		"*channeltypes.MsgChannelCloseConfirm": {},
+		// IBC Packet Messages
+		"*channeltypes.MsgRecvPacket":      {},
+		"*channeltypes.MsgAcknowledgement": {},
+		"*channeltypes.MsgTimeout":         {},
+		"*channeltypes.MsgTimeoutOnClose":  {},
+	}
 
 	for _, msg := range msgs {
-		switch msg.(type) {
-		// IBC Client Messages
-		case *clienttypes.MsgCreateClient, *clienttypes.MsgUpdateClient,
-			*clienttypes.MsgUpgradeClient, *clienttypes.MsgSubmitMisbehaviour:
-			isIBCRelayer = true
-
-		// IBC Connection Messages
-		case *conntypes.MsgConnectionOpenInit, *conntypes.MsgConnectionOpenTry,
-			*conntypes.MsgConnectionOpenAck, *conntypes.MsgConnectionOpenConfirm:
-			isIBCRelayer = true
-
-		// IBC Channel Messages
-		case *channeltypes.MsgChannelOpenInit, *channeltypes.MsgChannelOpenTry,
-			*channeltypes.MsgChannelOpenAck, *channeltypes.MsgChannelOpenConfirm,
-			*channeltypes.MsgChannelCloseInit, *channeltypes.MsgChannelCloseConfirm:
-			isIBCRelayer = true
-
-		// IBC Packet Messages
-		case *channeltypes.MsgRecvPacket, *channeltypes.MsgAcknowledgement,
-			*channeltypes.MsgTimeout, *channeltypes.MsgTimeoutOnClose:
-			isIBCRelayer = true
-		default:
+		if _, ok := ibcMsgTypes[fmt.Sprintf("%T", msg)]; !ok {
 			return false
 		}
 	}
 
-	return isIBCRelayer
+	return true
 }
