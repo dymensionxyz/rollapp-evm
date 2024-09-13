@@ -31,32 +31,36 @@ func (n BypassIBCFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	return n.nextAnte.AnteHandle(ctx, tx, simulate, next)
 }
 
-// TODO: all or nothing
+// isIBCRelayerMsg checks if all the messages in the transaction are IBC relayer messages
 func isIBCRelayerMsg(msgs []sdk.Msg) bool {
+	isIBCRelayer := false
+
 	for _, msg := range msgs {
 		switch msg.(type) {
 		// IBC Client Messages
 		case *clienttypes.MsgCreateClient, *clienttypes.MsgUpdateClient,
 			*clienttypes.MsgUpgradeClient, *clienttypes.MsgSubmitMisbehaviour:
-			return true
+			isIBCRelayer = true
 
 		// IBC Connection Messages
 		case *conntypes.MsgConnectionOpenInit, *conntypes.MsgConnectionOpenTry,
 			*conntypes.MsgConnectionOpenAck, *conntypes.MsgConnectionOpenConfirm:
-			return true
+			isIBCRelayer = true
 
 		// IBC Channel Messages
 		case *channeltypes.MsgChannelOpenInit, *channeltypes.MsgChannelOpenTry,
 			*channeltypes.MsgChannelOpenAck, *channeltypes.MsgChannelOpenConfirm,
 			*channeltypes.MsgChannelCloseInit, *channeltypes.MsgChannelCloseConfirm:
-			return true
+			isIBCRelayer = true
 
 		// IBC Packet Messages
 		case *channeltypes.MsgRecvPacket, *channeltypes.MsgAcknowledgement,
 			*channeltypes.MsgTimeout, *channeltypes.MsgTimeoutOnClose:
-			return true
+			isIBCRelayer = true
+		default:
+			return false
 		}
 	}
 
-	return false
+	return isIBCRelayer
 }
