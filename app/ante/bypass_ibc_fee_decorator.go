@@ -33,7 +33,6 @@ func (n BypassIBCFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 
 // isIBCRelayerMsg checks if all the messages in the transaction are IBC relayer messages
 func isIBCRelayerMsg(msgs []sdk.Msg) bool {
-
 	for _, msg := range msgs {
 		switch msg.(type) {
 		// IBC Client Messages
