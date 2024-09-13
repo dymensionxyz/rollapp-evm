@@ -45,13 +45,13 @@ func (cad createAccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 			continue
 		}
 
-		acc, err := authante.GetSignerAcc(ctx, cad.ak, sigTx.GetSigners()[i])
+		_, err := authante.GetSignerAcc(ctx, cad.ak, sigTx.GetSigners()[i])
 		if err != nil {
 			// ======= HACK =========================
 			// for IBC relayer messages, create an account if it doesn't exist
 			if ibcRelayerMsg {
 				address := sdk.AccAddress(pk.Address())
-				acc = cad.ak.NewAccountWithAddress(ctx, address)
+				acc := cad.ak.NewAccountWithAddress(ctx, address)
 				// inject the new account flag into the context, in order to signal
 				// the account creation to the subsequent decorators (sigchecker)
 				ctx = ctx.WithValue(CtxKeyNewAccount(address.String()), struct{}{})
