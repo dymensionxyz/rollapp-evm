@@ -6,7 +6,7 @@ before:
 
 env:
   - GO111MODULE=on
-  - BECH32_PREFIX="mock"
+  - BECH32_PREFIX=mock
   - BUILD_TAGS=cgo,netgo,ledger
 
 builds:
