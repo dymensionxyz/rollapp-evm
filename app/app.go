@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/dymensionxyz/rollapp-evm/app/consensus"
 	"io"
 	"net/http"
 	"os"
@@ -331,6 +332,8 @@ type App struct {
 
 	// module configurator
 	configurator module.Configurator
+
+	consensusMessageAdmissionHandler consensus.AdmissionHandler
 }
 
 // NewRollapp returns a reference to an initialized blockchain app
@@ -843,6 +846,19 @@ func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	for _, anyMsg := range req.ConsensusMessages {
+		sdkAny := &types.Any{
+			TypeUrl: anyMsg.TypeUrl,
+			Value:   anyMsg.Value,
+		}
+
+		var msg sdk.Msg
+		err := app.appCodec.UnpackAny(sdkAny, &msg)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return app.mm.BeginBlock(ctx, req)
 }
 
