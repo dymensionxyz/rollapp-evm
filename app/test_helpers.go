@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	appcodec "github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -50,8 +51,8 @@ func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 	return app, GenesisState{}
 }
 
-// Setup initializes a new App. A Nop logger is set in App.
-func Setup(t *testing.T, isCheckTx bool) *App {
+// SetupWithOneValidator initializes a new App. A Nop logger is set in App.
+func SetupWithOneValidator(t *testing.T) (*App, authtypes.AccountI) {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -69,10 +70,11 @@ func Setup(t *testing.T, isCheckTx bool) *App {
 		Address: acc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
+	fmt.Printf("address: %s\n", acc.GetAddress().String())
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
 
-	return app
+	return app, acc
 }
 
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts

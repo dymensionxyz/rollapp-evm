@@ -823,7 +823,7 @@ func NewRollapp(
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.MapAdmissionHandler(
 		[]string{
-			proto.MessageName(&evmtypes.MsgEthereumTx{}),
+			proto.MessageName(&banktypes.MsgSend{}),
 		},
 	))
 
@@ -859,42 +859,78 @@ func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	err := app.processConsensusMessage(ctx, req.ConsensusMessages)
-	if err != nil {
-		panic(err)
-	}
+	consensusResponses := app.processConsensusMessage(ctx, req.ConsensusMessages)
 
-	return app.mm.BeginBlock(ctx, req)
+	resp := app.mm.BeginBlock(ctx, req)
+	resp.ConsensusMessagesResponses = consensusResponses
+
+	return resp
 }
 
-func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*prototypes.Any) error {
+func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*prototypes.Any) []*abci.ConsensusMessageResponse {
+	var responses []*abci.ConsensusMessageResponse
+
 	for _, anyMsg := range consensusMsgs {
 		sdkAny := &types.Any{
-			TypeUrl: anyMsg.TypeUrl,
+			TypeUrl: "/" + anyMsg.TypeUrl,
 			Value:   anyMsg.Value,
 		}
 
 		var msg sdk.Msg
 		err := app.appCodec.UnpackAny(sdkAny, &msg)
 		if err != nil {
-			return fmt.Errorf("failed to unpack consensus message: %w", err)
+			responses = append(responses, &abci.ConsensusMessageResponse{
+				Response: &abci.ConsensusMessageResponse_Error{
+					Error: fmt.Errorf("failed to unpack consensus message: %w", err).Error(),
+				},
+			})
+
+			continue
 		}
 
 		cacheCtx, writeCache := ctx.CacheContext()
 		err = app.consensusMessageAdmissionHandler(cacheCtx, msg)
 		if err != nil {
-			return fmt.Errorf("consensus message admission failed: %w", err)
+			responses = append(responses, &abci.ConsensusMessageResponse{
+				Response: &abci.ConsensusMessageResponse_Error{
+					Error: fmt.Errorf("consensus message admission failed: %w", err).Error(),
+				},
+			})
+
+			continue
 		}
 
-		_, err = app.MsgServiceRouter().Handler(msg)(ctx, msg)
+		resp, err := app.MsgServiceRouter().Handler(msg)(ctx, msg)
 		if err != nil {
-			return fmt.Errorf("failed to execute consensus message: %w", err)
+			responses = append(responses, &abci.ConsensusMessageResponse{
+				Response: &abci.ConsensusMessageResponse_Error{
+					Error: fmt.Errorf("failed to execute consensus message: %w", err).Error(),
+				},
+			})
+
+			continue
 		}
+
+		theType, err := proto.Marshal(resp)
+		if err != nil {
+			return nil
+		}
+
+		anyResp := &prototypes.Any{
+			TypeUrl: proto.MessageName(resp),
+			Value:   theType,
+		}
+
+		responses = append(responses, &abci.ConsensusMessageResponse{
+			Response: &abci.ConsensusMessageResponse_Ok{
+				Ok: anyResp,
+			},
+		})
 
 		writeCache()
 	}
 
-	return nil
+	return responses
 }
 
 // EndBlocker application updates every end block
