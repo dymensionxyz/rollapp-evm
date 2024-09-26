@@ -3,6 +3,8 @@ package app
 import (
 	"fmt"
 	"github.com/dymensionxyz/rollapp-evm/app/consensus"
+	"github.com/gogo/protobuf/proto"
+	prototypes "github.com/gogo/protobuf/types"
 	"io"
 	"net/http"
 	"os"
@@ -818,6 +820,13 @@ func NewRollapp(
 	app.SetAnteHandler(h)
 	app.setPostHandler()
 
+	// Admission handler for consensus messages
+	app.setAdmissionHandler(consensus.MapAdmissionHandler(
+		[]string{
+			proto.MessageName(&evmtypes.MsgEthereumTx{}),
+		},
+	))
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
@@ -841,12 +850,25 @@ func (app *App) setPostHandler() {
 	app.SetPostHandler(postHandler)
 }
 
+func (app *App) setAdmissionHandler(handler consensus.AdmissionHandler) {
+	app.consensusMessageAdmissionHandler = handler
+}
+
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	for _, anyMsg := range req.ConsensusMessages {
+	err := app.processConsensusMessage(ctx, req.ConsensusMessages)
+	if err != nil {
+		panic(err)
+	}
+
+	return app.mm.BeginBlock(ctx, req)
+}
+
+func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*prototypes.Any) error {
+	for _, anyMsg := range consensusMsgs {
 		sdkAny := &types.Any{
 			TypeUrl: anyMsg.TypeUrl,
 			Value:   anyMsg.Value,
@@ -855,11 +877,24 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 		var msg sdk.Msg
 		err := app.appCodec.UnpackAny(sdkAny, &msg)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("failed to unpack consensus message: %w", err)
 		}
+
+		cacheCtx, writeCache := ctx.CacheContext()
+		err = app.consensusMessageAdmissionHandler(cacheCtx, msg)
+		if err != nil {
+			return fmt.Errorf("consensus message admission failed: %w", err)
+		}
+
+		_, err = app.MsgServiceRouter().Handler(msg)(ctx, msg)
+		if err != nil {
+			return fmt.Errorf("failed to execute consensus message: %w", err)
+		}
+
+		writeCache()
 	}
 
-	return app.mm.BeginBlock(ctx, req)
+	return nil
 }
 
 // EndBlocker application updates every end block

@@ -1,13 +1,14 @@
 package consensus
 
 import (
-	types3 "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/dymensionxyz/dymension-rdk/x/sequencers/types"
-	"github.com/gogo/protobuf/proto"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	types3 "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/dymensionxyz/dymension-rdk/x/sequencers/types"
 )
 
 // MockMessage is a mock implementation of sdk.Msg
