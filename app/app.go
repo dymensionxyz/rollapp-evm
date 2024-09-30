@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"github.com/dymensionxyz/rollapp-evm/app/consensus"
+	"github.com/dymensionxyz/dymension-rdk/server/consensus"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"io"
@@ -645,7 +645,7 @@ func NewRollapp(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
-		sequencers.NewAppModule(appCodec, app.SequencersKeeper),
+		sequencers.NewAppModule(app.SequencersKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
