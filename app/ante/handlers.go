@@ -40,6 +40,10 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 	if sigGasConsumer == nil {
 		sigGasConsumer = authante.DefaultSigVerificationGasConsumer
 	}
+	// only override the modern sig checker, and preserve the legacy one
+	if _, ok := sigChecker.(authante.SigVerificationDecorator); ok {
+		sigChecker = NewSigCheckDecorator(options.AccountKeeper, options.SignModeHandler)
+	}
 	return sdk.ChainAnteDecorators(
 		cosmosante.NewRejectMessagesDecorator(
 			[]string{
@@ -66,9 +70,10 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 			}),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
+		NewBypassIBCFeeDecorator(cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper)),
+		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
+		NewBypassIBCFeeDecorator(cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker)),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
