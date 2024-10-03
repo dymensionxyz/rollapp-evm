@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	types2 "github.com/cosmos/cosmos-sdk/x/bank/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/stretchr/testify/require"
@@ -19,7 +19,7 @@ func TestBeginBlocker(t *testing.T) {
 		ChainID: "testchain_9000-1",
 	})
 
-	bankSend := &types2.MsgSend{
+	bankSend := &banktypes.MsgSend{
 		FromAddress: valAccount.GetAddress().String(),
 		ToAddress:   valAccount.GetAddress().String(),
 		Amount:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
@@ -28,7 +28,7 @@ func TestBeginBlocker(t *testing.T) {
 	require.NoError(t, err)
 
 	goodMessage := &prototypes.Any{
-		TypeUrl: proto.MessageName(&types2.MsgSend{}),
+		TypeUrl: proto.MessageName(&banktypes.MsgSend{}),
 		Value:   msgBz,
 	}
 
