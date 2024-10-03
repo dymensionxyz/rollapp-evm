@@ -2,19 +2,18 @@ package app
 
 import (
 	"fmt"
-	"github.com/dymensionxyz/dymension-rdk/server/consensus"
-	"github.com/gogo/protobuf/proto"
-	prototypes "github.com/gogo/protobuf/types"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/dymensionxyz/rollapp-evm/app/ante"
-
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/dymensionxyz/dymension-rdk/server/consensus"
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
+	"github.com/gogo/protobuf/proto"
+	prototypes "github.com/gogo/protobuf/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
