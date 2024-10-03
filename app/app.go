@@ -820,11 +820,9 @@ func NewRollapp(
 	app.setPostHandler()
 
 	// Admission handler for consensus messages
-	app.setAdmissionHandler(consensus.MapAdmissionHandler(
-		[]string{
-			proto.MessageName(&banktypes.MsgSend{}),
-		},
-	))
+	app.setAdmissionHandler(consensus.MapAdmissionHandler([]string{
+		// proto.MessageName(&banktypes.MsgSend{}),  // Example of message allowed as consensus message
+	}))
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
