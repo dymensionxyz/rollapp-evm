@@ -83,6 +83,10 @@ import (
 	mintkeeper "github.com/dymensionxyz/dymension-rdk/x/mint/keeper"
 	minttypes "github.com/dymensionxyz/dymension-rdk/x/mint/types"
 
+	"github.com/dymensionxyz/dymension-rdk/x/timeupgrade"
+	timeupgradekeeper "github.com/dymensionxyz/dymension-rdk/x/timeupgrade/keeper"
+	timeupgradetypes "github.com/dymensionxyz/dymension-rdk/x/timeupgrade/types"
+
 	"github.com/dymensionxyz/dymension-rdk/x/epochs"
 	epochskeeper "github.com/dymensionxyz/dymension-rdk/x/epochs/keeper"
 	epochstypes "github.com/dymensionxyz/dymension-rdk/x/epochs/types"
@@ -176,6 +180,8 @@ var (
 		// evmos keys
 		erc20types.StoreKey,
 		claimstypes.StoreKey,
+
+		timeupgradetypes.ModuleName,
 	}
 )
 
@@ -223,6 +229,8 @@ var (
 		vesting.AppModuleBasic{},
 		hubgenesis.AppModuleBasic{},
 		hub.AppModuleBasic{},
+		timeupgrade.AppModuleBasic{},
+
 		// Ethermint modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -295,24 +303,26 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper       authkeeper.AccountKeeper
-	AuthzKeeper         authzkeeper.Keeper
-	BankKeeper          bankkeeper.Keeper
-	CapabilityKeeper    *capabilitykeeper.Keeper
-	StakingKeeper       stakingkeeper.Keeper
-	SequencersKeeper    seqkeeper.Keeper
-	MintKeeper          mintkeeper.Keeper
-	EpochsKeeper        epochskeeper.Keeper
-	DistrKeeper         distrkeeper.Keeper
-	GovKeeper           govkeeper.Keeper
-	HubKeeper           hubkeeper.Keeper
-	HubGenesisKeeper    hubgenkeeper.Keeper
-	UpgradeKeeper       upgradekeeper.Keeper
-	ParamsKeeper        paramskeeper.Keeper
-	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper      transferkeeper.Keeper
-	FeeGrantKeeper      feegrantkeeper.Keeper
+	AccountKeeper    authkeeper.AccountKeeper
+	AuthzKeeper      authzkeeper.Keeper
+	BankKeeper       bankkeeper.Keeper
+	CapabilityKeeper *capabilitykeeper.Keeper
+	StakingKeeper    stakingkeeper.Keeper
+	SequencersKeeper seqkeeper.Keeper
+	MintKeeper       mintkeeper.Keeper
+	EpochsKeeper     epochskeeper.Keeper
+	DistrKeeper      distrkeeper.Keeper
+	GovKeeper        govkeeper.Keeper
+	HubKeeper        hubkeeper.Keeper
+	HubGenesisKeeper hubgenkeeper.Keeper
+	UpgradeKeeper    upgradekeeper.Keeper
+	ParamsKeeper     paramskeeper.Keeper
+	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper   transferkeeper.Keeper
+	FeeGrantKeeper   feegrantkeeper.Keeper
+	TimeUpgradeKeeper timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
+
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -480,6 +490,10 @@ func NewRollapp(
 
 	app.SequencersKeeper = *seqkeeper.NewKeeper(
 		appCodec, keys[seqtypes.StoreKey], app.GetSubspace(seqtypes.ModuleName),
+	)
+
+	app.TimeUpgradeKeeper = timeupgradekeeper.NewKeeper(
+		appCodec, keys[timeupgradetypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	// ... other modules keepers
@@ -651,6 +665,7 @@ func NewRollapp(
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		hubgenesis.NewAppModule(appCodec, app.HubGenesisKeeper),
 		hub.NewAppModule(appCodec, app.HubKeeper),
+		timeupgrade.NewAppModule(app.TimeUpgradeKeeper, app.UpgradeKeeper),
 		rollappparams.NewAppModule(appCodec, app.RollappParamsKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
@@ -670,6 +685,7 @@ func NewRollapp(
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	beginBlockersList := []string{
 		upgradetypes.ModuleName,
+		timeupgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		feemarkettypes.ModuleName,
@@ -716,6 +732,7 @@ func NewRollapp(
 		epochstypes.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
+		timeupgradetypes.ModuleName,
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		hubgentypes.ModuleName,
@@ -751,6 +768,7 @@ func NewRollapp(
 
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
+		timeupgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		feegrant.ModuleName,
 		hubgentypes.ModuleName,
