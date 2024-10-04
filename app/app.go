@@ -11,7 +11,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/consensus"
-	"github.com/dymensionxyz/rollapp-evm/app/ante"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/gorilla/mux"
@@ -112,6 +111,7 @@ import (
 
 	srvflags "github.com/evmos/evmos/v12/server/flags"
 
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
 	rollappevmparams "github.com/dymensionxyz/rollapp-evm/app/params"
 
 	// unnamed import of statik for swagger UI support
@@ -303,24 +303,24 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	AuthzKeeper      authzkeeper.Keeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SequencersKeeper seqkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	EpochsKeeper     epochskeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	HubKeeper        hubkeeper.Keeper
-	HubGenesisKeeper hubgenkeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper   transferkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
-	TimeUpgradeKeeper timeupgradekeeper.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	AuthzKeeper         authzkeeper.Keeper
+	BankKeeper          bankkeeper.Keeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	SequencersKeeper    seqkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	EpochsKeeper        epochskeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	HubKeeper           hubkeeper.Keeper
+	HubGenesisKeeper    hubgenkeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper      transferkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	TimeUpgradeKeeper   timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
 
 	// make scoped keepers public for test purposes
@@ -840,6 +840,7 @@ func NewRollapp(
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.MapAdmissionHandler([]string{
 		// proto.MessageName(&banktypes.MsgSend{}),  // Example of message allowed as consensus message
+		proto.MessageName(&seqtypes.MsgUpsertSequencer{}),
 	}))
 
 	if loadLatest {
