@@ -574,6 +574,8 @@ github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 h
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13/go.mod h1:jabDQYXrccscSE0fXkh7eQFYPWJCRiuWKonFGObVq6s=
 github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240921120829-c620e0b915d0 h1:nisIWnnKzaGJyUhR9yeUDvJ2OQ0OjjPPcYb6YPF/a/4=
 github.com/dymensionxyz/dymension-rdk v1.6.1-0.20240921120829-c620e0b915d0/go.mod h1:HghcjxP89WfuYg8MZAyJTyV8l9H3goIHdKNVe/Gnnr0=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241007101343-4f017ddb3d36 h1:O1qj0JFWhrEEn+32Y3s+R96q19In2Vb6l+SuE/mjBiw=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241007101343-4f017ddb3d36/go.mod h1:lMDz6B2DeH5SJeUAtFwxNeD8g1sj0cJGiDJf4rOz5tg=
 github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240919105350-66f9b353655d h1:YZ49Dd17SA//VBTKVncav7DhV5VE6M9n4a9Slm/hQeM=
 github.com/dymensionxyz/dymint v1.2.0-rc01.0.20240919105350-66f9b353655d/go.mod h1:eEUBqDHi7EiO3CK1Fqct5joa5UeNzcEDJnXzvXuP5oA=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2 h1:aVP3off7u2vsvRH7lHAUPTLdf9/AfnzC/rvvi0wC/co=
@@ -584,6 +586,7 @@ github.com/dymensionxyz/rpc v1.3.1 h1:7EXWIobaBes5zldRvTIg7TmNsEKjicrWA/OjCc0NaG
 github.com/dymensionxyz/rpc v1.3.1/go.mod h1:f+WpX8ysy8wt95iGc6auYlHcnHj2bUkhiRVkkKNys8c=
 github.com/dymensionxyz/sdk-utils v0.1.2-0.20240905104639-19dc09f5c6f5 h1:o6Jh8D4QZ7yifvOWV7/uoIugLZE0mTSOdz05ScaNNdU=
 github.com/dymensionxyz/sdk-utils v0.1.2-0.20240905104639-19dc09f5c6f5/go.mod h1:5fmenxP75quS5D1gPynbmh5qE6vla64Kks2O/hM+gi4=
+github.com/dymensionxyz/sdk-utils v0.1.2-0.20240909101947-e1b483ada9c8/go.mod h1:5fmenxP75quS5D1gPynbmh5qE6vla64Kks2O/hM+gi4=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
