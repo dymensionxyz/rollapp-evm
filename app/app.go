@@ -303,24 +303,24 @@ type App struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	AuthzKeeper      authzkeeper.Keeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SequencersKeeper seqkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	EpochsKeeper     epochskeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	HubKeeper        hubkeeper.Keeper
-	HubGenesisKeeper hubgenkeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper   transferkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
-	TimeUpgradeKeeper timeupgradekeeper.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	AuthzKeeper         authzkeeper.Keeper
+	BankKeeper          bankkeeper.Keeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	SequencersKeeper    seqkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	EpochsKeeper        epochskeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	HubKeeper           hubkeeper.Keeper
+	HubGenesisKeeper    hubgenkeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper      transferkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	TimeUpgradeKeeper   timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
 
 	// make scoped keepers public for test purposes
@@ -896,7 +896,7 @@ func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*protot
 		if err != nil {
 			responses = append(responses, &abci.ConsensusMessageResponse{
 				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("failed to unpack consensus message: %w", err).Error(),
+					Error: fmt.Errorf("unpack consensus message: %w", err).Error(),
 				},
 			})
 
@@ -908,18 +908,18 @@ func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*protot
 		if err != nil {
 			responses = append(responses, &abci.ConsensusMessageResponse{
 				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("consensus message admission failed: %w", err).Error(),
+					Error: fmt.Errorf("consensus message admission: %w", err).Error(),
 				},
 			})
 
 			continue
 		}
 
-		resp, err := app.MsgServiceRouter().Handler(msg)(ctx, msg)
+		resp, err := app.MsgServiceRouter().Handler(msg)(cacheCtx, msg)
 		if err != nil {
 			responses = append(responses, &abci.ConsensusMessageResponse{
 				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("failed to execute consensus message: %w", err).Error(),
+					Error: fmt.Errorf("execute consensus message: %w", err).Error(),
 				},
 			})
 
