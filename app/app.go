@@ -928,7 +928,13 @@ func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*protot
 
 		theType, err := proto.Marshal(resp)
 		if err != nil {
-			return nil
+			responses = append(responses, &abci.ConsensusMessageResponse{
+				Response: &abci.ConsensusMessageResponse_Error{
+					Error: fmt.Errorf("marshal consensus message response: %w", err).Error(),
+				},
+			})
+
+			continue
 		}
 
 		anyResp := &prototypes.Any{
