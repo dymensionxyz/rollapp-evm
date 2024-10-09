@@ -7,16 +7,20 @@ if ! command -v "$EXECUTABLE" >/dev/null; then
   exit 1
 fi
 
+if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
+  echo "ROLLAPP_CHAIN_ID is not set" exit 1
+fi
+
+
+if [ "$BASE_DENOM" = "" ]; then
+  echo "BASE_DENOM is not set" exit 1
+fi
+
+
 # ---------------------------- initial parameters ---------------------------- #
-# 500,000  is staked
-# set BASE_DENOM to the token denomination
-STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
-
 CONFIG_DIRECTORY="$ROLLAPP_HOME_DIR/config"
-
 APP_CONFIG_FILE="$CONFIG_DIRECTORY/app.toml"
 GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
-DENOM=$(echo "$BASE_DENOM" | sed 's/^.//')
 
 # ---------------------------- check variables ---------------------------- #
 if [ "$MONIKER" = "" ]; then
@@ -29,7 +33,7 @@ fi
 
 # Default to 1,000,000,000 tokens
 if [ "$TOTAL_SUPPLY" = "" ]; then
-    TOTAL_SUPPLY="1000000000000000000000000"
+    TOTAL_SUPPLY="1000000000000000000000000000"
 fi
 
 if [ "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" = "" ]; then
@@ -39,10 +43,7 @@ if [ "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" = "" ]; then
   ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
 fi
 
-if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
-  echo "ROLLAPP_CHAIN_ID is not set" exit 1
-fi
-
+# FIXME: rename to DA_NETWORK
 if [ "$CELESTIA_NETWORK" = "" ]; then
   echo "CELESTIA_NETWORK is not set"
   exit 1
@@ -78,8 +79,6 @@ update_genesis_params() {
 
   dasel put -f "$GENESIS_FILE" '.app_state.gov.voting_params.voting_period' -v "300s" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.gov.tally_params.threshold' -v "0.490000000000000000" || success=false
-  dasel put -f "$GENESIS_FILE" '.app_state.bank.balances.[0].coins.[0].amount' -v "$TOTAL_SUPPLY" || success=false
-  dasel put -f "$GENESIS_FILE" '.app_state.bank.supply.[0].amount' -v "$TOTAL_SUPPLY" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
   dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
 
@@ -88,22 +87,6 @@ update_genesis_params() {
     return 1
   fi
   echo "Successfully updated the genesis file"
-}
-
-add_genesis_accounts() {
-  local success=true
-
-  ALICE_MNEMONIC="mimic ten evoke card crowd upset tragic race borrow final vibrant gesture armed alley figure orange shock strike surge jaguar deposit hockey erosion taste"
-  echo "$ALICE_MNEMONIC" |  dymd keys add genesis-wallet --keyring-backend test --keyring-dir "$ROLLAPP_HOME_DIR" --recover
-
-  tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/genesis_accounts.json" >/dev/null <<EOF
-[
-  {"amount":
-      {"amount":"50000000000000000000000","denom":"${BASE_DENOM}"},
-      "address":"$(dymd keys show -a genesis-wallet --keyring-backend test --keyring-dir "${ROLLAPP_HOME_DIR}")"
-    }
-]
-EOF
 }
 
 generate_denom_metadata() {
@@ -128,40 +111,15 @@ generate_denom_metadata() {
   }
 ]
 EOF
-
-  tee "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH/hub-denommetadata.json" > /dev/null <<EOF
-[
-  {
-    "token_metadata": {
-      "description": "DYM",
-      "denom_units": [
-        {
-          "denom": "ibc/FECACB927EB3102CCCB240FFB3B6FCCEEB8D944C6FEA8DFF079650FEFF59781D",
-          "exponent": 0
-        },
-        {
-          "denom": "DYM",
-          "exponent": 18
-        }
-      ],
-      "base": "ibc/FECACB927EB3102CCCB240FFB3B6FCCEEB8D944C6FEA8DFF079650FEFF59781D",
-      "display": "DYM",
-      "name": "DYM",
-      "symbol": "DYM"
-    },
-    "denom_trace": "transfer/channel-0/adym"
-  }
-]
-EOF
 }
 
-add_denom_metadata() {
+add_denom_metadata_to_genesis() {
   local success=true
 
-  denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
-
-  dasel put -f "$GENESIS_FILE" '.app_state.bank.denom_metadata' -v "$denom_metadata" || success=false
-
+  #denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
+  #dasel put -f "$GENESIS_FILE" '.app_state.bank.denom_metadata' -v "$denom_metadata" || success=false
+  jq --argjson metadata "$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)" '.app_state.bank.denom_metadata = $metadata' "$GENESIS_FILE" > temp.json && mv temp.json "$GENESIS_FILE"
+  
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
     return 1
@@ -300,8 +258,8 @@ dasel put -t string -f "$APP_CONFIG_FILE" 'minimum-gas-prices' -v "0$BASE_DENOM"
 set_denom "$BASE_DENOM"
 set_consensus_params
 set_EVM_params
-add_genesis_accounts
 generate_denom_metadata
+add_denom_metadata_to_genesis
 update_configuration
 
 # --------------------- adding keys and genesis accounts --------------------- #
@@ -313,6 +271,7 @@ update_configuration
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
 if [ ! "$answer" != "${answer#[Nn]}" ] ;then
+  STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
   "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR" --fees 4000000000000"$BASE_DENOM"
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
 fi
