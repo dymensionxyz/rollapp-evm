@@ -12,8 +12,6 @@ import (
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/consensus"
 	"github.com/dymensionxyz/rollapp-evm/app/ante"
-	"github.com/gogo/protobuf/proto"
-	prototypes "github.com/gogo/protobuf/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -838,7 +836,7 @@ func NewRollapp(
 	app.setPostHandler()
 
 	// Admission handler for consensus messages
-	app.setAdmissionHandler(consensus.MapAdmissionHandler([]string{
+	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
 		// proto.MessageName(&banktypes.MsgSend{}),  // Example of message allowed as consensus message
 	}))
 
@@ -874,84 +872,12 @@ func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	consensusResponses := app.processConsensusMessage(ctx, req.ConsensusMessages)
+	consensusResponses := consensus.ProcessConsensusMessages(ctx, app.appCodec, app.consensusMessageAdmissionHandler, app.MsgServiceRouter(), req.ConsensusMessages)
 
 	resp := app.mm.BeginBlock(ctx, req)
 	resp.ConsensusMessagesResponses = consensusResponses
 
 	return resp
-}
-
-func (app *App) processConsensusMessage(ctx sdk.Context, consensusMsgs []*prototypes.Any) []*abci.ConsensusMessageResponse {
-	var responses []*abci.ConsensusMessageResponse
-
-	for _, anyMsg := range consensusMsgs {
-		sdkAny := &types.Any{
-			TypeUrl: "/" + anyMsg.TypeUrl,
-			Value:   anyMsg.Value,
-		}
-
-		var msg sdk.Msg
-		err := app.appCodec.UnpackAny(sdkAny, &msg)
-		if err != nil {
-			responses = append(responses, &abci.ConsensusMessageResponse{
-				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("unpack consensus message: %w", err).Error(),
-				},
-			})
-
-			continue
-		}
-
-		cacheCtx, writeCache := ctx.CacheContext()
-		err = app.consensusMessageAdmissionHandler(cacheCtx, msg)
-		if err != nil {
-			responses = append(responses, &abci.ConsensusMessageResponse{
-				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("consensus message admission: %w", err).Error(),
-				},
-			})
-
-			continue
-		}
-
-		resp, err := app.MsgServiceRouter().Handler(msg)(cacheCtx, msg)
-		if err != nil {
-			responses = append(responses, &abci.ConsensusMessageResponse{
-				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("execute consensus message: %w", err).Error(),
-				},
-			})
-
-			continue
-		}
-
-		theType, err := proto.Marshal(resp)
-		if err != nil {
-			responses = append(responses, &abci.ConsensusMessageResponse{
-				Response: &abci.ConsensusMessageResponse_Error{
-					Error: fmt.Errorf("marshal consensus message response: %w", err).Error(),
-				},
-			})
-
-			continue
-		}
-
-		anyResp := &prototypes.Any{
-			TypeUrl: proto.MessageName(resp),
-			Value:   theType,
-		}
-
-		responses = append(responses, &abci.ConsensusMessageResponse{
-			Response: &abci.ConsensusMessageResponse_Ok{
-				Ok: anyResp,
-			},
-		})
-
-		writeCache()
-	}
-
-	return responses
 }
 
 // EndBlocker application updates every end block
