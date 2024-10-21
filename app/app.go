@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dymensionxyz/rollapp-evm/app/ante"
-
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/dymensionxyz/dymension-rdk/server/consensus"
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -341,6 +341,8 @@ type App struct {
 
 	// module configurator
 	configurator module.Configurator
+
+	consensusMessageAdmissionHandler consensus.AdmissionHandler
 }
 
 // NewRollapp returns a reference to an initialized blockchain app
@@ -838,6 +840,11 @@ func NewRollapp(
 	app.SetAnteHandler(h)
 	app.setPostHandler()
 
+	// Admission handler for consensus messages
+	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
+		// proto.MessageName(&banktypes.MsgSend{}),  // Example of message allowed as consensus message
+	}))
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
@@ -861,12 +868,21 @@ func (app *App) setPostHandler() {
 	app.SetPostHandler(postHandler)
 }
 
+func (app *App) setAdmissionHandler(handler consensus.AdmissionHandler) {
+	app.consensusMessageAdmissionHandler = handler
+}
+
 // Name returns the name of the App
 func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
+	consensusResponses := consensus.ProcessConsensusMessages(ctx, app.appCodec, app.consensusMessageAdmissionHandler, app.MsgServiceRouter(), req.ConsensusMessages)
+
+	resp := app.mm.BeginBlock(ctx, req)
+	resp.ConsensusMessagesResponses = consensusResponses
+
+	return resp
 }
 
 // EndBlocker application updates every end block
