@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
+	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -19,7 +21,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v12/app/ante/utils"
 	evmostypes "github.com/evmos/evmos/v12/types"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 	evmosvestingtypes "github.com/evmos/evmos/v12/x/vesting/types"
@@ -38,7 +39,8 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
 	evmKeeper evmosanteevm.EVMKeeper,
 	ibcKeeper *ibckeeper.Keeper,
-	distrKeeper anteutils.DistributionKeeper,
+	distrKeeper distrkeeper.Keeper,
+	sequencerKeeper seqkeeper.Keeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                codec,
@@ -57,8 +59,10 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	}
 
 	opts := HandlerOptions{
-		HandlerOptions: ethOpts,
-		hasPermission:  hasPermission,
+		HandlerOptions:   ethOpts,
+		hasPermission:    hasPermission,
+		DistrKeeper:      distrKeeper,
+		SequencersKeeper: sequencerKeeper,
 	}
 
 	h, err := NewHandler(opts)
@@ -71,7 +75,9 @@ func MustCreateHandler(codec codec.BinaryCodec,
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	evmosante.HandlerOptions
-	hasPermission HasPermission
+	hasPermission    HasPermission
+	DistrKeeper      distrkeeper.Keeper
+	SequencersKeeper seqkeeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {

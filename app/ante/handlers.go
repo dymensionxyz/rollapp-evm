@@ -70,10 +70,14 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 			}),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		NewBypassIBCFeeDecorator(cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper)),
+		NewBypassIBCFeeDecorator(cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper), options.DistrKeeper, options.SequencersKeeper),
 		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		NewBypassIBCFeeDecorator(cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker)),
+		NewBypassIBCFeeDecorator(
+			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
+			options.DistrKeeper,
+			options.SequencersKeeper,
+		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
