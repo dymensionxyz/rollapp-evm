@@ -577,8 +577,8 @@ github.com/dymensionxyz/cometbft v0.34.29-0.20241008141942-63af9d24107f h1:CclWJ
 github.com/dymensionxyz/cometbft v0.34.29-0.20241008141942-63af9d24107f/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13 h1:u5yeve5jZR6TdRjjR+vYT/8PWKbhwCZxUmAu+/Tnxyg=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13/go.mod h1:jabDQYXrccscSE0fXkh7eQFYPWJCRiuWKonFGObVq6s=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241020152926-b250db7af580 h1:bgECFCjc/8lVq9/UQ4qCTdD/znUgKEX7a0QBOcGuuNg=
-github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241020152926-b250db7af580/go.mod h1:m9D/CACMkMAXKFeuU+1lkUIPWpMFb0EvGl7M5vV0HoA=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241024184721-f201b97806a3 h1:XIpV/Kg2XhNgk9MMoyFFvO/SIv1VWRE5NmZWwo+Z1iQ=
+github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241024184721-f201b97806a3/go.mod h1:HH7sGM/4MSI8OLces8axABf7K0ppXNok+G2nxC/l5YI=
 github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241023165835-01a53f1cf2f0 h1:sAgcP+TvMEPJWtVyrqhQ1cnQ7jGMP+7aBmGQmlO/6ps=
 github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241023165835-01a53f1cf2f0/go.mod h1:E/np+cTZTCFIPDbXRYjk19+Uask+ss/6nuZ+cNuhTIU=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2 h1:aVP3off7u2vsvRH7lHAUPTLdf9/AfnzC/rvvi0wC/co=
