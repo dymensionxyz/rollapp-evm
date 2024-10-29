@@ -15,13 +15,14 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/dymensionxyz/dymension-rdk/testutil/utils"
-	rollappparamstypes "github.com/dymensionxyz/dymension-rdk/x/rollappparams/types"
 	"github.com/tendermint/tendermint/crypto/encoding"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	types2 "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/dymensionxyz/dymension-rdk/testutil/utils"
+	rollappparamstypes "github.com/dymensionxyz/dymension-rdk/x/rollappparams/types"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -87,6 +88,20 @@ func SetupWithGenesisValSet(t *testing.T, valSet *types2.ValidatorSet, genAccs [
 	genesisState = genesisStateWithValSet(t, app, genesisState, valSet, genAccs, balances...)
 
 	genesisState = setRollappVersion(app.appCodec, genesisState, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0")
+
+	denomMD := banktypes.Metadata{
+		Description: "Stake token",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    "stake",
+				Exponent: 18,
+			},
+		},
+		Base:    "stake",
+		Display: "stake",
+	}
+
+	genesisState = addDenomToBankModule(app.appCodec, genesisState, denomMD)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
@@ -201,6 +216,21 @@ func setRollappVersion(appCodec appcodec.Codec, genesisState GenesisState, versi
 	rollappParamsGenesis.Params.Version = version
 
 	genesisState["rollappparams"] = appCodec.MustMarshalJSON(&rollappParamsGenesis)
+
+	return genesisState
+}
+
+func addDenomToBankModule(appCodec appcodec.Codec, genesisState GenesisState, denomMD banktypes.Metadata) GenesisState {
+	var bankGenesis banktypes.GenesisState
+	if genesisState["bank"] != nil {
+		appCodec.MustUnmarshalJSON(genesisState["bank"], &bankGenesis)
+	} else {
+		bankGenesis = *banktypes.DefaultGenesisState()
+	}
+
+	bankGenesis.DenomMetadata = append(bankGenesis.DenomMetadata, denomMD)
+
+	genesisState["bank"] = appCodec.MustMarshalJSON(&bankGenesis)
 
 	return genesisState
 }
