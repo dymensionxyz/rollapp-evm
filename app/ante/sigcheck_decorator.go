@@ -8,6 +8,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	rdkante "github.com/dymensionxyz/dymension-rdk/server/ante"
 )
 
 type sigCheckDecorator struct {
@@ -41,7 +42,7 @@ func (svd sigCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate boo
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "invalid number of signer;  expected: %d, got %d", len(signerAddrs), len(sigs))
 	}
 
-	ibcRelayerMsg := isIBCRelayerMsg(tx.GetMsgs())
+	ibcRelayerMsg := rdkante.IsIBCRelayerMsg(tx.GetMsgs())
 
 	for i, sig := range sigs {
 		acc, err := authante.GetSignerAcc(ctx, svd.ak, signerAddrs[i])
