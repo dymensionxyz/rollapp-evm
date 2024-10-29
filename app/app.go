@@ -898,6 +898,7 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	abciEndBlockResponse.RollappParamUpdates = &abci.RollappParams{
 		Da:      rollappparams.Da,
 		Version: rollappparams.Version,
+		Commit:  rollappparams.Commit,
 	}
 	return abciEndBlockResponse
 }

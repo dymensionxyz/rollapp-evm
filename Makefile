@@ -4,7 +4,7 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-
+DRS_VERSION = "1"
 #ifndef $(CELESTIA_NETWORK)
 #    CELESTIA_NETWORK=mock
 #    export CELESTIA_NETWORK
@@ -70,10 +70,11 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-	    -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
+	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
 		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
-		  -X github.com/dymensionxyz/dymension-rdk/x/rollappparams/types.Version=$(COMMIT) \
-		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) 
+		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) \
+		  -X github.com/dymensionxyz/dymint/version.Version=$(DRS_VERSION)
+
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 

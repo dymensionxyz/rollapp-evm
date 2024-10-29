@@ -87,7 +87,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *types2.ValidatorSet, genAccs [
 	app, genesisState := setup(true, 5)
 	genesisState = genesisStateWithValSet(t, app, genesisState, valSet, genAccs, balances...)
 
-	genesisState = setRollappVersion(app.appCodec, genesisState, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0")
+	genesisState = setRollappVersion(app.appCodec, genesisState, 1)
 
 	denomMD := banktypes.Metadata{
 		Description: "Stake token",
@@ -201,7 +201,7 @@ func genesisStateWithValSet(t *testing.T,
 	return genesisState
 }
 
-func setRollappVersion(appCodec appcodec.Codec, genesisState GenesisState, version string) GenesisState {
+func setRollappVersion(appCodec appcodec.Codec, genesisState GenesisState, version uint64) GenesisState {
 	var rollappParamsGenesis rollappparamstypes.GenesisState
 	if genesisState["rollappparams"] != nil {
 		appCodec.MustUnmarshalJSON(genesisState["rollappparams"], &rollappParamsGenesis)
