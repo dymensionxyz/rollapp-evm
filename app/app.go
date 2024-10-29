@@ -11,7 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/consensus"
-	"github.com/dymensionxyz/rollapp-evm/app/ante"
+	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -20,6 +20,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/dymensionxyz/rollapp-evm/app/ante"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -487,7 +489,10 @@ func NewRollapp(
 	)
 
 	app.SequencersKeeper = *seqkeeper.NewKeeper(
-		appCodec, keys[seqtypes.StoreKey], app.GetSubspace(seqtypes.ModuleName),
+		appCodec,
+		keys[seqtypes.StoreKey],
+		app.GetSubspace(seqtypes.ModuleName),
+		authtypes.NewModuleAddress(seqtypes.ModuleName).String(),
 	)
 
 	app.TimeUpgradeKeeper = timeupgradekeeper.NewKeeper(
@@ -836,13 +841,14 @@ func NewRollapp(
 		app.EvmKeeper,
 		app.IBCKeeper,
 		app.DistrKeeper,
+		app.SequencersKeeper,
 	)
 	app.SetAnteHandler(h)
 	app.setPostHandler()
 
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
-		// proto.MessageName(&banktypes.MsgSend{}),  // Example of message allowed as consensus message
+		proto.MessageName(new(seqtypes.ConsensusMsgUpsertSequencer)),
 	}))
 
 	if loadLatest {

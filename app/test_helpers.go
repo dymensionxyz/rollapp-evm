@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 
@@ -72,7 +71,6 @@ func SetupWithOneValidator(t *testing.T) (*App, authtypes.AccountI) {
 		Address: acc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
-	fmt.Printf("address: %s\n", acc.GetAddress().String())
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
 
