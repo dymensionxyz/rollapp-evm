@@ -8,6 +8,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	conntypes "github.com/cosmos/ibc-go/v6/modules/core/03-connection/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
+	rdkante "github.com/dymensionxyz/dymension-rdk/server/ante"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
@@ -70,10 +71,18 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
 			}),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		NewBypassIBCFeeDecorator(cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper)),
+		rdkante.NewBypassIBCFeeDecorator(
+			cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
+			options.DistrKeeper,
+			options.SequencersKeeper,
+		),
 		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		NewBypassIBCFeeDecorator(cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker)),
+		rdkante.NewBypassIBCFeeDecorator(
+			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
+			options.DistrKeeper,
+			options.SequencersKeeper,
+		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
