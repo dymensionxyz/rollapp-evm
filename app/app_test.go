@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/proto/tendermint/types"
+
+	"github.com/dymensionxyz/dymension-rdk/server/consensus"
 )
 
 func TestBeginBlocker(t *testing.T) {
@@ -18,6 +20,10 @@ func TestBeginBlocker(t *testing.T) {
 		Height:  1,
 		ChainID: "testchain_9000-1",
 	})
+
+	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
+		proto.MessageName(&banktypes.MsgSend{}),
+	}))
 
 	bankSend := &banktypes.MsgSend{
 		FromAddress: valAccount.GetAddress().String(),
