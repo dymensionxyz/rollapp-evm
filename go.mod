@@ -349,9 +349,8 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/decentrio/wasmd v0.33.0-sdk46.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.0.12-avail-1.4.0-rc1-5e286e3
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
-	github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
-
-	github.com/dymensionxyz/dymint => ../dymint_main
+	github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241030174151-04234f8fab5d
+	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241030170953-7a871e0d2484
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2
@@ -361,5 +360,5 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => ../cometbft_dym
+	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241030154748-3f9dfa21d17b
 )

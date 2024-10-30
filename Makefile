@@ -4,7 +4,8 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-DRS_VERSION = "1"
+DRS_VERSION = 1
+
 #ifndef $(CELESTIA_NETWORK)
 #    CELESTIA_NETWORK=mock
 #    export CELESTIA_NETWORK
@@ -15,11 +16,11 @@ ifndef BECH32_PREFIX
 endif
 
 # don't override user values
-ifeq (,$(VERSION))
-  VERSION := $(shell git describe --tags)
+ifeq (,$(NAME))
+  NAME := $(shell git describe --tags)
   # if VERSION is empty, then populate it with branch's name and raw commit hash
-  ifeq (,$(VERSION))
-    VERSION := $(BRANCH)-$(COMMIT)
+  ifeq (,$(NAME))
+    NAME := $(BRANCH)-$(COMMIT)
   endif
 endif
 
@@ -65,15 +66,14 @@ comma := ,
 build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=dymension-rdk \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(NAME)\
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=rollapp-evm \
-		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+		  -X github.com/cosmos/cosmos-sdk/version.Version=DRS-$(DRS_VERSION) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	      -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TM_VERSION) \
 		  -X github.com/dymensionxyz/rollapp-evm/app.AccountAddressPrefix=$(BECH32_PREFIX) \
-		  -X github.com/dymensionxyz/dymint/version.Commit=$(COMMIT) \
-		  -X github.com/dymensionxyz/dymint/version.Version=$(DRS_VERSION)
+		  -X github.com/dymensionxyz/dymint/version.DrsVersion=$(DRS_VERSION) 
 
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'

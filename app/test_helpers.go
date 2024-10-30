@@ -201,19 +201,19 @@ func genesisStateWithValSet(t *testing.T,
 	return genesisState
 }
 
-func setRollappVersion(appCodec appcodec.Codec, genesisState GenesisState, version uint64) GenesisState {
+func setRollappVersion(appCodec appcodec.Codec, genesisState GenesisState, version uint32) GenesisState {
 	var rollappParamsGenesis rollappparamstypes.GenesisState
 	if genesisState["rollappparams"] != nil {
 		appCodec.MustUnmarshalJSON(genesisState["rollappparams"], &rollappParamsGenesis)
 	} else {
 		rollappParamsGenesis = rollappparamstypes.GenesisState{
 			Params: rollappparamstypes.Params{
-				Version: version,
+				DrsVersion: version,
 			},
 		}
 	}
 
-	rollappParamsGenesis.Params.Version = version
+	rollappParamsGenesis.Params.DrsVersion = version
 
 	genesisState["rollappparams"] = appCodec.MustMarshalJSON(&rollappParamsGenesis)
 
