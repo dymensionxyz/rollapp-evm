@@ -74,7 +74,7 @@ GENESIS_HASH="PLACEHOLDER"
 INITIAL_SUPPLY=$(jq -r '.app_state.bank.supply[0].amount' "${ROLLAPP_HOME_DIR}/config/genesis.json")
 
 set -x
-"$SETTLEMENT_EXECUTABLE" tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
+dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
   --bech32-prefix "$BECH32_PREFIX" \
   --init-sequencer "*" \
   --genesis-checksum "$GENESIS_HASH" \

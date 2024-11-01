@@ -1,6 +1,6 @@
 #!/bin/bash
 EXECUTABLE=$(which rollapp-evm)
-
+ 
 if ! command -v "$EXECUTABLE" >/dev/null; then
   echo "$EXECUTABLE does not exist"
   echo "please run make install"
@@ -147,11 +147,14 @@ set_consensus_params() {
     ;;
   esac 
 
+  VERSION=$(rollapp-evm version --long | grep DRS-)
+  DRS_VERSION="${VERSION#*-}"
+
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_gas' -v "400000000" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.block.max_bytes' -v "$BLOCK_SIZE" || success=false
   dasel put -f "$GENESIS_FILE" '.consensus_params.evidence.max_bytes' -v "$BLOCK_SIZE" || success=false
-  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.version' -v "$COMMIT" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.da' -v "$DA" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.rollappparams.params.drs_version' -v $DRS_VERSION -t int || success=false
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
