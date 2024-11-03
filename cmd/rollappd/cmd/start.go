@@ -2,11 +2,15 @@ package cmd
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"runtime/pprof"
+	"sort"
 	"strconv"
 	"time"
 
@@ -16,17 +20,20 @@ import (
 	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
 	"github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc"
 	evmberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
-	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
-	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
 	"github.com/ethereum/go-ethereum/rpc"
+
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 
+	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
+	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
+
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/proxy"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -311,6 +318,11 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
+	genesisChecksum, err := computeGenesisHash(cfg.GenesisFile())
+	if err != nil {
+		return fmt.Errorf("failed to compute genesis checksum: %w", err)
+	}
+
 	ctx.Logger.Info("starting node with ABCI dymint in-process")
 	tmNode, err := dymintnode.NewNode(
 		context.Background(),
@@ -319,6 +331,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		signingKey,
 		proxy.NewLocalClientCreator(app),
 		genesis,
+		genesisChecksum,
 		ctx.Logger,
 		dymintmemp.PrometheusMetrics("dymint"),
 	)
@@ -671,4 +684,51 @@ func wrapCPUProfile(ctx *server.Context, callback func() error) error {
 	}
 
 	return <-errCh
+}
+
+func genesisChecksumCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "genesis-checksum",
+		Short: "Compute the checksum of the genesis file",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			serverCtx := server.GetServerContextFromCmd(cmd)
+			checksum, err := computeGenesisHash(serverCtx.Config.GenesisFile())
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(checksum)
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+func computeGenesisHash(genesisFilePath string) (string, error) {
+	fileContent, err := os.ReadFile(genesisFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	var jsonObject map[string]interface{}
+	err = json.Unmarshal(fileContent, &jsonObject)
+	if err != nil {
+		return "", err
+	}
+
+	keys := make([]string, 0, len(jsonObject))
+	for k := range jsonObject {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	sortedJSON, err := json.Marshal(jsonObject)
+	if err != nil {
+		return "", err
+	}
+
+	hash := sha256.Sum256(sortedJSON)
+	return hex.EncodeToString(hash[:]), nil
 }
