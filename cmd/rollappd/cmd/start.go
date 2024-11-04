@@ -2,15 +2,11 @@ package cmd
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"runtime/pprof"
-	"sort"
 	"strconv"
 	"time"
 
@@ -51,6 +47,8 @@ import (
 
 	"github.com/dymensionxyz/dymension-rdk/utils"
 	rdklogger "github.com/dymensionxyz/dymension-rdk/utils/logger"
+
+	"github.com/dymensionxyz/dymint/cmd/dymint/commands"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	dymintconv "github.com/dymensionxyz/dymint/conv"
 	dymintmemp "github.com/dymensionxyz/dymint/mempool"
@@ -318,7 +316,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
-	genesisChecksum, err := computeGenesisHash(cfg.GenesisFile())
+	genesisChecksum, err := commands.ComputeGenesisHash(cfg.GenesisFile())
 	if err != nil {
 		return fmt.Errorf("failed to compute genesis checksum: %w", err)
 	}
@@ -693,7 +691,7 @@ func genesisChecksumCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			serverCtx := server.GetServerContextFromCmd(cmd)
-			checksum, err := computeGenesisHash(serverCtx.Config.GenesisFile())
+			checksum, err := commands.ComputeGenesisHash(serverCtx.Config.GenesisFile())
 			if err != nil {
 				return err
 			}
@@ -704,31 +702,4 @@ func genesisChecksumCmd() *cobra.Command {
 	}
 
 	return cmd
-}
-
-func computeGenesisHash(genesisFilePath string) (string, error) {
-	fileContent, err := os.ReadFile(genesisFilePath)
-	if err != nil {
-		return "", err
-	}
-
-	var jsonObject map[string]interface{}
-	err = json.Unmarshal(fileContent, &jsonObject)
-	if err != nil {
-		return "", err
-	}
-
-	keys := make([]string, 0, len(jsonObject))
-	for k := range jsonObject {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	sortedJSON, err := json.Marshal(jsonObject)
-	if err != nil {
-		return "", err
-	}
-
-	hash := sha256.Sum256(sortedJSON)
-	return hex.EncodeToString(hash[:]), nil
 }
