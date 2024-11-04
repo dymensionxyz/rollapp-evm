@@ -24,15 +24,17 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
+	dbm "github.com/tendermint/tm-db"
+
 	tmcfg "github.com/tendermint/tendermint/config"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	tmlog "github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 
 	rdkserver "github.com/dymensionxyz/dymension-rdk/server"
 	rdkserverconfig "github.com/dymensionxyz/dymension-rdk/server/config"
 	rdk_utils "github.com/dymensionxyz/dymension-rdk/utils"
 	dymintconf "github.com/dymensionxyz/dymint/config"
+
 	"github.com/dymensionxyz/rollapp-evm/app"
 	"github.com/dymensionxyz/rollapp-evm/app/params"
 	"github.com/dymensionxyz/rollapp-evm/utils"
@@ -55,7 +57,7 @@ const rollappAscii = `
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	encodingConfig := app.MakeEncodingConfig()
 
-	//TODO: refactor to use depinject
+	// TODO: refactor to use depinject
 
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Codec).
@@ -69,7 +71,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithViper("ROLLAPP")
 
 	rootCmd := &cobra.Command{
-		//TODO: set by code, not in Makefile
+		// TODO: set by code, not in Makefile
 		Use:   version.AppName,
 		Short: rollappAscii,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
@@ -101,12 +103,12 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 			serverCtx := server.GetServerContextFromCmd(cmd)
 
-			//create dymint toml config file
+			// create dymint toml config file
 			home := serverCtx.Viper.GetString(tmcli.HomeFlag)
-			//chainID := client.GetClientContextFromCmd(cmd).ChainID
+			// chainID := client.GetClientContextFromCmd(cmd).ChainID
 			dymintconf.EnsureRoot(home, dymintconf.DefaultConfig(home))
 
-			//create Block Explorer Json-RPC toml config file
+			// create Block Explorer Json-RPC toml config file
 			berpcconfig.EnsureRoot(home, berpcconfig.DefaultBeJsonRpcConfig())
 
 			return nil
@@ -205,6 +207,7 @@ func queryCommand() *cobra.Command {
 		rpc.BlockCommand(),
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
+		genesisChecksumCmd(),
 	)
 
 	app.ModuleBasics.AddQueryCommands(cmd)

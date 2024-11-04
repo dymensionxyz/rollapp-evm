@@ -16,17 +16,20 @@ import (
 	berpctypes "github.com/bcdevtools/block-explorer-rpc-cosmos/be_rpc/types"
 	"github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc"
 	evmberpcbackend "github.com/bcdevtools/evm-block-explorer-rpc-cosmos/integrate_be_rpc/backend/evm"
-	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
-	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
 	"github.com/ethereum/go-ethereum/rpc"
+
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 
+	raeberpcbackend "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/backend"
+	raebeapi "github.com/dymensionxyz/rollapp-evm/ra_evm_be_rpc/namespaces/rae"
+
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/proxy"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -44,6 +47,8 @@ import (
 
 	"github.com/dymensionxyz/dymension-rdk/utils"
 	rdklogger "github.com/dymensionxyz/dymension-rdk/utils/logger"
+
+	"github.com/dymensionxyz/dymint/cmd/dymint/commands"
 	dymintconf "github.com/dymensionxyz/dymint/config"
 	dymintconv "github.com/dymensionxyz/dymint/conv"
 	dymintmemp "github.com/dymensionxyz/dymint/mempool"
@@ -311,6 +316,11 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		return err
 	}
 
+	genesisChecksum, err := commands.ComputeGenesisHash(cfg.GenesisFile())
+	if err != nil {
+		return fmt.Errorf("failed to compute genesis checksum: %w", err)
+	}
+
 	ctx.Logger.Info("starting node with ABCI dymint in-process")
 	tmNode, err := dymintnode.NewNode(
 		context.Background(),
@@ -319,6 +329,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, nodeConfig *d
 		signingKey,
 		proxy.NewLocalClientCreator(app),
 		genesis,
+		genesisChecksum,
 		ctx.Logger,
 		dymintmemp.PrometheusMetrics("dymint"),
 	)
@@ -671,4 +682,24 @@ func wrapCPUProfile(ctx *server.Context, callback func() error) error {
 	}
 
 	return <-errCh
+}
+
+func genesisChecksumCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "genesis-checksum",
+		Short: "Compute the checksum of the genesis file",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			serverCtx := server.GetServerContextFromCmd(cmd)
+			checksum, err := commands.ComputeGenesisHash(serverCtx.Config.GenesisFile())
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(checksum)
+			return nil
+		},
+	}
+
+	return cmd
 }
