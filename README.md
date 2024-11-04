@@ -53,7 +53,7 @@ export HUB_KEY_WITH_FUNDS="hub-user"
 export HUB_RPC_ENDPOINT="localhost"
 export HUB_RPC_PORT="36657" # default: 36657
 export HUB_RPC_URL="http://${HUB_RPC_ENDPOINT}:${HUB_RPC_PORT}"
-export HUB_REST_URL="localhost:1318" # required for relayer
+export HUB_REST_URL="http://localhost:1318" # required for relayer
 export HUB_CHAIN_ID="dymension_100-1"
 
 dymd config chain-id "${HUB_CHAIN_ID}"
@@ -113,26 +113,10 @@ TRANSFER_AMOUNT="${NEW_NUMERIC_PART}adym"
 dymd tx bank send $HUB_KEY_WITH_FUNDS $SEQUENCER_ADDR ${TRANSFER_AMOUNT} --keyring-backend test --broadcast-mode sync --fees 1dym -y --node ${HUB_RPC_URL}
 ```
 
-### Generate denommetadata
-
-```shell
-sh scripts/settlement/generate_denom_metadata.sh
-```
-
-### Add genesis accounts
-
-```shell
-sh scripts/settlement/add_genesis_accounts.sh
-```
-
 ### Register rollapp on settlement
 
 ```shell
-# for permissioned deployment setup, you must have access to an account whitelisted for rollapp
-# registration, assuming you want to import an existing account, you can do:
-export HUB_PERMISSIONED_KEY="hub-rollapp-permission" # This key is for creating rollapp in permissioned setup
-echo <memonic> | dymd keys add $HUB_PERMISSIONED_KEY --recover
-# input mnemonic from the account that has the permission to register rollapp
+export HUB_PERMISSIONED_KEY="hub-user"
 
 sh scripts/settlement/register_rollapp_to_hub.sh
 ```
@@ -154,15 +138,8 @@ dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "rollapp_id" -v "$ROLLAPP_
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_idle_time" -v "2s" # may want to change to something longer after setup (see below)
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "max_proof_time" -v "1s"
 dasel put -f "${ROLLAPP_HOME_DIR}"/config/app.toml "minimum-gas-prices" -v "1arax"
+dasel put -f "${ROLLAPP_HOME_DIR}"/config/dymint.toml "batch_submit_time" -v "30s"
 ```
-
-### Update the Genesis file to include the denommetadata, genesis accounts, module account and elevated accounts
-
-```shell
-sh scripts/update_genesis_file.sh
-```
-
-Validate genesis file:
 
 ```shell
 $EXECUTABLE validate-genesis
