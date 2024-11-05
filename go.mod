@@ -359,4 +359,5 @@ replace (
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241104165035-feade34f8f89
+	github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
 )
