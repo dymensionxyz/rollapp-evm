@@ -495,6 +495,10 @@ func NewRollapp(
 		keys[seqtypes.StoreKey],
 		app.GetSubspace(seqtypes.ModuleName),
 		authtypes.NewModuleAddress(seqtypes.ModuleName).String(),
+		app.AccountKeeper,
+		[]seqkeeper.AccountBumpFilterFunc{
+			shouldBumpEvmAccountSequence,
+		},
 	)
 
 	app.TimeUpgradeKeeper = timeupgradekeeper.NewKeeper(
@@ -1147,4 +1151,19 @@ func (app *App) setupUpgradeHandlers() {
 	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storetypes.StoreUpgrades{}))
 	}
+}
+
+var evmAccountName = proto.MessageName(&ethermint.EthAccount{})
+
+func shouldBumpEvmAccountSequence(accountProtoName string, account authtypes.AccountI) (bool, error) {
+	if accountProtoName != evmAccountName {
+		return false, nil
+	}
+
+	evmAccount, ok := account.(*ethermint.EthAccount)
+	if !ok {
+		// this is really unlikely but let's create a nice error.
+		return false, fmt.Errorf("account is not an EVM account, but it has the same proto name: %T", account)
+	}
+	return evmAccount.Type() == ethermint.AccountTypeEOA, nil
 }
