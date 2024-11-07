@@ -567,8 +567,8 @@ github.com/dymensionxyz/dymension-rdk v1.6.2-rc01 h1:g7ZaKGy9tiVsLx9C0aoJTSP38Mn
 github.com/dymensionxyz/dymension-rdk v1.6.2-rc01/go.mod h1:6e1eaeqHhuCyM4N02aweyZ8Ne++lUN+OMGWT/mi3AA8=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56 h1:cmpJYdRviuUfmlJdHrcAND8Jd6JIY4rp63bWAQzPr54=
 github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240411195658-f7cd96f53b56/go.mod h1:3Pfrr8j/BR9ztNKztGfC5PqDiO6CcrzMLCJtFtPEVW4=
-github.com/dymensionxyz/dymint v1.2.0-rc05 h1:Y+BqYRb+uTdbpIZsp3/LDpcVqgvBYRvgzK94xxzyoPw=
-github.com/dymensionxyz/dymint v1.2.0-rc05/go.mod h1:6+KrbrWm/mWnXcYWk59BSjfQQ7nseMaZ/nqPVT82Teg=
+github.com/dymensionxyz/dymint v1.2.0-rc05.0.20241107111242-49ae0d1ea943 h1:UGwphH23HHWgX0UG6/BczxHgfjDq9eXhR7G4W/8j4TA=
+github.com/dymensionxyz/dymint v1.2.0-rc05.0.20241107111242-49ae0d1ea943/go.mod h1:6+KrbrWm/mWnXcYWk59BSjfQQ7nseMaZ/nqPVT82Teg=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2 h1:aVP3off7u2vsvRH7lHAUPTLdf9/AfnzC/rvvi0wC/co=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.4.2/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=
