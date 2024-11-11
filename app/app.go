@@ -857,6 +857,8 @@ func NewRollapp(
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
 		proto.MessageName(new(seqtypes.ConsensusMsgUpsertSequencer)),
+		proto.MessageName(new(seqtypes.MsgBumpAccountSequences)),
+		proto.MessageName(new(seqtypes.MsgUpgradeDRS)),
 	}))
 
 	if loadLatest {
