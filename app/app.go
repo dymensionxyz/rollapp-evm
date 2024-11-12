@@ -489,6 +489,9 @@ func NewRollapp(
 			app.MintKeeper.Hooks(),
 		),
 	)
+	app.RollappParamsKeeper = rollappparamskeeper.NewKeeper(
+		app.GetSubspace(rollappparamstypes.ModuleName),
+	)
 
 	app.SequencersKeeper = *seqkeeper.NewKeeper(
 		appCodec,
@@ -510,9 +513,6 @@ func NewRollapp(
 	// ... other modules keepers
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	app.RollappParamsKeeper = rollappparamskeeper.NewKeeper(
-		app.GetSubspace(rollappparamstypes.ModuleName),
-	)
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
