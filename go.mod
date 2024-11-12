@@ -11,7 +11,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241104174622-ef99c12f13b4
-	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241110184928-ed72d9b5c6dd
+	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241112141435-3c33a48d36da
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gogo/protobuf v1.3.3
