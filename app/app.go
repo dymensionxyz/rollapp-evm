@@ -1139,6 +1139,12 @@ func (app *App) setupUpgradeHandlers() {
 		),
 	)
 
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"upgrade-drs-2",
+		v2_2_0_upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.

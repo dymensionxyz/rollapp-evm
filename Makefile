@@ -4,7 +4,7 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-DRS_VERSION = 1
+DRS_VERSION = 2
 
 #ifndef $(CELESTIA_NETWORK)
 #    CELESTIA_NETWORK=mock
