@@ -12,7 +12,7 @@ require (
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20240821081230-b4018b2bac13
 	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241113095051-866ce1a56e9c
-	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241114111900-af24f127b271
+	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241117100019-4ce2d42fc27a
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gogo/protobuf v1.3.3
