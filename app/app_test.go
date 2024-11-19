@@ -4,7 +4,11 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	ethermint "github.com/evmos/evmos/v12/types"
 	"github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/stretchr/testify/require"
@@ -103,4 +107,42 @@ func TestBeginBlocker(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestShouldBumpEvmAccountSequence(t *testing.T) {
+	t.Run("EOA", func(t *testing.T) {
+		// EOA do not have a code hash
+		emptyCodeHash := crypto.Keccak256(nil)
+		acc := &ethermint.EthAccount{
+			CodeHash: common.Bytes2Hex(emptyCodeHash),
+		}
+
+		shouldBump, err := shouldBumpEvmAccountSequence(evmAccountName, acc)
+		require.NoError(t, err)
+		require.True(t, shouldBump)
+	})
+
+	t.Run("smart contract", func(t *testing.T) {
+		someCodeHash := crypto.Keccak256([]byte("some code"))
+		acc := &ethermint.EthAccount{
+			CodeHash: common.Bytes2Hex(someCodeHash),
+		}
+		shouldBump, err := shouldBumpEvmAccountSequence(evmAccountName, acc)
+		require.NoError(t, err)
+		require.False(t, shouldBump)
+	})
+
+	t.Run("not EVM account", func(t *testing.T) {
+		acc := &authtypes.BaseAccount{}
+		shouldBump, err := shouldBumpEvmAccountSequence("not evm", acc)
+		require.NoError(t, err)
+		require.False(t, shouldBump)
+	})
+
+	t.Run("conflict in EVM account", func(t *testing.T) {
+		acc := &authtypes.BaseAccount{}
+		shouldBump, err := shouldBumpEvmAccountSequence(evmAccountName, acc)
+		require.ErrorContains(t, err, "same proto name")
+		require.False(t, shouldBump)
+	})
 }

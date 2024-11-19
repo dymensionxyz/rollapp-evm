@@ -489,12 +489,21 @@ func NewRollapp(
 			app.MintKeeper.Hooks(),
 		),
 	)
+	app.RollappParamsKeeper = rollappparamskeeper.NewKeeper(
+		app.GetSubspace(rollappparamstypes.ModuleName),
+	)
 
 	app.SequencersKeeper = *seqkeeper.NewKeeper(
 		appCodec,
 		keys[seqtypes.StoreKey],
 		app.GetSubspace(seqtypes.ModuleName),
 		authtypes.NewModuleAddress(seqtypes.ModuleName).String(),
+		app.AccountKeeper,
+		app.RollappParamsKeeper,
+		app.UpgradeKeeper,
+		[]seqkeeper.AccountBumpFilterFunc{
+			shouldBumpEvmAccountSequence,
+		},
 	)
 
 	app.TimeUpgradeKeeper = timeupgradekeeper.NewKeeper(
@@ -504,9 +513,6 @@ func NewRollapp(
 	// ... other modules keepers
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
-	app.RollappParamsKeeper = rollappparamskeeper.NewKeeper(
-		app.GetSubspace(rollappparamstypes.ModuleName),
-	)
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -851,6 +857,8 @@ func NewRollapp(
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
 		proto.MessageName(new(seqtypes.ConsensusMsgUpsertSequencer)),
+		proto.MessageName(new(seqtypes.MsgBumpAccountSequences)),
+		proto.MessageName(new(seqtypes.MsgUpgradeDRS)),
 	}))
 
 	if loadLatest {
@@ -1147,4 +1155,19 @@ func (app *App) setupUpgradeHandlers() {
 	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storetypes.StoreUpgrades{}))
 	}
+}
+
+var evmAccountName = proto.MessageName(&ethermint.EthAccount{})
+
+func shouldBumpEvmAccountSequence(accountProtoName string, account authtypes.AccountI) (bool, error) {
+	if accountProtoName != evmAccountName {
+		return false, nil
+	}
+
+	evmAccount, ok := account.(*ethermint.EthAccount)
+	if !ok {
+		// this is really unlikely but let's create a nice error.
+		return false, fmt.Errorf("account is not an EVM account, but it has the same proto name: %T", account)
+	}
+	return evmAccount.Type() == ethermint.AccountTypeEOA, nil
 }
