@@ -79,8 +79,8 @@ update_genesis_params() {
 
   dasel put -f "$GENESIS_FILE" '.app_state.gov.voting_params.voting_period' -v "300s" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.gov.tally_params.threshold' -v "0.490000000000000000" || success=false
-  dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
-  dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1209600s" || success=false # 2 weeks
+  dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1814400s" || success=false # 2 weeks
+  dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1814400s" || success=false # 2 weeks
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
