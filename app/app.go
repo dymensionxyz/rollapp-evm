@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/dymensionxyz/rollapp-evm/x/cpc"
 	"io"
 	"net/http"
 	"os"
@@ -653,6 +654,10 @@ func NewRollapp(
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	app.IBCKeeper.SetRouter(ibcRouter)
+
+	/**** Register custom precompiled contract using keepers ****/
+	const enablePrecompilesAtVersion = 0 // future precompiles should be enabled at a higher version and x/evm module params should be updated, the goal is to avoid breaking state when replay blocks
+	evmkeeper.RegisterCustomPrecompiledContract(cpc.NewPreFeedCustomPrecompiledContract(app.EvmKeeper), enablePrecompilesAtVersion)
 
 	/**** Module Options ****/
 
