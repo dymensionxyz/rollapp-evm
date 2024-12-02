@@ -936,7 +936,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 	// Everything needed for the genesis bridge data should be set during the InitGenesis call,
 	// so we query it after and return it in InitChainResponse.
-	genesisBridgeData, _, err := app.HubGenesisKeeper.PrepareGenesisBridgeData(ctx)
+	genesisBridgeData, err := app.HubGenesisKeeper.PrepareGenesisBridgeData(ctx)
 	if err != nil {
 		panic(fmt.Errorf("failed to prepare genesis bridge data on InitChain: %w", err))
 	}
