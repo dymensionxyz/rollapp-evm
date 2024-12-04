@@ -916,7 +916,7 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to unmarshal genesis state on InitChain: %w", err))
 	}
 
 	genesisInfo := app.HubGenesisKeeper.GetGenesisInfo(ctx)
@@ -933,6 +933,18 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+
+	// Everything needed for the genesis bridge data should be set during the InitGenesis call,
+	// so we query it after and return it in InitChainResponse.
+	genesisBridgeData, err := app.HubGenesisKeeper.PrepareGenesisBridgeData(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to prepare genesis bridge data on InitChain: %w", err))
+	}
+	bz, err := tmjson.Marshal(genesisBridgeData)
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal genesis bridge data on InitChain: %w", err))
+	}
+	res.GenesisBridgeDataBytes = bz
 
 	return res
 }
