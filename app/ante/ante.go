@@ -41,6 +41,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	ibcKeeper *ibckeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	sequencerKeeper seqkeeper.Keeper,
+	feeGrantKeeper authante.FeegrantKeeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                codec,
@@ -48,7 +49,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 		BankKeeper:         bankKeeper,
 		EvmKeeper:          evmKeeper,
 		StakingKeeper:      stakingKeeper,
-		FeegrantKeeper:     nil,
+		FeegrantKeeper:     feeGrantKeeper,
 		DistributionKeeper: distrKeeper,
 		IBCKeeper:          ibcKeeper,
 		FeeMarketKeeper:    feeMarketKeeper,
@@ -104,6 +105,9 @@ func (o HandlerOptions) validate() error {
 	}
 	if o.StakingKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "staking keeper missing")
+	}
+	if o.FeegrantKeeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "feegrant keeper missing")
 	}
 
 	/*
