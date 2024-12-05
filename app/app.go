@@ -813,6 +813,7 @@ func NewRollapp(
 		app.IBCKeeper,
 		app.DistrKeeper,
 		app.SequencersKeeper,
+		app.FeeGrantKeeper,
 	)
 	app.SetAnteHandler(h)
 	app.setPostHandler()
