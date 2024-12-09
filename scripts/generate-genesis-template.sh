@@ -41,6 +41,8 @@ update_params() {
   dasel put -f "$GENESIS_FILE" '.app_state.feemarket.params.min_gas_price' -v "1000000000.0" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.auth.accounts' -t json -r json -v '[]' || success=false 
   dasel put -f "$GENESIS_FILE" '.app_state.bank.balances' -t json -r json -v '[]' || success=false 
+  dasel put -f "$TEMP_GENESIS" 'app_state.rollappparams.params.drs_version' -v "$DRS" -t int || success=false
+  dasel put -f "$TEMP_GENESIS" 'app_state.rollappparams.params.da' -v "celestia" || success=false
   
 
 # Update jq command to use temp file
