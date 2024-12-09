@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2024-12-09T07:53:58.289783Z",
+  "genesis_time": "2024-12-09T13:50:29.691627Z",
   "chain_id": "rollappevm_1234-1",
   "initial_height": "1",
   "consensus_params": {
@@ -32,6 +32,9 @@
       },
       "accounts": []
     },
+    "authz": {
+      "authorization": []
+    },
     "bank": {
       "params": {
         "send_enabled": [],
@@ -44,28 +47,6 @@
     "capability": {
       "index": "1",
       "owners": []
-    },
-    "claims": {
-      "params": {
-        "enable_claims": false,
-        "airdrop_start_time": "0001-01-01T00:00:00Z",
-        "duration_until_decay": "2629800s",
-        "duration_of_decay": "5259600s",
-        "claims_denom": "aevmos",
-        "authorized_channels": [
-          "channel-0",
-          "channel-3"
-        ],
-        "evm_channels": [
-          "channel-2"
-        ]
-      },
-      "claims_records": []
-    },
-    "denommetadata": {
-      "params": {
-        "allowed_addresses": []
-      }
     },
     "distribution": {
       "params": {
@@ -173,6 +154,9 @@
         "allow_unprotected_txs": false
       }
     },
+    "feegrant": {
+      "allowances": []
+    },
     "feemarket": {
       "params": {
         "no_base_fee": false,
@@ -180,7 +164,7 @@
         "elasticity_multiplier": 2,
         "enable_height": "0",
         "base_fee": "1000000000",
-        "min_gas_price": "1000000000.0",
+        "min_gas_price": "20000000000.000000000000000000",
         "min_gas_multiplier": "0.500000000000000000"
       },
       "block_gas": "0"
@@ -212,12 +196,14 @@
       }
     },
     "hubgenesis": {
-      "params": {
-        "genesis_triggerer_allowlist": []
-      },
+      "params": {},
+      "genesis_accounts": []
+    },
+    "hubs": {
       "state": {
-        "is_locked": false,
-        "genesis_tokens": []
+        "hub": {
+          "registered_denoms": []
+        }
       }
     },
     "ibc": {
@@ -267,12 +253,18 @@
       }
     },
     "params": null,
+    "rollappparams": {
+      "params": {
+        "da": "celestia",
+        "drs_version": 1
+      }
+    },
     "sequencers": {
       "params": {
         "unbonding_time": "1309600s",
         "historical_entries": 10000
       },
-      "genesis_operator_address": ""
+      "sequencers": []
     },
     "staking": {
       "params": {
@@ -291,6 +283,7 @@
       "redelegations": [],
       "exported": false
     },
+    "timeupgrade": null,
     "transfer": {
       "port_id": "transfer",
       "denom_traces": [],
