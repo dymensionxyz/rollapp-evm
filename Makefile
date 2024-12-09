@@ -187,4 +187,11 @@ generate-genesis:
 		echo "Error: 'env' must be either 'mainnet' or 'testnet'"; \
 		exit 1; \
 	fi
+	@echo "Building and installing rollapp-evm..."
+	@$(MAKE) install
+	@echo "Removing existing genesis file..."
+	@rm -f ${HOME}/.rollapp_evm/config/genesis.json
+	@echo "Initializing rollapp-evm..."
+	@rollapp-evm init test
+	@echo "Running genesis template script..."
 	@./scripts/generate-genesis-template.sh $(env) $(DRS_VERSION)
