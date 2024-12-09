@@ -15,8 +15,7 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		da := rpKeeper.DA(ctx)
-		version := rpKeeper.Version(ctx)
-
+		version := uint32(2)
 		params := rollappparamstypes.DefaultParams()
 		params.Da = da
 		params.DrsVersion = version
