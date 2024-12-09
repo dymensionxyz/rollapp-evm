@@ -152,6 +152,7 @@ import (
 	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
 
 	// Upgrade handlers
+	drs2_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-2"
 	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
@@ -1109,6 +1110,14 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		UpgradeName,
 		v2_2_0_upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"upgrade-drs-2",
+		drs2_upgrade.CreateUpgradeHandler(
+			app.RollappParamsKeeper,
 			app.mm, app.configurator,
 		),
 	)
