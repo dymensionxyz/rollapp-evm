@@ -564,6 +564,7 @@ func NewRollapp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.MintKeeper,
+		nil,
 	)
 
 	app.HubKeeper = hubkeeper.NewKeeper(
@@ -610,12 +611,14 @@ func NewRollapp(
 	)
 
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	transferStack = hubgenkeeper.NewIBCModule(
+	gbBridgeMiddleware := hubgenkeeper.NewIBCModule(
 		transferStack,
 		app.HubGenesisKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
 	)
+	app.HubGenesisKeeper.SetICS4Submitter(gbBridgeMiddleware)
+	transferStack = gbBridgeMiddleware
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
