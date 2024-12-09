@@ -173,3 +173,18 @@ release:
 		release --clean --skip=validate
 
 .PHONY: release-dry-run release
+
+# Default DRS_VERSION if not set
+DRS_VERSION ?= default-drs
+
+.PHONY: generate-genesis
+generate-genesis:
+	@if [ -z "$(env)" ]; then \
+		echo "Error: 'env' parameter is required. Use 'make generate-genesis env=mainnet' or 'make generate-genesis env=testnet'"; \
+		exit 1; \
+	fi
+	@if [ "$(env)" != "mainnet" ] && [ "$(env)" != "testnet" ]; then \
+		echo "Error: 'env' must be either 'mainnet' or 'testnet'"; \
+		exit 1; \
+	fi
+	@./scripts/generate-genesis-template.sh $(env) $(DRS_VERSION)
