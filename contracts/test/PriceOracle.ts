@@ -103,13 +103,68 @@ describe("PriceOracle", function () {
         merkleProof: "0x42",
       };
 
+      const expirecPriceWithProof = {
+        price: 1000,
+        proof: expiredPriceProof,
+      };
+
       await expect(
         priceOracle.updatePrice(
           "0x0000000000000000000000000000000000000001",
           "0x0000000000000000000000000000000000000002",
-          expiredPriceProof
+          expirecPriceWithProof,
         )
       ).to.be.revertedWith("PriceOracle: price proof expired");
     });
+
+    it("should reject if update with an older price", async function() {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const block = await hre.ethers.provider.getBlock("latest");
+      const priceProof = {
+        creationHeight: block!.number,
+        creationTimeUnixMs: block!.timestamp * 1000,
+        height: block!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const priceWithProof = {
+        price: 1000,
+        proof: priceProof,
+      };
+
+      await expect(
+          priceOracle.updatePrice(
+              "0x0000000000000000000000000000000000000001",
+              "0x0000000000000000000000000000000000000002",
+              priceWithProof,
+          )
+      ).not.to.be.revertedWith("PriceOracle: price proof expired");
+
+      await hre.ethers.provider.send("evm_mine", []); // move one block
+
+      const olderPriceProof = {
+        creationHeight: block!.number - 1,
+        creationTimeUnixMs: block!.timestamp * 1000 - 60 * 1000, // 1 minute ago
+        height: block!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const olderPriceWithProof = {
+        price: 1000,
+        proof: olderPriceProof,
+      };
+
+      await expect(
+          priceOracle.updatePrice(
+              "0x0000000000000000000000000000000000000001",
+              "0x0000000000000000000000000000000000000002",
+              olderPriceWithProof,
+          )
+      ).to.be.revertedWith("PriceOracle: cannot update with an older price");
+    })
   });
 });

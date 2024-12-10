@@ -14,13 +14,27 @@ contract PriceOracle {
         bytes merkleProof;
     }
 
+    struct PriceWithProof {
+        uint256 price;
+        PriceProof proof;
+    }
+
+    struct PriceWithExpiration {
+        uint256 price;
+        uint256 expiration;
+        bool exists;
+    }
+
     address public owner;
     bool public initialized;
 
     uint256 public expirationOffset;
 
+    mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
+
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event OracleInitialized(address indexed initializer);
+    event PriceUpdated(address indexed base, address indexed quote, uint256 price);
 
     constructor(uint256 _expirationOffset) {
         owner = msg.sender;
@@ -49,11 +63,35 @@ contract PriceOracle {
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 
-    function updatePrice(address base, address quote, PriceProof calldata proof) external onlyOwner {
-        // validate expiration
+    function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
         require(
-            (block.timestamp * 1000) <= (proof.creationTimeUnixMs + (expirationOffset * 1000)),
+            !priceIsExpired(priceWithProof.proof),
             "PriceOracle: price proof expired"
         );
+
+        // check if saved time expiry is bigger than sent price
+        PriceWithExpiration memory cachedPriceWithExpiration = prices_cache[base][quote];
+        if (cachedPriceWithExpiration.exists) {
+            require(
+                cachedPriceWithExpiration.expiration < getProofExpiryDate(priceWithProof.proof),
+                "PriceOracle: cannot update with an older price"
+            );
+        }
+
+        prices_cache[base][quote] = PriceWithExpiration(
+        priceWithProof.price,
+    getProofExpiryDate(priceWithProof.proof),
+        true
+        );
+
+        emit PriceUpdated(base, quote, priceWithProof.price);
+    }
+
+    function priceIsExpired(PriceProof memory proof) public view returns (bool) {
+        return (block.timestamp * 1000) > getProofExpiryDate(proof);
+    }
+
+    function getProofExpiryDate(PriceProof memory proof) public view returns (uint256) {
+        return proof.creationTimeUnixMs + (expirationOffset * 1000);
     }
 }
