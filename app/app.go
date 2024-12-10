@@ -617,7 +617,6 @@ func NewRollapp(
 		transferStack,
 		app.HubGenesisKeeper,
 		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
