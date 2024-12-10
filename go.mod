@@ -360,6 +360,8 @@ replace (
 
 // Dymension Forks
 replace (
+	gitbub.com/dymensionxyz/dymension-rdk => ../dymension-rdk
+	gitbub.com/dymensionxyz/dymint => ../dymint
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73
 	github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
 	github.com/dymensionxyz/dymint => ../dymint
