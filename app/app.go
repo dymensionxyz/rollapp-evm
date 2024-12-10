@@ -870,7 +870,7 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
 	}
 	if drsVersion != app.RollappParamsKeeper.Version(ctx) {
-		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary used:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
+		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
 	}
 
 	return resp
