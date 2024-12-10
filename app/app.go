@@ -566,6 +566,7 @@ func NewRollapp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.MintKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	app.HubKeeper = hubkeeper.NewKeeper(
