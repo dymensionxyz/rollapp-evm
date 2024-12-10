@@ -78,6 +78,7 @@ dymd tx rollapp create-rollapp "$ROLLAPP_CHAIN_ID" "$ROLLAPP_ALIAS" EVM \
   --genesis-checksum "$GENESIS_HASH" \
   --native-denom "$NATIVE_DENOM_PATH" \
   --initial-supply "$INITIAL_SUPPLY" \
+  --min-sequencer-bond 1 \
 	--from "$DEPLOYER" \
 	--keyring-backend test \
   --gas auto --gas-adjustment 1.2 \

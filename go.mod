@@ -365,4 +365,6 @@ replace (
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241128205759-2a9d5f015da5
+	github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
+
 )
