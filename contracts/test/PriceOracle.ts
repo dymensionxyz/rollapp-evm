@@ -11,8 +11,21 @@ describe("PriceOracle", function () {
   async function deployPriceOracleFixture(targetBlockNumber: number = 150) {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
+    const assetInfos = [
+      {
+        localNetworkName: "arax",    // Local token name in rollapp
+        oracleNetworkName: "dym",    // Corresponding token name in oracle
+        localNetworkPrecision: 18    // Decimal precision for the token
+      },
+      {
+        localNetworkName: "usdc",
+        oracleNetworkName: "usdc",
+        localNetworkPrecision: 6
+      }
+    ];
+
     const PriceOracle = await hre.ethers.getContractFactory("PriceOracle");
-    const priceOracle = await PriceOracle.deploy(DEFAULT_PRICE_EXPIRY);
+    const priceOracle = await PriceOracle.deploy(DEFAULT_PRICE_EXPIRY, assetInfos);
 
     // Mine additional blocks to reach the target block number
     const currentBlockNumber = await hre.ethers.provider.getBlockNumber();
@@ -166,5 +179,12 @@ describe("PriceOracle", function () {
           )
       ).to.be.revertedWith("PriceOracle: cannot update with an older price");
     })
+  });
+
+  it("Should correctly map asset info", async function () {
+    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+
+    expect(await priceOracle.localNetworkToOracleNetworkDenoms("arax")).to.equal("dym");
+    expect(await priceOracle.precissionMapping("arax")).to.equal(18);
   });
 });

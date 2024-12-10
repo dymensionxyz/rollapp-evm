@@ -6,6 +6,12 @@ pragma solidity ^0.8.0;
  * @dev Basic price oracle contract structure for rollapp-evm
  */
 contract PriceOracle {
+    struct AssetInfo {
+        string localNetworkName;
+        string oracleNetworkName;
+        int localNetworkPrecision;
+    }
+
     struct PriceProof {
         uint256 creationHeight;
         uint256 creationTimeUnixMs;
@@ -31,14 +37,17 @@ contract PriceOracle {
     uint256 public expirationOffset;
 
     mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
+    mapping(string => int) public precissionMapping;
+    mapping(string => string) public localNetworkToOracleNetworkDenoms;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event OracleInitialized(address indexed initializer);
     event PriceUpdated(address indexed base, address indexed quote, uint256 price);
 
-    constructor(uint256 _expirationOffset) {
+    constructor(uint256 _expirationOffset, AssetInfo[] memory _assetInfos) {
         owner = msg.sender;
         expirationOffset = _expirationOffset;
+        _populateAssetsInfo(_assetInfos);
     }
 
     modifier onlyOwner() {
@@ -65,25 +74,32 @@ contract PriceOracle {
 
     function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
         require(
-            !priceIsExpired(priceWithProof),
+            !_priceIsExpired(priceWithProof),
             "PriceOracle: price proof expired"
         );
 
-        _validatePriceExpiration(base, quote, priceWithProof);
+        _ensureNewPriceIsValid(base, quote, priceWithProof);
         _updatePriceCache(base, quote, priceWithProof);
     }
 
     function _updatePriceCache(address base, address quote, PriceWithProof calldata priceWithProof) internal {
         prices_cache[base][quote] = PriceWithExpiration(
             priceWithProof.price,
-            getProofExpiryDate(priceWithProof.proof),
+            _getProofExpiryDate(priceWithProof.proof),
             true
         );
 
         emit PriceUpdated(base, quote, priceWithProof.price);
     }
 
-    function _validatePriceExpiration(
+    /**
+     * @dev Ensures that the new price's expiration is later than the currently cached price's expiration.
+     * This prevents updating the cache with an outdated price.
+     * @param base The base token address.
+     * @param quote The quote token address.
+     * @param priceWithProof The new price along with its proof.
+     */
+    function _ensureNewPriceIsValid(
         address base,
         address quote,
         PriceWithProof calldata priceWithProof
@@ -91,17 +107,24 @@ contract PriceOracle {
         PriceWithExpiration memory cachedPriceWithExpiration = prices_cache[base][quote];
         if (cachedPriceWithExpiration.exists) {
             require(
-                cachedPriceWithExpiration.expiration < getProofExpiryDate(priceWithProof.proof),
+                cachedPriceWithExpiration.expiration < _getProofExpiryDate(priceWithProof.proof),
                 "PriceOracle: cannot update with an older price"
             );
         }
     }
 
-    function priceIsExpired(PriceWithProof memory price) public view returns (bool) {
-        return (block.timestamp * 1000) > getProofExpiryDate(price.proof);
+    function _priceIsExpired(PriceWithProof memory price) public view returns (bool) {
+        return (block.timestamp * 1000) > _getProofExpiryDate(price.proof);
     }
 
-    function getProofExpiryDate(PriceProof memory proof) public view returns (uint256) {
+    function _getProofExpiryDate(PriceProof memory proof) public view returns (uint256) {
         return proof.creationTimeUnixMs + (expirationOffset * 1000);
+    }
+
+    function _populateAssetsInfo(AssetInfo[] memory _assetInfos) internal {
+        for (uint256 i = 0; i < _assetInfos.length; i++) {
+            precissionMapping[_assetInfos[i].localNetworkName] = _assetInfos[i].localNetworkPrecision;
+            localNetworkToOracleNetworkDenoms[_assetInfos[i].localNetworkName] = _assetInfos[i].oracleNetworkName;
+        }
     }
 }
