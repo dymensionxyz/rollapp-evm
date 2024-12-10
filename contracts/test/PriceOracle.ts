@@ -13,12 +13,12 @@ describe("PriceOracle", function () {
 
     const assetInfos = [
       {
-        localNetworkName: "arax",    // Local token name in rollapp
+        localNetworkName: "0x1234567890123456789012345678901234567890", // Token address
         oracleNetworkName: "dym",    // Corresponding token name in oracle
         localNetworkPrecision: 18    // Decimal precision for the token
       },
       {
-        localNetworkName: "usdc",
+        localNetworkName: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         oracleNetworkName: "usdc",
         localNetworkPrecision: 6
       }
@@ -123,8 +123,8 @@ describe("PriceOracle", function () {
 
       await expect(
         priceOracle.updatePrice(
-          "0x0000000000000000000000000000000000000001",
-          "0x0000000000000000000000000000000000000002",
+          "0x1234567890123456789012345678901234567890",
+          "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
           expirecPriceWithProof,
         )
       ).to.be.revertedWith("PriceOracle: price proof expired");
@@ -150,8 +150,8 @@ describe("PriceOracle", function () {
 
       await expect(
           priceOracle.updatePrice(
-              "0x0000000000000000000000000000000000000001",
-              "0x0000000000000000000000000000000000000002",
+              "0x1234567890123456789012345678901234567890",
+              "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
               priceWithProof,
           )
       ).not.to.be.revertedWith("PriceOracle: price proof expired");
@@ -173,8 +173,8 @@ describe("PriceOracle", function () {
 
       await expect(
           priceOracle.updatePrice(
-              "0x0000000000000000000000000000000000000001",
-              "0x0000000000000000000000000000000000000002",
+              "0x1234567890123456789012345678901234567890",
+              "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
               olderPriceWithProof,
           )
       ).to.be.revertedWith("PriceOracle: cannot update with an older price");
@@ -184,7 +184,67 @@ describe("PriceOracle", function () {
   it("Should correctly map asset info", async function () {
     const { priceOracle } = await loadFixture(deployPriceOracleFixture);
 
-    expect(await priceOracle.localNetworkToOracleNetworkDenoms("arax")).to.equal("dym");
-    expect(await priceOracle.precissionMapping("arax")).to.equal(18);
+    expect(await priceOracle.localNetworkToOracleNetworkDenoms("0x1234567890123456789012345678901234567890")).to.equal("dym");
+    expect(await priceOracle.precissionMapping("0x1234567890123456789012345678901234567890")).to.equal(18);
+  });
+
+  it("Should reject when base token is not registered", async function () {
+    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+    await initializePriceOracle(priceOracle);
+
+    const block = await hre.ethers.provider.getBlock("latest");
+    const priceProof = {
+      creationHeight: block!.number,
+      creationTimeUnixMs: block!.timestamp * 1000,
+      height: block!.number,
+      revision: 1,
+      merkleProof: "0x42",
+    };
+
+    const priceWithProof = {
+      price: 1000,
+      proof: priceProof,
+    };
+
+    // Using an unregistered base token address
+    const unregisteredAddress = "0x9999999999999999999999999999999999999999";
+
+    await expect(
+        priceOracle.updatePrice(
+            unregisteredAddress,
+            "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+            priceWithProof
+        )
+    ).to.be.revertedWith("PriceOracle: base denom not found in local_network_to_oracle_network_denoms");
+  });
+
+  it("Should reject when quote token is not registered", async function () {
+    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+    await initializePriceOracle(priceOracle);
+
+    const block = await hre.ethers.provider.getBlock("latest");
+    const priceProof = {
+      creationHeight: block!.number,
+      creationTimeUnixMs: block!.timestamp * 1000,
+      height: block!.number,
+      revision: 1,
+      merkleProof: "0x42",
+    };
+
+    const priceWithProof = {
+      price: 1000,
+      proof: priceProof,
+    };
+
+    // Using registered base but unregistered quote token address
+    const unregisteredAddress = "0x9999999999999999999999999999999999999999";
+
+    await expect(
+        priceOracle.updatePrice(
+            "0x1234567890123456789012345678901234567890",
+            unregisteredAddress,
+            priceWithProof
+        )
+    ).to.be.revertedWith("PriceOracle: quote denom not found in local_network_to_oracle_network_denoms");
   });
 });

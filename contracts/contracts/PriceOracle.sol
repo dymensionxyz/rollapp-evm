@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
  */
 contract PriceOracle {
     struct AssetInfo {
-        string localNetworkName;
+        address localNetworkName;
         string oracleNetworkName;
         int localNetworkPrecision;
     }
@@ -37,8 +37,8 @@ contract PriceOracle {
     uint256 public expirationOffset;
 
     mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
-    mapping(string => int) public precissionMapping;
-    mapping(string => string) public localNetworkToOracleNetworkDenoms;
+    mapping(address => int) public precissionMapping;
+    mapping(address => string) public localNetworkToOracleNetworkDenoms;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event OracleInitialized(address indexed initializer);
@@ -79,6 +79,9 @@ contract PriceOracle {
         );
 
         _ensureNewPriceIsValid(base, quote, priceWithProof);
+
+        _verifyPriceProof(base, quote, priceWithProof);
+
         _updatePriceCache(base, quote, priceWithProof);
     }
 
@@ -113,11 +116,11 @@ contract PriceOracle {
         }
     }
 
-    function _priceIsExpired(PriceWithProof memory price) public view returns (bool) {
+    function _priceIsExpired(PriceWithProof memory price) internal view returns (bool) {
         return (block.timestamp * 1000) > _getProofExpiryDate(price.proof);
     }
 
-    function _getProofExpiryDate(PriceProof memory proof) public view returns (uint256) {
+    function _getProofExpiryDate(PriceProof memory proof) internal view returns (uint256) {
         return proof.creationTimeUnixMs + (expirationOffset * 1000);
     }
 
@@ -126,5 +129,22 @@ contract PriceOracle {
             precissionMapping[_assetInfos[i].localNetworkName] = _assetInfos[i].localNetworkPrecision;
             localNetworkToOracleNetworkDenoms[_assetInfos[i].localNetworkName] = _assetInfos[i].oracleNetworkName;
         }
+    }
+
+    function _verifyPriceProof(
+        address base,
+        address quote,
+        PriceWithProof calldata priceWithProof
+    ) internal view {
+        require(
+            bytes(localNetworkToOracleNetworkDenoms[base]).length > 0,
+            "PriceOracle: base denom not found in local_network_to_oracle_network_denoms"
+        );
+
+        // Check if quote exists in mapping
+        require(
+            bytes(localNetworkToOracleNetworkDenoms[quote]).length > 0,
+            "PriceOracle: quote denom not found in local_network_to_oracle_network_denoms"
+        );
     }
 }
