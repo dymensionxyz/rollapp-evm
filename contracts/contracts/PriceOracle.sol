@@ -65,11 +65,29 @@ contract PriceOracle {
 
     function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
         require(
-            !priceIsExpired(priceWithProof.proof),
+            !priceIsExpired(priceWithProof),
             "PriceOracle: price proof expired"
         );
 
-        // check if saved time expiry is bigger than sent price
+        _validatePriceExpiration(base, quote, priceWithProof);
+        _updatePriceCache(base, quote, priceWithProof);
+    }
+
+    function _updatePriceCache(address base, address quote, PriceWithProof calldata priceWithProof) internal {
+        prices_cache[base][quote] = PriceWithExpiration(
+            priceWithProof.price,
+            getProofExpiryDate(priceWithProof.proof),
+            true
+        );
+
+        emit PriceUpdated(base, quote, priceWithProof.price);
+    }
+
+    function _validatePriceExpiration(
+        address base,
+        address quote,
+        PriceWithProof calldata priceWithProof
+    ) internal view {
         PriceWithExpiration memory cachedPriceWithExpiration = prices_cache[base][quote];
         if (cachedPriceWithExpiration.exists) {
             require(
@@ -77,18 +95,10 @@ contract PriceOracle {
                 "PriceOracle: cannot update with an older price"
             );
         }
-
-        prices_cache[base][quote] = PriceWithExpiration(
-        priceWithProof.price,
-    getProofExpiryDate(priceWithProof.proof),
-        true
-        );
-
-        emit PriceUpdated(base, quote, priceWithProof.price);
     }
 
-    function priceIsExpired(PriceProof memory proof) public view returns (bool) {
-        return (block.timestamp * 1000) > getProofExpiryDate(proof);
+    function priceIsExpired(PriceWithProof memory price) public view returns (bool) {
+        return (block.timestamp * 1000) > getProofExpiryDate(price.proof);
     }
 
     function getProofExpiryDate(PriceProof memory proof) public view returns (uint256) {
