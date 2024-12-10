@@ -158,6 +158,8 @@ import (
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+
+	dymintversion "github.com/dymensionxyz/dymint/version"
 )
 
 const (
@@ -862,6 +864,14 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 
 	resp := app.mm.BeginBlock(ctx, req)
 	resp.ConsensusMessagesResponses = consensusResponses
+
+	drsVersion, err := dymintversion.GetDRSVersion()
+	if err != nil {
+		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
+	}
+	if drsVersion != app.RollappParamsKeeper.Version(ctx) {
+		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary used:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
+	}
 
 	return resp
 }
