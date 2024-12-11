@@ -567,6 +567,7 @@ func NewRollapp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.MintKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	app.HubKeeper = hubkeeper.NewKeeper(
@@ -617,7 +618,6 @@ func NewRollapp(
 		transferStack,
 		app.HubGenesisKeeper,
 		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -872,7 +872,6 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 	if drsVersion != app.RollappParamsKeeper.Version(ctx) {
 		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
 	}
-
 	return resp
 }
 
