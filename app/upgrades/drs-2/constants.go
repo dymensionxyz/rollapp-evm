@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	UpgradeName = "upgrade-drs-2"
+	UpgradeName = "drs-2"
 )
 
 var Upgrade = upgrades.Upgrade{
