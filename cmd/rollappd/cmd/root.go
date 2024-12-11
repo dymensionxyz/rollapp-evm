@@ -156,7 +156,12 @@ func initRootCmd(
 ) {
 	// Set config
 	sdkconfig := sdk.GetConfig()
-	rdk_utils.SetPrefixes(sdkconfig, app.AccountAddressPrefix)
+	// Add ability to override bech32 prefix from env variable
+	prefix := os.Getenv("OVERRIDE_BECH_32")
+	if prefix == "" {
+		prefix = app.AccountAddressPrefix
+	}
+	rdk_utils.SetPrefixes(sdkconfig, prefix)
 	utils.SetBip44CoinType(sdkconfig)
 	sdkconfig.Seal()
 
