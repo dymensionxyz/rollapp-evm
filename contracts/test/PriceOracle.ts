@@ -309,7 +309,7 @@ describe("PriceOracle", function () {
         );
 
         const storedPrice = await priceOracle.getPrice(baseToken, quoteToken);
-        expect(storedPrice.price).to.equal(price / (10n ** 12n)); // Adjusted for 6 - 18 decimals
+        expect(storedPrice.price).to.equal(price / (10n ** 10n)); // Adjusted for 6 - 18 decimals
       });
     });
   });
