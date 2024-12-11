@@ -12,7 +12,7 @@ require (
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd
 	github.com/dymensionxyz/dymension-rdk v1.6.1-0.20241210201220-3d910ef66fc5
-	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241208124948-7de4e892a304
+	github.com/dymensionxyz/dymint v1.2.0-rc01.0.20241210155059-b7f6555f960c
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gogo/protobuf v1.3.3
@@ -361,8 +361,6 @@ replace (
 // Dymension Forks
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73
-	github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
-	github.com/dymensionxyz/dymint => ../dymint
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20241208173623-b6e9de0ad896
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
