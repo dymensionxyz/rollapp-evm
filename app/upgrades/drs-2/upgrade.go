@@ -1,4 +1,4 @@
-package v2_2_0
+package drs2
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
