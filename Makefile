@@ -76,6 +76,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(NAME)\
 		  -X github.com/dymensionxyz/dymint/version.DRS=$(DRS_VERSION)
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)' -p $(shell nproc)
+BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)' -j $(shell nproc)
 
 ###########
 # Install #
@@ -98,6 +99,10 @@ build: go.sum ## Compiles the rollapd binary
 # build-controlled-env is intended to use in environments that do not require dependency validation
 # like pre-built docker images
 .PHONY build-controlled-env: go.sum ## Compiles the rollapd binary
+	@export GOCACHE=$(HOME)/.cache/go-build
+	@export GOMODCACHE=$(HOME)/go/pkg/mod
+	@echo "--> Ensure dependencies have not been modified"
+	@go mod verify
 	@echo "--> building rollapp-evm"
 	@go build  -o build/rollapp-evm $(BUILD_FLAGS) ./cmd/rollappd
 
