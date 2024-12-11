@@ -6,6 +6,8 @@ describe("PriceOracle", function () {
   // Reusable Constants
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
   const DEFAULT_PRICE_EXPIRY = 3600; // 1 hour
+  const BTC_ERC20_ADDRESS = "0x1234567890123456789012345678901234567890";
+  const USDC_ERC20_ADDRESS = "0x2170Ed0880ac9A755fd29B2688956BD959F933F8";
 
   // Fixture to reuse the same setup in every test
   async function deployPriceOracleFixture(targetBlockNumber: number = 150) {
@@ -13,14 +15,14 @@ describe("PriceOracle", function () {
 
     const assetInfos = [
       {
-        localNetworkName: "0x1234567890123456789012345678901234567890", // Token address
-        oracleNetworkName: "dym",    // Corresponding token name in oracle
-        localNetworkPrecision: 18    // Decimal precision for the token
+        localNetworkName: BTC_ERC20_ADDRESS, // Token address
+        oracleNetworkName: "btc",    // Corresponding token name in oracle
+        localNetworkPrecision: 8    // Decimal precision for the token
       },
       {
-        localNetworkName: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+        localNetworkName: USDC_ERC20_ADDRESS,
         oracleNetworkName: "usdc",
-        localNetworkPrecision: 6
+        localNetworkPrecision: 18
       }
     ];
 
@@ -58,6 +60,15 @@ describe("PriceOracle", function () {
   });
 
   describe("Initialization", function () {
+    it("Should correctly map asset info", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+
+      expect(await priceOracle.localNetworkToOracleNetworkDenoms(BTC_ERC20_ADDRESS)).to.equal("btc");
+      expect(await priceOracle.precissionMapping(BTC_ERC20_ADDRESS)).to.equal(8);
+      expect(await priceOracle.localNetworkToOracleNetworkDenoms(USDC_ERC20_ADDRESS)).to.equal("usdc");
+      expect(await priceOracle.precissionMapping(USDC_ERC20_ADDRESS)).to.equal(18);
+    });
+
     it("Should initialize successfully by the owner", async function () {
       const { priceOracle, owner } = await loadFixture(deployPriceOracleFixture);
       await expect(priceOracle.connect(owner).initialize())
@@ -123,8 +134,8 @@ describe("PriceOracle", function () {
 
       await expect(
         priceOracle.updatePrice(
-          "0x1234567890123456789012345678901234567890",
-          "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+          BTC_ERC20_ADDRESS,
+          USDC_ERC20_ADDRESS,
           expirecPriceWithProof,
         )
       ).to.be.revertedWith("PriceOracle: price proof expired");
@@ -150,7 +161,7 @@ describe("PriceOracle", function () {
 
       await expect(
           priceOracle.updatePrice(
-              "0x1234567890123456789012345678901234567890",
+              BTC_ERC20_ADDRESS,
               "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
               priceWithProof,
           )
@@ -173,78 +184,134 @@ describe("PriceOracle", function () {
 
       await expect(
           priceOracle.updatePrice(
-              "0x1234567890123456789012345678901234567890",
+              BTC_ERC20_ADDRESS,
               "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
               olderPriceWithProof,
           )
       ).to.be.revertedWith("PriceOracle: cannot update with an older price");
     })
+
+    it("Should reject when base token is not registered", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const block = await hre.ethers.provider.getBlock("latest");
+      const priceProof = {
+        creationHeight: block!.number,
+        creationTimeUnixMs: block!.timestamp * 1000,
+        height: block!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const priceWithProof = {
+        price: 1000,
+        proof: priceProof,
+      };
+
+      // Using an unregistered base token address
+      const unregisteredAddress = "0x9999999999999999999999999999999999999999";
+
+      await expect(
+          priceOracle.updatePrice(
+              unregisteredAddress,
+              USDC_ERC20_ADDRESS,
+              priceWithProof
+          )
+      ).to.be.revertedWith("PriceOracle: base denom not found in local_network_to_oracle_network_denoms");
+    });
+
+    it("Should reject when quote token is not registered", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const block = await hre.ethers.provider.getBlock("latest");
+      const priceProof = {
+        creationHeight: block!.number,
+        creationTimeUnixMs: block!.timestamp * 1000,
+        height: block!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const priceWithProof = {
+        price: 1000,
+        proof: priceProof,
+      };
+
+      // Using registered base but unregistered quote token address
+      const unregisteredAddress = "0x9999999999999999999999999999999999999999";
+
+      await expect(
+          priceOracle.updatePrice(
+              BTC_ERC20_ADDRESS,
+              unregisteredAddress,
+              priceWithProof
+          )
+      ).to.be.revertedWith("PriceOracle: quote denom not found in local_network_to_oracle_network_denoms");
+    });
+
+    describe("Price Precision Adjustment", function () {
+      it("Should correctly adjust price when quote precision > base precision", async function () {
+        const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+        await initializePriceOracle(priceOracle);
+
+        const block = await hre.ethers.provider.getBlock("latest");
+        const priceProof = {
+          creationHeight: block!.number,
+          creationTimeUnixMs: block!.timestamp * 1000,
+          height: block!.number,
+          revision: 1,
+          merkleProof: "0x42",
+        };
+
+        const baseToken = BTC_ERC20_ADDRESS; // 8 decimals
+        const quoteToken = USDC_ERC20_ADDRESS; // 18 decimals
+        const price = 1000n;
+
+        await priceOracle.updatePrice(
+            baseToken,
+            quoteToken,
+            {
+              price: price,
+              proof: priceProof,
+            }
+        );
+
+        const storedPrice = await priceOracle.getPrice(baseToken, quoteToken);
+        expect(storedPrice.price).to.equal(price * (10n ** 10n)); // Adjusted for 18 - 6 decimals
+      });
+
+      it("Should correctly adjust price when quote precision < base precision", async function () {
+        const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+        await initializePriceOracle(priceOracle);
+
+        const block = await hre.ethers.provider.getBlock("latest");
+        const priceProof = {
+          creationHeight: block!.number,
+          creationTimeUnixMs: block!.timestamp * 1000,
+          height: block!.number,
+          revision: 1,
+          merkleProof: "0x42",
+        };
+
+        const baseToken = USDC_ERC20_ADDRESS; // 18 decimals
+        const quoteToken = BTC_ERC20_ADDRESS; // 8 decimals
+        const price = 1000n;
+
+        await priceOracle.updatePrice(
+            baseToken,
+            quoteToken,
+            {
+              price: price,
+              proof: priceProof,
+            }
+        );
+
+        const storedPrice = await priceOracle.getPrice(baseToken, quoteToken);
+        expect(storedPrice.price).to.equal(price / (10n ** 12n)); // Adjusted for 6 - 18 decimals
+      });
+    });
   });
 
-  it("Should correctly map asset info", async function () {
-    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
-
-    expect(await priceOracle.localNetworkToOracleNetworkDenoms("0x1234567890123456789012345678901234567890")).to.equal("dym");
-    expect(await priceOracle.precissionMapping("0x1234567890123456789012345678901234567890")).to.equal(18);
-  });
-
-  it("Should reject when base token is not registered", async function () {
-    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
-    await initializePriceOracle(priceOracle);
-
-    const block = await hre.ethers.provider.getBlock("latest");
-    const priceProof = {
-      creationHeight: block!.number,
-      creationTimeUnixMs: block!.timestamp * 1000,
-      height: block!.number,
-      revision: 1,
-      merkleProof: "0x42",
-    };
-
-    const priceWithProof = {
-      price: 1000,
-      proof: priceProof,
-    };
-
-    // Using an unregistered base token address
-    const unregisteredAddress = "0x9999999999999999999999999999999999999999";
-
-    await expect(
-        priceOracle.updatePrice(
-            unregisteredAddress,
-            "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-            priceWithProof
-        )
-    ).to.be.revertedWith("PriceOracle: base denom not found in local_network_to_oracle_network_denoms");
-  });
-
-  it("Should reject when quote token is not registered", async function () {
-    const { priceOracle } = await loadFixture(deployPriceOracleFixture);
-    await initializePriceOracle(priceOracle);
-
-    const block = await hre.ethers.provider.getBlock("latest");
-    const priceProof = {
-      creationHeight: block!.number,
-      creationTimeUnixMs: block!.timestamp * 1000,
-      height: block!.number,
-      revision: 1,
-      merkleProof: "0x42",
-    };
-
-    const priceWithProof = {
-      price: 1000,
-      proof: priceProof,
-    };
-
-    // Using registered base but unregistered quote token address
-    const unregisteredAddress = "0x9999999999999999999999999999999999999999";
-
-    await expect(
-        priceOracle.updatePrice(
-            "0x1234567890123456789012345678901234567890",
-            unregisteredAddress,
-            priceWithProof
-        )
-    ).to.be.revertedWith("PriceOracle: quote denom not found in local_network_to_oracle_network_denoms");
-  });
 });

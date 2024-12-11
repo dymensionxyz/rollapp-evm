@@ -9,7 +9,7 @@ contract PriceOracle {
     struct AssetInfo {
         address localNetworkName;
         string oracleNetworkName;
-        int localNetworkPrecision;
+        uint256 localNetworkPrecision;
     }
 
     struct PriceProof {
@@ -37,7 +37,7 @@ contract PriceOracle {
     uint256 public expirationOffset;
 
     mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
-    mapping(address => int) public precissionMapping;
+    mapping(address => uint256) public precissionMapping;
     mapping(address => string) public localNetworkToOracleNetworkDenoms;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -72,6 +72,15 @@ contract PriceOracle {
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 
+    function getPrice(address base, address quote) external view returns (PriceWithExpiration memory) {
+        PriceWithExpiration memory priceWithExpiration = prices_cache[base][quote];
+
+        require(priceWithExpiration.exists, "PriceOracle: price not found");
+        require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
+
+        return priceWithExpiration;
+    }
+
     function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
         require(
             !_priceIsExpired(priceWithProof),
@@ -86,13 +95,33 @@ contract PriceOracle {
     }
 
     function _updatePriceCache(address base, address quote, PriceWithProof calldata priceWithProof) internal {
+        uint256 price = _precissionAdjustedPrice(base, quote, priceWithProof.price);
+
         prices_cache[base][quote] = PriceWithExpiration(
-            priceWithProof.price,
+            price,
             _getProofExpiryDate(priceWithProof.proof),
             true
         );
 
         emit PriceUpdated(base, quote, priceWithProof.price);
+    }
+
+    function _precissionAdjustedPrice(address base, address quote, uint256 price) internal view returns (uint256) {
+        uint256 basePrecision = precissionMapping[base];
+        uint256 quotePrecision = precissionMapping[quote];
+
+        require(basePrecision != 0 || quotePrecision != 0, "PriceOracle: precision not set for tokens");
+
+        if (quotePrecision >= basePrecision) {
+            uint256 exponent = quotePrecision - basePrecision;
+            return price * (10 ** exponent);
+        } else {
+            uint256 exponent = basePrecision - quotePrecision;
+
+            // To prevent division by zero, ensure exponent is within a safe range
+            require(exponent <= 77, "PriceOracle: exponent too large"); // 10^77 is ~1e77, safe for uint256
+            return price / (10 ** exponent);
+        }
     }
 
     /**
@@ -141,7 +170,6 @@ contract PriceOracle {
             "PriceOracle: base denom not found in local_network_to_oracle_network_denoms"
         );
 
-        // Check if quote exists in mapping
         require(
             bytes(localNetworkToOracleNetworkDenoms[quote]).length > 0,
             "PriceOracle: quote denom not found in local_network_to_oracle_network_denoms"
