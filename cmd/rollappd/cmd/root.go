@@ -157,7 +157,7 @@ func initRootCmd(
 	// Set config
 	sdkconfig := sdk.GetConfig()
 	// Add ability to override bech32 prefix from env variable
-	prefix := os.Getenv("OVERRIDE_BECH_32")
+	prefix := os.Getenv("OVERRIDE_BECH32")
 	if prefix == "" {
 		prefix = app.AccountAddressPrefix
 	}
