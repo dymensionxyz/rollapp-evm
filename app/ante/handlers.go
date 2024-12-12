@@ -28,7 +28,7 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		evmante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
 		evmante.NewCanTransferDecorator(options.EvmKeeper),
 		// we intentionally omit the eth vesting transaction decorator
-		evmante.NewEthGasConsumeDecorator(options.BankKeeper, options.DistributionKeeper, options.EvmKeeper, options.StakingKeeper, options.MaxTxGasWanted),
+		evmante.NewEthGasConsumeDecorator(options.AccountKeeper, options.BankKeeper, options.ERC20Keeper, options.DistributionKeeper, options.EvmKeeper, options.StakingKeeper, options.MaxTxGasWanted),
 		evmante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 		// emit eth tx hash and index at the very last ante handler.
@@ -79,7 +79,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		rdkante.NewBypassIBCFeeDecorator(
-			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
+			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.ERC20Keeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
 			options.DistrKeeper,
 			options.SequencersKeeper,
 		),
