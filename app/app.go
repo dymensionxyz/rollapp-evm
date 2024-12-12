@@ -131,7 +131,6 @@ import (
 
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	ethermint "github.com/evmos/evmos/v12/types"
-	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
 	"github.com/evmos/evmos/v12/x/erc20"
 	erc20client "github.com/evmos/evmos/v12/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v12/x/erc20/keeper"
@@ -152,13 +151,15 @@ import (
 	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
 
 	// Upgrade handlers
-	v2_2_0_upgrade "github.com/dymensionxyz/rollapp-evm/app/upgrades/v2.2.0"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 
 	dymintversion "github.com/dymensionxyz/dymint/version"
+
+	"github.com/dymensionxyz/rollapp-evm/app/upgrades"
+	drs2 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-2"
 )
 
 const (
@@ -183,6 +184,8 @@ var (
 		feemarkettypes.StoreKey,
 		erc20types.StoreKey,
 	}
+	// Upgrades contains the upgrade handlers for the application
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -1113,39 +1116,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	return paramsKeeper
 }
 
-func (app *App) setupUpgradeHandlers() {
-	UpgradeName := "v2.2.0"
-
-	app.UpgradeKeeper.SetUpgradeHandler(
-		UpgradeName,
-		v2_2_0_upgrade.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// When a planned update height is reached, the old binary will panic
-	// writing on disk the height and name of the update that triggered it
-	// This will read that value, and execute the preparations for the upgrade.
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-	if err != nil {
-		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
-	}
-
-	// Pre upgrade handler
-	switch upgradeInfo.Name {
-	// do nothing
-	}
-
-	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-
-		storeUpgrades := storetypes.StoreUpgrades{
-			Deleted: []string{claimstypes.ModuleName},
-		}
-
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
-	}
-}
-
 var evmAccountName = proto.MessageName(&ethermint.EthAccount{})
 
 func shouldBumpEvmAccountSequence(accountProtoName string, account authtypes.AccountI) (bool, error) {
@@ -1159,4 +1129,32 @@ func shouldBumpEvmAccountSequence(accountProtoName string, account authtypes.Acc
 		return false, fmt.Errorf("account is not an EVM account, but it has the same proto name: %T", account)
 	}
 	return evmAccount.Type() == ethermint.AccountTypeEOA, nil
+}
+
+func (app *App) setupUpgradeHandlers() {
+	for _, u := range Upgrades {
+		app.setupUpgradeHandler(u)
+	}
+}
+
+func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgrade.Name,
+		upgrade.CreateHandler(
+			app.RollappParamsKeeper,
+			app.EvmKeeper,
+			app.mm,
+			app.configurator,
+		),
+	)
+
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if upgradeInfo.Name == upgrade.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		// configure store loader with the store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
+	}
 }
