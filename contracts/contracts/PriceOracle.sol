@@ -126,20 +126,37 @@ contract PriceOracle {
     }
 
     function _precisionAdjustedPrice(address base, address quote, uint256 price) internal view returns (uint256) {
-        uint256 basePrecision = precisionMapping[base];
-        uint256 quotePrecision = precisionMapping[quote];
+        uint256 basePrecision = precisionMapping[base];   // e.g., BTC might have 8 decimals
+        uint256 quotePrecision = precisionMapping[quote]; // e.g., USDC might have 18 decimals
 
         require(basePrecision != 0 && quotePrecision != 0, "PriceOracle: precision not set for tokens");
 
+        // The goal is to normalize the price to the SCALE_FACTOR (10^18).
+        // Consider 1 BTC = 50,000 USDC.
+        // - BTC (8 decimals): 1 BTC internally could be 1 * 10^8 units.
+        // - USDC (18 decimals): 50,000 USDC = 50,000 * 10^18 units.
+        //
+        // Without scaling, mixing these different decimal systems would be complex.
+        // By scaling everything to a common factor (10^18), we ensure consistent internal representation.
+        // This makes calculations simpler and less error-prone, as all prices are handled at the same magnitude.
+
         if (quotePrecision > basePrecision) {
+            // In this case, if quotePrecision is greater (e.g., 18 for USDC) than basePrecision (e.g., 8 for BTC),
+            // we need to "increase" the scale of the price to match the higher precision.
+            // For BTC (8 decimals) vs. USDC (18 decimals), the difference is 10.
+            // We multiply the base price by 10^(18 - 8) = 10^10 to scale it appropriately.
             uint256 exponent = quotePrecision - basePrecision;
             require(price <= (type(uint256).max / SCALE_FACTOR) / (10 ** exponent), "PriceOracle: price too large");
             return (price * SCALE_FACTOR) * (10 ** exponent);
         } else if (basePrecision > quotePrecision) {
+            // If the base token has more decimals than the quote token,
+            // we would reduce the scale accordingly. This is not the case in our BTC/USDC example,
+            // but this branch handles other scenarios.
             uint256 exponent = basePrecision - quotePrecision;
-            require(exponent <= 77, "PriceOracle: exponent too large"); // Mantener dentro del rango seguro
+            require(exponent <= 77, "PriceOracle: exponent too large");
             return (price * SCALE_FACTOR) / (10 ** exponent);
         } else {
+            // If both have the same precision, simply multiply by 10^18.
             return price * SCALE_FACTOR;
         }
     }

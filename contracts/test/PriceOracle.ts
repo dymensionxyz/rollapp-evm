@@ -66,9 +66,9 @@ describe("PriceOracle", function () {
       const { priceOracle } = await loadFixture(deployPriceOracleFixture);
 
       expect(await priceOracle.localNetworkToOracleNetworkDenoms(BTC_ERC20_ADDRESS)).to.equal("btc");
-      expect(await priceOracle.precissionMapping(BTC_ERC20_ADDRESS)).to.equal(8);
+      expect(await priceOracle.precisionMapping(BTC_ERC20_ADDRESS)).to.equal(8);
       expect(await priceOracle.localNetworkToOracleNetworkDenoms(USDC_ERC20_ADDRESS)).to.equal("usdc");
-      expect(await priceOracle.precissionMapping(USDC_ERC20_ADDRESS)).to.equal(18);
+      expect(await priceOracle.precisionMapping(USDC_ERC20_ADDRESS)).to.equal(18);
     });
 
     it("Should initialize successfully by the owner", async function () {
