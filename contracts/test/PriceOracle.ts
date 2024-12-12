@@ -9,6 +9,8 @@ describe("PriceOracle", function () {
   const BTC_ERC20_ADDRESS = "0x1234567890123456789012345678901234567890";
   const USDC_ERC20_ADDRESS = "0x2170Ed0880ac9A755fd29B2688956BD959F933F8";
 
+  const SCALE_FACTOR = 10n ** 18n;
+
   // Fixture to reuse the same setup in every test
   async function deployPriceOracleFixture(targetBlockNumber: number = 150) {
     const [owner, otherAccount] = await hre.ethers.getSigners();
@@ -279,7 +281,7 @@ describe("PriceOracle", function () {
         );
 
         const storedPrice = await priceOracle.getPrice(baseToken, quoteToken);
-        expect(storedPrice.price).to.equal(price * (10n ** 10n)); // Adjusted for 18 - 6 decimals
+        expect(storedPrice.price).to.equal(price * SCALE_FACTOR * (10n ** 10n)); // Adjusted for 18 - 6 decimals
       });
 
       it("Should correctly adjust price when quote precision < base precision", async function () {
@@ -309,7 +311,7 @@ describe("PriceOracle", function () {
         );
 
         const storedPrice = await priceOracle.getPrice(baseToken, quoteToken);
-        expect(storedPrice.price).to.equal(price / (10n ** 10n)); // Adjusted for 6 - 18 decimals
+        expect(storedPrice.price).to.equal(price * SCALE_FACTOR / (10n ** 10n)); // Adjusted for 6 - 18 decimals
       });
     });
   });

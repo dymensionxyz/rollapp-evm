@@ -6,6 +6,8 @@ pragma solidity ^0.8.0;
  * @dev Basic price oracle contract structure for rollapp-evm
  */
 contract PriceOracle {
+    uint256 public constant SCALE_FACTOR = 10 ** 18;
+
     struct AssetInfo {
         address localNetworkName;
         string oracleNetworkName;
@@ -128,13 +130,13 @@ contract PriceOracle {
 
         if (quotePrecision >= basePrecision) {
             uint256 exponent = quotePrecision - basePrecision;
-            return price * (10 ** exponent);
+            return price * SCALE_FACTOR * (10 ** exponent);
         } else {
             uint256 exponent = basePrecision - quotePrecision;
 
             // To prevent division by zero, ensure exponent is within a safe range
             require(exponent <= 77, "PriceOracle: exponent too large"); // 10^77 is ~1e77, safe for uint256
-            return price / (10 ** exponent);
+            return price * SCALE_FACTOR / (10 ** exponent);
         }
     }
 
