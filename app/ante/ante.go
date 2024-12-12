@@ -22,6 +22,7 @@ import (
 	evmosante "github.com/evmos/evmos/v12/app/ante"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	evmostypes "github.com/evmos/evmos/v12/types"
+	erc20keeper "github.com/evmos/evmos/v12/x/erc20/keeper"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 	evmosvestingtypes "github.com/evmos/evmos/v12/x/vesting/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
@@ -38,6 +39,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	bankKeeper evmtypes.BankKeeper,
 	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
 	evmKeeper evmosanteevm.EVMKeeper,
+	erc20Keeper erc20keeper.Keeper,
 	ibcKeeper *ibckeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	sequencerKeeper seqkeeper.Keeper,
@@ -51,6 +53,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 		StakingKeeper:      stakingKeeper,
 		FeegrantKeeper:     feeGrantKeeper,
 		DistributionKeeper: distrKeeper,
+		ERC20Keeper:        erc20Keeper,
 		IBCKeeper:          ibcKeeper,
 		FeeMarketKeeper:    feeMarketKeeper,
 		SignModeHandler:    txConfig.SignModeHandler(),
@@ -99,6 +102,9 @@ func (o HandlerOptions) validate() error {
 	}
 	if o.EvmKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper missing")
+	}
+	if o.ERC20Keeper == nil {
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "erc20 keeper missing")
 	}
 	if o.DistributionKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "distribution keeper missing")
