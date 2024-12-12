@@ -812,6 +812,7 @@ func NewRollapp(
 		app.BankKeeper,
 		app.FeeMarketKeeper,
 		app.EvmKeeper,
+		app.Erc20Keeper,
 		app.IBCKeeper,
 		app.DistrKeeper,
 		app.SequencersKeeper,
