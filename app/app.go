@@ -1141,6 +1141,7 @@ func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
 		upgrade.Name,
 		upgrade.CreateHandler(
 			app.RollappParamsKeeper,
+			app.EvmKeeper,
 			app.mm,
 			app.configurator,
 		),
