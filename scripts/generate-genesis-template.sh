@@ -46,7 +46,7 @@ update_params() {
   
 
 # Update jq command to use temp file
-  if ! jq '.app_state.evm.params.extra_eips = "3855"' "$TEMP_GENESIS" > "${TEMP_DIR}/temp.json"; then
+  if ! jq '.app_state.evm.params.extra_eips = ["3855"]' "$TEMP_GENESIS" > "${TEMP_DIR}/temp.json"; then
     echo "Error updating JSON file"
     success=false
   else

@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2024-12-12T14:04:05.281694Z",
+  "genesis_time": "2024-12-12T17:19:55.783133Z",
   "chain_id": "rollappevm_1234-1",
   "initial_height": "1",
   "consensus_params": {
@@ -130,7 +130,9 @@
         "evm_denom": "aevmos",
         "enable_create": true,
         "enable_call": true,
-        "extra_eips": "3855",
+        "extra_eips": [
+          "3855"
+        ],
         "chain_config": {
           "homestead_block": "0",
           "dao_fork_block": "0",
