@@ -80,10 +80,13 @@ contract PriceOracle {
     }
 
     function getPrice(address base, address quote) external view returns (GetPriceResponse memory) {
+        // This function tries to retrieve a stored price for the (base, quote) pair.
+        // If it's not available directly, it checks for the inverse pair (quote, base)
+        // and calculates the inverted price if found.
+
         PriceWithExpiration memory priceWithExpiration = prices_cache[base][quote];
         if (priceWithExpiration.exists) {
             require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
-
             return GetPriceResponse(priceWithExpiration.price, false);
         }
 
@@ -92,7 +95,22 @@ contract PriceOracle {
             require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
             require(priceWithExpiration.price > 0, "PriceOracle: invalid price for inversion");
 
-            uint256 invertedPrice = (10** precisionMapping[base] * SCALE_FACTOR) / priceWithExpiration.price;
+            // When we need the inverted price, we're essentially calculating 1 / (quote->base price).
+            // However, due to internal scaling, we must adjust for both the base token's precision
+            // and the contract's overall scaling factor (SCALE_FACTOR).
+
+            // 1) Multiplying by 10**precisionMapping[base]:
+            //    Each token might have a different number of decimals. By raising 10 to the power of
+            //    precisionMapping[base], we ensure the "unit" for the base token is aligned correctly.
+            //    This step normalizes the inverted price so that it reflects the correct scale for
+            //    the base token's decimal system.
+
+            // 2) Multiplying by SCALE_FACTOR (10^18):
+            //    After adjusting for the token's precision, we also incorporate a uniform scaling factor
+            //    (SCALE_FACTOR) that the contract uses to represent all prices internally at a high-precision,
+            //    standardized scale. This ensures consistent calculations and comparisons across all tokens
+            //    and price pairs, regardless of their native decimal representation.
+            uint256 invertedPrice = (10**precisionMapping[base] * SCALE_FACTOR) / priceWithExpiration.price;
 
             return GetPriceResponse(invertedPrice, true);
         }
