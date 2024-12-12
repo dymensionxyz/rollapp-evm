@@ -44,7 +44,7 @@ contract PriceOracle {
     uint256 public expirationOffset;
 
     mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
-    mapping(address => uint256) public precissionMapping;
+    mapping(address => uint256) public precisionMapping;
     mapping(address => string) public localNetworkToOracleNetworkDenoms;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -90,11 +90,14 @@ contract PriceOracle {
         priceWithExpiration = prices_cache[quote][base];
         if (priceWithExpiration.exists) {
             require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
-            return GetPriceResponse(1 / priceWithExpiration.price, true);
+            require(priceWithExpiration.price > 0, "PriceOracle: invalid price for inversion");
+
+            uint256 invertedPrice = (10** precisionMapping[base] * SCALE_FACTOR) / priceWithExpiration.price;
+
+            return GetPriceResponse(invertedPrice, true);
         }
 
-        require(false, "PriceOracle: price not found");
-        return GetPriceResponse(0, false);
+        revert("PriceOracle: price not found");
     }
 
     function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
@@ -111,32 +114,33 @@ contract PriceOracle {
     }
 
     function _updatePriceCache(address base, address quote, PriceWithProof calldata priceWithProof) internal {
-        uint256 price = _precissionAdjustedPrice(base, quote, priceWithProof.price);
+        uint256 adjustedPrice = _precisionAdjustedPrice(base, quote, priceWithProof.price);
 
         prices_cache[base][quote] = PriceWithExpiration(
-            price,
+            adjustedPrice,
             _getProofExpiryDate(priceWithProof.proof),
             true
         );
 
-        emit PriceUpdated(base, quote, priceWithProof.price);
+        emit PriceUpdated(base, quote, adjustedPrice); // Emitir el precio ajustado
     }
 
-    function _precissionAdjustedPrice(address base, address quote, uint256 price) internal view returns (uint256) {
-        uint256 basePrecision = precissionMapping[base];
-        uint256 quotePrecision = precissionMapping[quote];
+    function _precisionAdjustedPrice(address base, address quote, uint256 price) internal view returns (uint256) {
+        uint256 basePrecision = precisionMapping[base];
+        uint256 quotePrecision = precisionMapping[quote];
 
-        require(basePrecision != 0 || quotePrecision != 0, "PriceOracle: precision not set for tokens");
+        require(basePrecision != 0 && quotePrecision != 0, "PriceOracle: precision not set for tokens");
 
-        if (quotePrecision >= basePrecision) {
+        if (quotePrecision > basePrecision) {
             uint256 exponent = quotePrecision - basePrecision;
-            return price * SCALE_FACTOR * (10 ** exponent);
-        } else {
+            require(price <= (type(uint256).max / SCALE_FACTOR) / (10 ** exponent), "PriceOracle: price too large");
+            return (price * SCALE_FACTOR) * (10 ** exponent);
+        } else if (basePrecision > quotePrecision) {
             uint256 exponent = basePrecision - quotePrecision;
-
-            // To prevent division by zero, ensure exponent is within a safe range
-            require(exponent <= 77, "PriceOracle: exponent too large"); // 10^77 is ~1e77, safe for uint256
-            return price * SCALE_FACTOR / (10 ** exponent);
+            require(exponent <= 77, "PriceOracle: exponent too large"); // Mantener dentro del rango seguro
+            return (price * SCALE_FACTOR) / (10 ** exponent);
+        } else {
+            return price * SCALE_FACTOR;
         }
     }
 
@@ -171,7 +175,7 @@ contract PriceOracle {
 
     function _populateAssetsInfo(AssetInfo[] memory _assetInfos) internal {
         for (uint256 i = 0; i < _assetInfos.length; i++) {
-            precissionMapping[_assetInfos[i].localNetworkName] = _assetInfos[i].localNetworkPrecision;
+            precisionMapping[_assetInfos[i].localNetworkName] = _assetInfos[i].localNetworkPrecision;
             localNetworkToOracleNetworkDenoms[_assetInfos[i].localNetworkName] = _assetInfos[i].oracleNetworkName;
         }
     }

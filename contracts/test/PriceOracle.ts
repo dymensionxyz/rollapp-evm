@@ -323,10 +323,9 @@ describe("PriceOracle", function () {
 
       const base = BTC_ERC20_ADDRESS;
       const quote = USDC_ERC20_ADDRESS;
-      const price = 1000n;
+      const price = 50000n;
       const currentBlock = await hre.ethers.provider.getBlock("latest");
       const creationTimeUnixMs = currentBlock!.timestamp * 1000;
-      const expiration = creationTimeUnixMs + DEFAULT_PRICE_EXPIRY * 1000;
 
       const priceProof = {
         creationHeight: currentBlock!.number,
@@ -343,14 +342,14 @@ describe("PriceOracle", function () {
 
       await expect(priceOracle.updatePrice(base, quote, priceWithProof))
           .to.emit(priceOracle, "PriceUpdated")
-          .withArgs(base, quote, price);
+          .withArgs(base, quote, price * 10n**18n * 10n ** (18n - 8n));
 
       const fetchedPrice = await priceOracle.getPrice(base, quote);
-      expect(fetchedPrice.price).to.equal(price * 10n ** (18n - 8n)); // Adjusted for precision
+      expect(fetchedPrice.price).to.equal(price * 10n**18n * 10n ** (18n - 8n)); // Adjusted for 18 - 8 decimals plus 10^18
       expect(fetchedPrice.is_inverse).to.be.false;
 
       const inverseFetchedPrice = await priceOracle.getPrice(quote, base);
-      expect(inverseFetchedPrice.price).to.equal(price * 10n ** (18n - 8n));
+      expect(inverseFetchedPrice.price).to.equal((10n**18n * 10n**18n) / fetchedPrice.price); // Adjusted with Scale factor and
       expect(inverseFetchedPrice.is_inverse).to.be.true;
     });
 
@@ -372,7 +371,7 @@ describe("PriceOracle", function () {
 
       const base = BTC_ERC20_ADDRESS;
       const quote = USDC_ERC20_ADDRESS;
-      const price = 1000n;
+      const price = 50000n;
 
       const currentBlock = await hre.ethers.provider.getBlock("latest");
       const creationTimeUnixMs = currentBlock!.timestamp * 1000;
@@ -392,7 +391,7 @@ describe("PriceOracle", function () {
 
       await expect(priceOracle.updatePrice(base, quote, priceWithProof))
           .to.emit(priceOracle, "PriceUpdated")
-          .withArgs(base, quote, price);
+          .withArgs(base, quote, price * 10n**18n * 10n ** (18n - 8n));
 
       // Advance time to expire the price
       await hre.network.provider.send("evm_increaseTime", [DEFAULT_PRICE_EXPIRY + 1]);
