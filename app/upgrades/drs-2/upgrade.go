@@ -7,7 +7,6 @@ import (
 	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
 	rollappparamstypes "github.com/dymensionxyz/dymension-rdk/x/rollappparams/types"
 	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 func CreateUpgradeHandler(
@@ -28,9 +27,9 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 		//migrate evm params with missing gasDenom
-		evmOldParams := evmKeeper.GetParams(ctx)
-		evmOldParams.GasDenom = evmtypes.DefaultParams().GasDenom
-		err = evmKeeper.SetParams(ctx, evmOldParams)
+		evmParams := evmKeeper.GetParams(ctx)
+		evmParams.GasDenom = evmParams.EvmDenom
+		err = evmKeeper.SetParams(ctx, evmParams)
 		if err != nil {
 			return nil, err
 		}
