@@ -314,4 +314,92 @@ describe("PriceOracle", function () {
     });
   });
 
+  describe("GetPrice", function () {
+    it("should return the correct price when the price is set and has not expired", async function () {
+      const { priceOracle, owner } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const base = BTC_ERC20_ADDRESS;
+      const quote = USDC_ERC20_ADDRESS;
+      const price = 1000n;
+      const currentBlock = await hre.ethers.provider.getBlock("latest");
+      const creationTimeUnixMs = currentBlock!.timestamp * 1000;
+      const expiration = creationTimeUnixMs + DEFAULT_PRICE_EXPIRY * 1000;
+
+      const priceProof = {
+        creationHeight: currentBlock!.number,
+        creationTimeUnixMs: creationTimeUnixMs,
+        height: currentBlock!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const priceWithProof = {
+        price: price,
+        proof: priceProof,
+      };
+
+      await expect(priceOracle.updatePrice(base, quote, priceWithProof))
+          .to.emit(priceOracle, "PriceUpdated")
+          .withArgs(base, quote, price);
+
+      const fetchedPrice = await priceOracle.getPrice(base, quote);
+      expect(fetchedPrice.price).to.equal(price * 10n ** (18n - 8n)); // Adjusted for precision
+      expect(fetchedPrice.is_inverse).to.be.false;
+
+      const inverseFetchedPrice = await priceOracle.getPrice(quote, base);
+      expect(inverseFetchedPrice.price).to.equal(price * 10n ** (18n - 8n));
+      expect(inverseFetchedPrice.is_inverse).to.be.true;
+    });
+
+    it("should revert if the price does not exist", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const base = BTC_ERC20_ADDRESS; // 0x1234567890123456789012345678901234567890
+      const quote = USDC_ERC20_ADDRESS; // 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+
+      await expect(priceOracle.getPrice(base, quote)).to.be.revertedWith(
+          "PriceOracle: price not found"
+      );
+    });
+
+    it("should revert if the price has expired", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const base = BTC_ERC20_ADDRESS;
+      const quote = USDC_ERC20_ADDRESS;
+      const price = 1000n;
+
+      const currentBlock = await hre.ethers.provider.getBlock("latest");
+      const creationTimeUnixMs = currentBlock!.timestamp * 1000;
+
+      const priceProof = {
+        creationHeight: currentBlock!.number,
+        creationTimeUnixMs: creationTimeUnixMs,
+        height: currentBlock!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      const priceWithProof = {
+        price: price,
+        proof: priceProof,
+      };
+
+      await expect(priceOracle.updatePrice(base, quote, priceWithProof))
+          .to.emit(priceOracle, "PriceUpdated")
+          .withArgs(base, quote, price);
+
+      // Advance time to expire the price
+      await hre.network.provider.send("evm_increaseTime", [DEFAULT_PRICE_EXPIRY + 1]);
+      await hre.network.provider.send("evm_mine", []);
+
+      await expect(priceOracle.getPrice(base, quote)).to.be.revertedWith(
+          "PriceOracle: price expired"
+      );
+    });
+  });
 });
+

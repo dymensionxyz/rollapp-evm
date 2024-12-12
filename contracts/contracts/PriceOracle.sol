@@ -31,6 +31,11 @@ contract PriceOracle {
         bool exists;
     }
 
+    struct GetPriceResponse {
+        uint256 price;
+        bool is_inverse;
+    }
+
     address public owner;
     bool public initialized;
 
@@ -72,13 +77,22 @@ contract PriceOracle {
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 
-    function getPrice(address base, address quote) external view returns (PriceWithExpiration memory) {
+    function getPrice(address base, address quote) external view returns (GetPriceResponse memory) {
         PriceWithExpiration memory priceWithExpiration = prices_cache[base][quote];
+        if (priceWithExpiration.exists) {
+            require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
 
-        require(priceWithExpiration.exists, "PriceOracle: price not found");
-        require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
+            return GetPriceResponse(priceWithExpiration.price, false);
+        }
 
-        return priceWithExpiration;
+        priceWithExpiration = prices_cache[quote][base];
+        if (priceWithExpiration.exists) {
+            require((block.timestamp * 1000) <= priceWithExpiration.expiration, "PriceOracle: price expired");
+            return GetPriceResponse(1 / priceWithExpiration.price, true);
+        }
+
+        require(false, "PriceOracle: price not found");
+        return GetPriceResponse(0, false);
     }
 
     function updatePrice(address base, address quote, PriceWithProof calldata priceWithProof) external onlyOwner {
