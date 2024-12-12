@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 /**
  * @title PriceOracle
  * @dev Basic price oracle contract structure for rollapp-evm
@@ -42,6 +44,7 @@ contract PriceOracle {
     bool public initialized;
 
     uint256 public expirationOffset;
+    uint256 public boundThreshold;
 
     mapping(address => mapping(address => PriceWithExpiration)) public prices_cache;
     mapping(address => uint256) public precisionMapping;
@@ -51,9 +54,14 @@ contract PriceOracle {
     event OracleInitialized(address indexed initializer);
     event PriceUpdated(address indexed base, address indexed quote, uint256 price);
 
-    constructor(uint256 _expirationOffset, AssetInfo[] memory _assetInfos) {
+    constructor(
+        uint256 _expirationOffset,
+        AssetInfo[] memory _assetInfos,
+        uint256 boundThreshold
+    ) {
         owner = msg.sender;
         expirationOffset = _expirationOffset;
+        boundThreshold = boundThreshold;
         _populateAssetsInfo(_assetInfos);
     }
 
@@ -77,6 +85,19 @@ contract PriceOracle {
         address oldOwner = owner;
         owner = newOwner;
         emit OwnershipTransferred(oldOwner, newOwner);
+    }
+
+    function priceInBound(address base, address quote, uint256 price) public view returns (bool) {
+        // Get oracle price
+        GetPriceResponse memory oraclePrice = this.getPrice(base, quote);
+
+        // Calculate acceptable lower bound using SCALE_FACTOR for precision
+        uint256 acceptablePrice = (oraclePrice.price * (SCALE_FACTOR - boundThreshold)) / SCALE_FACTOR;
+
+        // Check if provided price is acceptable
+        require(price >= acceptablePrice, "Price is below the acceptable threshold");
+
+        return true;
     }
 
     function getPrice(address base, address quote) external view returns (GetPriceResponse memory) {

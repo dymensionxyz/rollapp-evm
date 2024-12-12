@@ -10,6 +10,7 @@ describe("PriceOracle", function () {
   const USDC_ERC20_ADDRESS = "0x2170Ed0880ac9A755fd29B2688956BD959F933F8";
 
   const SCALE_FACTOR = 10n ** 18n;
+  const THRESHOLD_PRICE_BOUND = 10n ** 17n;
 
   // Fixture to reuse the same setup in every test
   async function deployPriceOracleFixture(targetBlockNumber: number = 150) {
@@ -29,7 +30,7 @@ describe("PriceOracle", function () {
     ];
 
     const PriceOracle = await hre.ethers.getContractFactory("PriceOracle");
-    const priceOracle = await PriceOracle.deploy(DEFAULT_PRICE_EXPIRY, assetInfos);
+    const priceOracle = await PriceOracle.deploy(DEFAULT_PRICE_EXPIRY, assetInfos, THRESHOLD_PRICE_BOUND);
 
     // Mine additional blocks to reach the target block number
     const currentBlockNumber = await hre.ethers.provider.getBlockNumber();
@@ -400,6 +401,66 @@ describe("PriceOracle", function () {
       await expect(priceOracle.getPrice(base, quote)).to.be.revertedWith(
           "PriceOracle: price expired"
       );
+    });
+  });
+
+  describe("PriceInBound", function () {
+    it("Should return true when price is within acceptable bounds", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const base = BTC_ERC20_ADDRESS;
+      const quote = USDC_ERC20_ADDRESS;
+      const price = 50000n;
+
+      const currentBlock = await hre.ethers.provider.getBlock("latest");
+      const priceProof = {
+        creationHeight: currentBlock!.number,
+        creationTimeUnixMs: currentBlock!.timestamp * 1000,
+        height: currentBlock!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      // First set the oracle price
+      await priceOracle.updatePrice(base, quote, {
+        price: price,
+        proof: priceProof,
+      });
+
+      // Test price within bounds (same as oracle price)
+      const result = await priceOracle.priceInBound(base, quote, price * SCALE_FACTOR * 10n ** 18n);
+      expect(result).to.be.true;
+    });
+
+    it("Should revert when price is below acceptable threshold", async function () {
+      const { priceOracle } = await loadFixture(deployPriceOracleFixture);
+      await initializePriceOracle(priceOracle);
+
+      const base = BTC_ERC20_ADDRESS;
+      const quote = USDC_ERC20_ADDRESS;
+      const oraclePrice = 50000n;
+
+      const currentBlock = await hre.ethers.provider.getBlock("latest");
+      const priceProof = {
+        creationHeight: currentBlock!.number,
+        creationTimeUnixMs: currentBlock!.timestamp * 1000,
+        height: currentBlock!.number,
+        revision: 1,
+        merkleProof: "0x42",
+      };
+
+      // Set the oracle price
+      await priceOracle.updatePrice(base, quote, {
+        price: oraclePrice,
+        proof: priceProof,
+      });
+
+      // Test with a price that's too low (e.g., 80% of oracle price)
+      const lowPrice = (oraclePrice * 80n) / 100n;
+      await expect(
+          priceOracle.priceInBound(base, quote, lowPrice)
+      ).to.be.revertedWith("Price is below the acceptable threshold");
     });
   });
 });
