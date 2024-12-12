@@ -19,14 +19,21 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 
 		//migrate rollapp params with missing min-gas-prices and updating drs to 2
-		rpKeeper.SetVersion(ctx, uint32(2))
-		rpKeeper.SetMinGasPrices(ctx, rollappparamstypes.DefaultParams().MinGasPrices)
-
+		err := rpKeeper.SetVersion(ctx, uint32(2))
+		if err != nil {
+			return nil, err
+		}
+		err = rpKeeper.SetMinGasPrices(ctx, rollappparamstypes.DefaultParams().MinGasPrices)
+		if err != nil {
+			return nil, err
+		}
 		//migrate evm params with missing gasDenom
 		evmOldParams := evmKeeper.GetParams(ctx)
 		evmOldParams.GasDenom = evmtypes.DefaultParams().GasDenom
-		evmKeeper.SetParams(ctx, evmOldParams)
-
+		err = evmKeeper.SetParams(ctx, evmOldParams)
+		if err != nil {
+			return nil, err
+		}
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
