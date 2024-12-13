@@ -27,6 +27,11 @@ jobs:
           cd cmd/rollappd
           go build .
 
+      - name: Install Dasel
+        run: |
+          curl -sSLf https://github.com/TomWright/dasel/releases/latest/download/dasel_${{ matrix.targetos }}_${{ matrix.arch }} -o /usr/local/bin/dasel
+          chmod +x /usr/local/bin/dasel
+          
       - name: Generate genesis template mainnet
         run: make generate-genesis env=mainnet
         env:
