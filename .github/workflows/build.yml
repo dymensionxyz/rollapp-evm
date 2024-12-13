@@ -27,6 +27,16 @@ jobs:
           cd cmd/rollappd
           go build .
 
+      - name: Generate genesis template mainnet
+        run: make generate-genesis env=mainnet
+        env:
+          BECH32_PREFIX: ethm
+      
+      - name: Generate genesis template testnet
+        run: make generate-genesis env=testnet
+        env:
+          BECH32_PREFIX: ethm
+
       - uses: actions/upload-artifact@v3
         with:
           name: rollappd ${{ matrix.targetos }} ${{ matrix.arch }} Go ${{ matrix.go-version }}
