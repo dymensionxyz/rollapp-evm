@@ -1,0 +1,26 @@
+name: Generate Genesis Template
+on: ["push"]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Generate Genesis Template
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.1"
+
+      - name: Install Dasel
+        run: |
+          curl -sSLf https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64 -o /usr/local/bin/dasel
+          chmod +x /usr/local/bin/dasel
+          
+      - name: Generate genesis template mainnet
+        run: make generate-genesis env=mainnet
+        env:
+          BECH32_PREFIX: ethm
+      
+      - name: Generate genesis template testnet
+        run: make generate-genesis env=testnet
+        env:
+          BECH32_PREFIX: ethm
