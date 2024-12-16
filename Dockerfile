@@ -42,7 +42,7 @@ RUN ARCH=$(uname -m) && WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm |
 
 RUN go install -v github.com/bcdevtools/devd/v2/cmd/devd@latest
 
-RUN mv /root/go/bin/devd /app/build/devd
+RUN mv /root/go/bin/ /app/build/
 # Copy the remaining files
 COPY . .
 
