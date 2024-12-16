@@ -16,23 +16,36 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-
-		//migrate rollapp params with missing min-gas-prices and updating drs to 2
-		err := rpKeeper.SetVersion(ctx, uint32(2))
-		if err != nil {
-			return nil, err
-		}
-		err = rpKeeper.SetMinGasPrices(ctx, rollappparamstypes.DefaultParams().MinGasPrices)
-		if err != nil {
-			return nil, err
-		}
-		//migrate evm params with missing gasDenom
-		evmParams := evmKeeper.GetParams(ctx)
-		evmParams.GasDenom = evmParams.EvmDenom
-		err = evmKeeper.SetParams(ctx, evmParams)
-		if err != nil {
+		if err := HandleUpgrade(ctx, rpKeeper, evmKeeper); err != nil {
 			return nil, err
 		}
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
+}
+
+func HandleUpgrade(
+	ctx sdk.Context,
+	rpKeeper rollappparamskeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
+) error {
+	// migrate rollapp params with missing min-gas-prices and updating drs to 2
+	err := rpKeeper.SetVersion(ctx, uint32(2))
+	if err != nil {
+		return err
+	}
+
+	err = rpKeeper.SetMinGasPrices(ctx, rollappparamstypes.DefaultParams().MinGasPrices)
+	if err != nil {
+		return err
+	}
+
+	// migrate evm params with missing gasDenom
+	evmParams := evmKeeper.GetParams(ctx)
+	evmParams.GasDenom = evmParams.EvmDenom
+
+	if err = evmKeeper.SetParams(ctx, evmParams); err != nil {
+		return err
+	}
+
+	return nil
 }
