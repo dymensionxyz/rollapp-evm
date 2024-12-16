@@ -51,7 +51,7 @@ FROM ubuntu:latest
 
 RUN apt-get update -y
 
-COPY --from=go-builder /usr/local/go/bin/devd /usr/local/bin/devd
+COPY --from=go-builder /root/go/bin/devd /usr/local/bin/devd
 COPY --from=go-builder /app/build/rollapp-evm /usr/local/bin/rollappd
 COPY --from=go-builder /lib/libwasmvm.x86_64.so /lib/libwasmvm.x86_64.so
 COPY --from=go-builder /lib/libwasmvm.aarch64.so /lib/libwasmvm.aarch64.so
