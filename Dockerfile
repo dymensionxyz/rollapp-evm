@@ -40,9 +40,6 @@ RUN ARCH=$(uname -m) && WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm |
      wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.aarch64.so \
     -O /lib/libwasmvm.aarch64.so
 
-RUN go install -v github.com/bcdevtools/devd/v2/cmd/devd@latest
-
-RUN mv /root/go/bin/ /app/build/
 # Copy the remaining files
 COPY . .
 
@@ -51,6 +48,7 @@ RUN make build BECH32_PREFIX=ethm
 FROM ubuntu:latest
 
 RUN apt-get update -y
+RUN apt-get install -y curl
 
 COPY --from=go-builder /app/build/devd /usr/local/bin/devd
 COPY --from=go-builder /app/build/rollapp-evm /usr/local/bin/rollappd
