@@ -42,6 +42,7 @@ RUN ARCH=$(uname -m) && WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm |
 
 RUN go install -v github.com/bcdevtools/devd/v2/cmd/devd@latest
 
+RUN mv /root/go/bin/devd /app/build/devd
 # Copy the remaining files
 COPY . .
 
@@ -51,7 +52,7 @@ FROM ubuntu:latest
 
 RUN apt-get update -y
 
-COPY --from=go-builder /root/go/bin/devd /usr/local/bin/devd
+COPY --from=go-builder /app/build/devd /usr/local/bin/devd
 COPY --from=go-builder /app/build/rollapp-evm /usr/local/bin/rollappd
 COPY --from=go-builder /lib/libwasmvm.x86_64.so /lib/libwasmvm.x86_64.so
 COPY --from=go-builder /lib/libwasmvm.aarch64.so /lib/libwasmvm.aarch64.so
