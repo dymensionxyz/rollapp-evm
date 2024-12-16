@@ -66,6 +66,7 @@ set_denom() {
   dasel put -f "$GENESIS_FILE" '.app_state.staking.params.bond_denom' -v "$denom" || success=false
   dasel put -t string -f "$GENESIS_FILE" '.app_state.gov.deposit_params.min_deposit.[0].denom' -v "$denom" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.evm.params.evm_denom' -v "$denom" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.evm.params.gas_denom' -v "$denom" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.claims.params.claims_denom' -v "$denom" || success=false
 
   if [ "$success" = false ]; then

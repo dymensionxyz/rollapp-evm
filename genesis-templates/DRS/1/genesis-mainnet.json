@@ -129,7 +129,9 @@
         "evm_denom": "aevmos",
         "enable_create": true,
         "enable_call": true,
-        "extra_eips": "3855",
+        "extra_eips": [
+          "3855"
+        ],
         "chain_config": {
           "homestead_block": "0",
           "dao_fork_block": "0",
