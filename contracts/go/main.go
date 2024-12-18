@@ -25,11 +25,11 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Configuration
-	nodeURL := "http://127.0.0.1:8545"                                                                                                                                  // URL of your local Hardhat node
-	mnemonic := "paper pond pigeon moon asset clap material else absent aspect stay alter inhale learn outdoor human blossom egg wrap caution very cherry pledge brain" // Your Hardhat mnemonic
-	contractAddressHex := "0xC094D7fB0BD26DA863EF9c6829624509E597e9C9"                                                                                                  // Deployed contract address
-	baseAddressHex := "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae"                                                                                                      // Replace with the actual token/base address
-	quoteAddressHex := "0x0000000000000000000000000000000000000000"                                                                                                     // Replace with the actual token/quote address
+	nodeURL := "http://127.0.0.1:8545" // URL of your local Hardhat node
+	mnemonic := "inherit jump prison shuffle normal pizza cereal broken fantasy pony mechanic sport stage replace wonder recipe faith stumble pigeon dash smoke what exhaust viable"
+	contractAddressHex := "0x8c75c9B2615437D5de0f5a7C0b491d8d8EBCF90d" // Deployed contract address
+	baseAddressHex := "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae"     // Replace with the actual token/base address
+	quoteAddressHex := "0x0000000000000000000000000000000000000000"    // Replace with the actual token/quote address
 
 	// 1. Derive the private key from the mnemonic
 	seed := bip39.NewSeed(mnemonic, "") // Passphrase not used

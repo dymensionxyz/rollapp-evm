@@ -7,12 +7,14 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
       accounts:{
-        mnemonic: "paper pond pigeon moon asset clap material else absent aspect stay alter inhale learn outdoor human blossom egg wrap caution very cherry pledge brain"
+        mnemonic: "inherit jump prison shuffle normal pizza cereal broken fantasy pony mechanic sport stage replace wonder recipe faith stumble pigeon dash smoke what exhaust viable",
       }
     },
+/*
     hardhat: {
       chainId: 1337,
     }
+*/
   },
 };
 
