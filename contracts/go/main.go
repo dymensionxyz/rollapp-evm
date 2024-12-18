@@ -26,7 +26,7 @@ func main() {
 	// Configuration
 	nodeURL := "http://127.0.0.1:8545"                                                                                                                                  // URL of your local Hardhat node
 	mnemonic := "paper pond pigeon moon asset clap material else absent aspect stay alter inhale learn outdoor human blossom egg wrap caution very cherry pledge brain" // Your Hardhat mnemonic
-	contractAddressHex := "0xf5e6EdA7Ce8De21b92BC15502Ab6B58583fD82C5"                                                                                                  // Deployed contract address
+	contractAddressHex := "0xC094D7fB0BD26DA863EF9c6829624509E597e9C9"                                                                                                  // Deployed contract address
 	baseAddressHex := "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae"                                                                                                      // Replace with the actual token/base address
 	quoteAddressHex := "0x0000000000000000000000000000000000000000"                                                                                                     // Replace with the actual token/quote address
 
@@ -50,6 +50,7 @@ func main() {
 	}
 
 	fmt.Printf("Derived public key: %x\n", privateKeyECDSA.Public())
+	fmt.Printf("Clave Privada Go: %x\n", privateKeyECDSA.D.Bytes())
 
 	// 2. Connect to the Ethereum node
 	client, err := ethclient.Dial(nodeURL)
@@ -85,9 +86,9 @@ func main() {
 		log.Fatalf("Error creating signed transactor: %v", err)
 	}
 
-	auth.GasLimit = uint64(60000)            // Límite de gas ajustado
-	auth.GasFeeCap = big.NewInt(30000000000) // Máxima tarifa de gas (30 Gwei)
-	auth.GasTipCap = big.NewInt(2000000000)  // Tarifa prioritaria (2 Gwei)
+	auth.GasLimit = uint64(60000)
+	auth.GasFeeCap = big.NewInt(30000000000)
+	auth.GasTipCap = big.NewInt(2000000000)
 
 	// 5. Instantiate the contract
 	contractAddress := common.HexToAddress(contractAddressHex)

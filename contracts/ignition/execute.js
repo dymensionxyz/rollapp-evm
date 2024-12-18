@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const PriceOracle = await ethers.getContractAt("PriceOracle", "0xf5e6eda7ce8de21b92bc15502ab6b58583fd82c5");
+    const PriceOracle = await ethers.getContractAt("PriceOracle", "0x9E6c736B3ddc1fa57ab97F402eC24B72056DB72F");
 
     const currentTimeUnixMs = Date.now();
 
@@ -28,7 +28,7 @@ async function main() {
         );
 
         await tx.wait();
-        console.log("Price updated successfully");
+        console.log("Price updated successfully: ", tx.hash);
     } catch (error) {
         console.error("Error:", error.message);
     }

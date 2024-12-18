@@ -2,13 +2,10 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const [deployer] = await ethers.getSigners();
+    [ deployer ] = await ethers.getSigners();
+    console.log("Deploying PriceOracle contract with the account:", deployer.address);
 
-    if (!deployer) {
-        throw new Error("No deployer account found. Check your configuration.");
-    }
-
-    const PriceOracle = await ethers.getContractFactory("PriceOracle");
+    const PriceOracle = await ethers.getContractFactory("PriceOracle", deployer);
 
     const expirationOffset = 3600; // 1 hour in seconds
     const assetInfos = [
