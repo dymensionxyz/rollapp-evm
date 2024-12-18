@@ -21,15 +21,14 @@ import (
 )
 
 func main() {
-	// Enhanced Logging
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Configuration
-	nodeURL := "http://127.0.0.1:8545"                                                                                                                                // URL of your local Hardhat node
-	mnemonic := "penalty useful movie rookie toilet album abuse rude sing size meadow noodle wise pen castle trust proud chalk loud era universe can reflect clarify" // Your Hardhat mnemonic
-	contractAddressHex := "0x08ae2aBDCa46Aa7aF765369Df47395EfA62ba3F9"                                                                                                // Deployed contract address
-	baseAddressHex := "0xYourBaseTokenAddress"                                                                                                                        // Replace with the actual token/base address
-	quoteAddressHex := "0xYourQuoteTokenAddress"                                                                                                                      // Replace with the actual token/quote address
+	nodeURL := "http://127.0.0.1:8545"                                                                                                                                  // URL of your local Hardhat node
+	mnemonic := "paper pond pigeon moon asset clap material else absent aspect stay alter inhale learn outdoor human blossom egg wrap caution very cherry pledge brain" // Your Hardhat mnemonic
+	contractAddressHex := "0xf5e6EdA7Ce8De21b92BC15502Ab6B58583fD82C5"                                                                                                  // Deployed contract address
+	baseAddressHex := "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae"                                                                                                      // Replace with the actual token/base address
+	quoteAddressHex := "0x0000000000000000000000000000000000000000"                                                                                                     // Replace with the actual token/quote address
 
 	// 1. Derive the private key from the mnemonic
 	seed := bip39.NewSeed(mnemonic, "") // Passphrase not used
@@ -50,7 +49,7 @@ func main() {
 		log.Fatalf("Error converting to ECDSA: %v", err)
 	}
 
-	fmt.Printf("Clave pública derivada: %x\n", privateKeyECDSA.Public())
+	fmt.Printf("Derived public key: %x\n", privateKeyECDSA.Public())
 
 	// 2. Connect to the Ethereum node
 	client, err := ethclient.Dial(nodeURL)
@@ -75,7 +74,7 @@ func main() {
 	}
 	fmt.Printf("Account balance: %s wei\n", balance.String())
 
-	// 4. Create a signed transactor
+	// 4. Create a signed transactor using legacy gas settings
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		log.Fatalf("Error getting Chain ID: %v", err)
@@ -86,13 +85,13 @@ func main() {
 		log.Fatalf("Error creating signed transactor: %v", err)
 	}
 
-	// Optional: Set gas limit and prices
-	auth.GasLimit = uint64(500000)          // Increased gas limit
-	auth.GasPrice = big.NewInt(30000000000) // 30 Gwei, adjust as needed
+	auth.GasLimit = uint64(60000)            // Límite de gas ajustado
+	auth.GasFeeCap = big.NewInt(30000000000) // Máxima tarifa de gas (30 Gwei)
+	auth.GasTipCap = big.NewInt(2000000000)  // Tarifa prioritaria (2 Gwei)
 
 	// 5. Instantiate the contract
 	contractAddress := common.HexToAddress(contractAddressHex)
-	priceOracle, err := NewContracts(contractAddress, client)
+	priceOracle, err := NewContract(contractAddress, client)
 	if err != nil {
 		log.Fatalf("Error instantiating the contract: %v", err)
 	}
@@ -105,10 +104,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error querying contract owner: %v", err)
 	}
-	fmt.Printf("Contract Owner: %s\n", ownerAddress.Hex())
+
+	fmt.Printf("Derived Address: %s\n", fromAddress.Hex())
+	fmt.Printf("Owner Address: %s\n", ownerAddress.Hex())
 
 	// 7. Verify if the current account is the owner
-	if ownerAddress.Hex() != fromAddress.Hex() {
+	if strings.ToLower(ownerAddress.Hex()) != strings.ToLower(fromAddress.Hex()) {
 		log.Fatalf("Error: The current account (%s) is not the owner of the contract (%s).", fromAddress.Hex(), ownerAddress.Hex())
 	}
 	fmt.Println("Verification successful: You are the owner of the contract.")
@@ -116,7 +117,8 @@ func main() {
 	// 8. Prepare parameters for updatePrice
 	baseAddress := common.HexToAddress(baseAddressHex)
 	quoteAddress := common.HexToAddress(quoteAddressHex)
-	price := big.NewInt(1000) // For example, 1000 (adjust according to contract precision)
+
+	price := big.NewInt(1000)
 
 	// Generate a valid Merkle proof
 	merkleProof, err := generateMerkleProof(1000)
@@ -141,15 +143,16 @@ func main() {
 
 	fmt.Printf("Auth From Address: %s\n", auth.From.Hex())
 	if auth.From != fromAddress {
-		log.Fatalf("auth.From (%s) no coincide con fromAddress (%s)", auth.From.Hex(), fromAddress.Hex())
+		log.Fatalf("auth.From (%s) does not match fromAddress (%s)", auth.From.Hex(), fromAddress.Hex())
 	} else {
-		fmt.Println("auth.From coincide con fromAddress")
+		fmt.Println("auth.From matches fromAddress")
 	}
-	fmt.Printf("Chain ID: %s\n", chainID.String())
+
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Fatalf("Error obteniendo el nonce: %v", err)
+		log.Fatalf("Error getting nonce: %v", err)
 	}
+
 	fmt.Printf("Nonce: %d\n", nonce)
 	auth.Nonce = big.NewInt(int64(nonce))
 	fmt.Printf("Base Address: %s\n", baseAddress.Hex())
@@ -178,7 +181,6 @@ func main() {
 		fmt.Println("Transaction failed")
 		fmt.Printf("Transaction Receipt: %+v\n", receipt)
 
-		// Attempt to extract the revert reason
 		revertReason, err := getRevertReason(client, tx.Hash())
 		if err != nil {
 			log.Printf("Failed to get revert reason: %v", err)

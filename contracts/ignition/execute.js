@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const PriceOracle = await ethers.getContractAt("PriceOracle", "0xAF9cdb43Fd56fAD236865FeE19eab6631dce90ce");
+    const PriceOracle = await ethers.getContractAt("PriceOracle", "0xf5e6eda7ce8de21b92bc15502ab6b58583fd82c5");
 
     const currentTimeUnixMs = Date.now();
 
