@@ -10,6 +10,9 @@ const config: HardhatUserConfig = {
         mnemonic: "paper pond pigeon moon asset clap material else absent aspect stay alter inhale learn outdoor human blossom egg wrap caution very cherry pledge brain"
       }
     },
+    hardhat: {
+      chainId: 1337,
+    }
   },
 };
 

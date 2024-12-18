@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -129,11 +130,11 @@ func main() {
 
 	// Populate PriceProof with actual data
 	priceProof := PriceOraclePriceProof{
-		CreationHeight:     big.NewInt(123456),     // Replace with actual block height
-		CreationTimeUnixMs: big.NewInt(1617181920), // Replace with actual timestamp in ms
-		Height:             big.NewInt(12345678),   // Replace with current block height
-		Revision:           big.NewInt(1),          // Replace with the correct revision number
-		MerkleProof:        merkleProof,            // Use the generated proof
+		CreationHeight:     big.NewInt(123456),                      // Replace with actual block height
+		CreationTimeUnixMs: big.NewInt(time.Now().UnixNano() / 1e6), // Timestamp actual en ms
+		Height:             big.NewInt(12345678),                    // Replace with current block height
+		Revision:           big.NewInt(1),                           // Replace with the correct revision number
+		MerkleProof:        merkleProof,                             // Use the generated proof
 	}
 
 	// Prepare the PriceWithProof structure
