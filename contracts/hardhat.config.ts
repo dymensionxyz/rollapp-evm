@@ -7,7 +7,7 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
       accounts:{
-        mnemonic: "inherit jump prison shuffle normal pizza cereal broken fantasy pony mechanic sport stage replace wonder recipe faith stumble pigeon dash smoke what exhaust viable",
+        mnemonic: "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
       }
     },
 /*
