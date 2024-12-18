@@ -17,7 +17,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-		if rpKeeper.GetParams(ctx).DrsVersion == 1 {
+		if rpKeeper.Version(ctx) == 1 {
 			// first run drs-2 migration
 			if err := drs2.HandleUpgrade(ctx, rpKeeper, evmKeeper); err != nil {
 				return nil, err
