@@ -100,9 +100,6 @@ func derivePrivateKey(config Config) (*ecdsa.PrivateKey, common.Address) {
 	publicKey := privateKeyECDSA.Public().(*ecdsa.PublicKey)
 	fromAddress := crypto.PubkeyToAddress(*publicKey)
 
-	fmt.Printf("Derived public key: %x\n", publicKey)
-	fmt.Printf("Private Key: %x\n", privateKeyECDSA.D.Bytes())
-
 	return privateKeyECDSA, fromAddress
 }
 
@@ -162,8 +159,6 @@ func verifyOwnership(priceOracle *Contract, fromAddress common.Address) {
 		log.Fatalf("Error querying contract owner: %v", err)
 	}
 
-	fmt.Printf("Owner Address: %s\n", ownerAddress.Hex())
-
 	if !addressesEqual(ownerAddress, fromAddress) {
 		log.Fatalf("Error: The current account (%s) is not the owner of the contract (%s).", fromAddress.Hex(), ownerAddress.Hex())
 	}
@@ -193,9 +188,6 @@ func preparePriceWithProof() PriceOraclePriceWithProof {
 		Proof: priceProof,
 	}
 
-	fmt.Printf("PriceProof: %+v\n", priceProof)
-	fmt.Printf("PriceWithProof: %+v\n", priceWithProof)
-
 	return priceWithProof
 }
 
@@ -204,15 +196,11 @@ func callUpdatePrice(client *ethclient.Client, priceOracle *Contract, auth *bind
 	baseAddress := common.HexToAddress(config.BaseTokenAddress)
 	quoteAddress := common.HexToAddress(config.QuoteTokenAddress)
 
-	fmt.Printf("Base Address: %s\n", baseAddress.Hex())
-	fmt.Printf("Quote Address: %s\n", quoteAddress.Hex())
-
 	nonce, err := client.PendingNonceAt(context.Background(), auth.From)
 	if err != nil {
 		log.Fatalf("Error getting nonce: %v", err)
 	}
 	auth.Nonce = big.NewInt(int64(nonce))
-	fmt.Printf("Nonce: %d\n", nonce)
 
 	tx, err := priceOracle.UpdatePrice(auth, baseAddress, quoteAddress, priceWithProof)
 	if err != nil {
