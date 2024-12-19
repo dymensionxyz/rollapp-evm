@@ -44,6 +44,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	distrKeeper distrkeeper.Keeper,
 	sequencerKeeper seqkeeper.Keeper,
 	feeGrantKeeper authante.FeegrantKeeper,
+	authzKeeper evmosanteevm.AuthzKeeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                codec,
@@ -60,6 +61,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 		SigGasConsumer:     evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:     maxGasWanted,
 		TxFeeChecker:       evmosanteevm.NewDynamicFeeChecker(evmKeeper),
+		AuthzKeeper:        authzKeeper,
 	}
 
 	opts := HandlerOptions{

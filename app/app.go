@@ -821,6 +821,7 @@ func NewRollapp(
 		app.DistrKeeper,
 		app.SequencersKeeper,
 		app.FeeGrantKeeper,
+		app.AuthzKeeper,
 	)
 	app.SetAnteHandler(h)
 	app.setPostHandler()
