@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/dymensionxyz/dymension-rdk/server/proposal"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -161,6 +162,7 @@ import (
 	"github.com/dymensionxyz/rollapp-evm/app/upgrades"
 	drs2 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-2"
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
+	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 )
 
 const (
@@ -186,7 +188,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -539,7 +541,7 @@ func NewRollapp(
 	govRouter := govv1beta1.NewRouter()
 	govRouter.
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		AddRoute(paramproposal.RouterKey, proposal.NewCustomParamChangeProposalHandler(app.ParamsKeeper, app.BankKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
@@ -821,6 +823,7 @@ func NewRollapp(
 		app.DistrKeeper,
 		app.SequencersKeeper,
 		app.FeeGrantKeeper,
+		app.AuthzKeeper,
 	)
 	app.SetAnteHandler(h)
 	app.setPostHandler()
