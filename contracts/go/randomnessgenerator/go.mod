@@ -3,7 +3,6 @@ module example1
 go 1.23.4
 
 require (
-	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.14.12
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/tyler-smith/go-bip32 v1.0.0
