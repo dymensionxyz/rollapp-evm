@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	version "github.com/dymensionxyz/dymint/version"
+
 	appcodec "github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -87,8 +89,8 @@ func SetupWithGenesisValSet(t *testing.T, valSet *types2.ValidatorSet, genAccs [
 	app, genesisState := setup(true, 5)
 	genesisState = genesisStateWithValSet(t, app, genesisState, valSet, genAccs, balances...)
 
+	version.DRS = "1"
 	genesisState = setRollappVersion(app.appCodec, genesisState, 1)
-
 	denomMD := banktypes.Metadata{
 		Description: "Stake token",
 		DenomUnits: []*banktypes.DenomUnit{
@@ -121,6 +123,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *types2.ValidatorSet, genAccs [
 			ConsensusParams: utils.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 			ChainId:         TestChainID,
+			GenesisChecksum: "abcdef",
 		},
 	)
 
