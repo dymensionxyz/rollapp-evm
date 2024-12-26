@@ -37,7 +37,7 @@ fi
 #Register Sequencer
 # DESCRIPTION="{\"Moniker\":\"${ROLLAPP_CHAIN_ID}-sequencer\",\"Identity\":\"\",\"Website\":\"\",\"SecurityContact\":\"\",\"Details\":\"\"}"
 SEQ_PUB_KEY="$("$ROLLAPP_EXECUTABLE" dymint show-sequencer)"
-BOND_AMOUNT="$("$SETTLEMENT_EXECUTABLE" q sequencer params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_bond.amount')$("$SETTLEMENT_EXECUTABLE" q sequencer params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_bond.denom')"
+BOND_AMOUNT="$("$SETTLEMENT_EXECUTABLE" q rollapp params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_sequencer_bond_global.amount')$("$SETTLEMENT_EXECUTABLE" q rollapp params -o json --node "$HUB_RPC_URL" | jq -r '.params.min_sequencer_bond_global.denom')"
 
 echo "$BOND_AMOUNT"
 
