@@ -163,6 +163,7 @@ import (
 	drs2 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-2"
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
+	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
 )
 
 const (
@@ -188,7 +189,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
