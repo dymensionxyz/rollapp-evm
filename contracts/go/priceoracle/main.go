@@ -40,7 +40,7 @@ func main() {
 	config := Config{
 		NodeURL:           "http://127.0.0.1:8545", // Local Hardhat node
 		Mnemonic:          "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		ContractAddress:   "0xb590e26c1f5F24a9ff29F3e7D24eC7eba2ab05d4",
+		ContractAddress:   "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0",
 		BaseTokenAddress:  "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
 		QuoteTokenAddress: "0x0000000000000000000000000000000000000000",
 		DerivationPath:    "m/44'/60'/0'/0/0",
