@@ -4,10 +4,14 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
-	"example1/contractapi"
 	"fmt"
+	"log"
+	"math/big"
 	"net/http"
+	"strings"
 	"time"
+
+	"example1/contractapi"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -20,9 +24,6 @@ import (
 	"github.com/tyler-smith/go-bip32"
 	"github.com/tyler-smith/go-bip39"
 	"golang.org/x/sync/errgroup"
-	"log"
-	"math/big"
-	"strings"
 )
 
 // Config holds the configuration parameters
