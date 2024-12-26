@@ -99,7 +99,7 @@ fund the sequencer account (if you're using a remote hub node, you must fund the
 ```shell
 # retrieve the minimal bond amount from hub sequencer params
 # you have to account for gas fees so it should the final value should be increased
-BOND_AMOUNT="$(dymd q sequencer params -o json | jq -r '.params.min_bond.amount')$(dymd q sequencer params -o json | jq -r '.params.min_bond.denom')"
+BOND_AMOUNT="$(dymd q rollapp params -o json | jq -r '.params.min_sequencer_bond_global.amount')$(dymd q rollapp params -o json | jq -r '.params.min_sequencer_bond_global.denom')"
 
 # Extract the numeric part
 NUMERIC_PART=$(echo $BOND_AMOUNT | sed 's/adym//')
