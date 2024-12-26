@@ -4,7 +4,7 @@ PROJECT_NAME=rollappd
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
-DRS_VERSION = 1
+DRS_VERSION = 4
 
 #ifndef $(CELESTIA_NETWORK)
 #    CELESTIA_NETWORK=mock
@@ -173,3 +173,25 @@ release:
 		release --clean --skip=validate
 
 .PHONY: release-dry-run release
+
+# Default DRS_VERSION if not set
+DRS_VERSION ?= default-drs
+
+.PHONY: generate-genesis
+generate-genesis:
+	@if [ -z "$(env)" ]; then \
+		echo "Error: 'env' parameter is required. Use 'make generate-genesis env=mainnet' or 'make generate-genesis env=testnet'"; \
+		exit 1; \
+	fi
+	@if [ "$(env)" != "mainnet" ] && [ "$(env)" != "testnet" ]; then \
+		echo "Error: 'env' must be either 'mainnet' or 'testnet'"; \
+		exit 1; \
+	fi
+	@echo "Building and installing rollapp-evm..."
+	@$(MAKE) install
+	@echo "Removing existing genesis file..."
+	@rm -f ${HOME}/.rollapp_evm/config/genesis.json
+	@echo "Initializing rollapp-evm..."
+	@rollapp-evm init test
+	@echo "Running genesis template script..."
+	@./scripts/generate-genesis-template.sh $(env) $(DRS_VERSION)
