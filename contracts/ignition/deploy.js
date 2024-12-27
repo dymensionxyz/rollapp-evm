@@ -10,14 +10,14 @@ async function main() {
     const expirationOffset = 3600; // 1 hour in seconds
     const assetInfos = [
         {
-            localNetworkName: "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
-            oracleNetworkName: "OracleDenom1",
-            localNetworkPrecision: 18,
+            localNetworkName: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+            oracleNetworkName: "WBTC",
+            localNetworkPrecision: 8,
         },
         {
-            localNetworkName: "0x0000000000000000000000000000000000000000",
-            oracleNetworkName: "OracleDenom2",
-            localNetworkPrecision: 8,
+            localNetworkName: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            oracleNetworkName: "USDC",
+            localNetworkPrecision: 6,
         }
     ];
     const boundThreshold = 500;
