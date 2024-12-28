@@ -1,0 +1,26 @@
+I encountered an issue during the DRS-4 upgrade process on the Rollapp platform. The error message indicates a Bech32 prefix mismatch:
+
+Expected prefix: kitty
+Received prefix: KITTY
+This issue appears when querying an address or restarting services after the upgrade.
+
+Additionally, when attempting to restart services, I received the following error:
+
+Current balance: 67 DYM (67008604481108790246adym)
+Necessary balance: 6 DYM (5010000000000000000adym)
+Error: failed to restart systemd services: a migration from a65646 to 7a981c is required
+Steps to reproduce:
+
+Perform the DRS-4 upgrade.
+Attempt to query an address or restart services with a prefix mismatch.
+Encounter the error rollapp bech32 prefix does not match.
+Attempt to restart services and receive the migration error.
+Expected behavior:
+
+The Bech32 prefix should match the expected value (kitty), and the services should restart without errors.
+The system should not require migration from a65646 to 7a981c for the upgrade process.
+Actual behavior:
+
+The Bech32 prefix does not match, causing errors during address queries and service restarts.
+A migration from a65646 to 7a981c is required, preventing services from restarting.
+This issue seems directly related to the DRS-4 upgrade process. Can you please investigate and provide a fix for this?
