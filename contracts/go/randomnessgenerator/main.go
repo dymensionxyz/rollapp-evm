@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
-	"crypto/rand"
-	"example1/contractapi"
+	randomnessgeneratorAPI "example1/contractapi"
+	"example1/usecases"
+	"example1/usecases/service"
 	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -22,7 +20,9 @@ import (
 	"golang.org/x/sync/errgroup"
 	"log"
 	"math/big"
+	"net/http"
 	"strings"
+	"time"
 )
 
 // Config holds the configuration parameters
@@ -42,10 +42,11 @@ type Config struct {
 
 type RNGAgent struct {
 	EthClient       *ethclient.Client
-	ContractAPI     *contractapi.RandomnessGenerator
+	ContractAPI     *randomnessgeneratorAPI.Contract
 	ContractAddress common.Address
 	DB              *leveldb.DB
 	Auth            *bind.TransactOpts
+	Generator       usecases.RandomnessGenerator
 }
 
 func NewRNGAgent(cfg Config) (*RNGAgent, error) {
@@ -61,7 +62,7 @@ func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 	}
 
 	contractAddress := common.HexToAddress(cfg.HexContractAddress)
-	contract, err := contractapi.NewRandomnessGenerator(contractAddress, client)
+	contract, err := randomnessgeneratorAPI.NewContract(contractAddress, client)
 	if err != nil {
 		return nil, fmt.Errorf("can't use rng smart-contract API: %v", err)
 	}
@@ -74,6 +75,11 @@ func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 		return nil, fmt.Errorf("contract does not exist at address: %s", contractAddress.Hex())
 	}
 
+	g, err := service.NewRandomnessGenerator()
+	if err != nil {
+		return nil, fmt.Errorf("can't connect to randomness generator service: %v", err)
+	}
+
 	auth := createTransactOpts(client, cfg)
 	return &RNGAgent{
 		EthClient:       client,
@@ -81,105 +87,103 @@ func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 		DB:              db,
 		ContractAPI:     contract,
 		Auth:            auth,
+		Generator:       g,
 	}, nil
 }
 
-type EventNewRandomnessRequest struct {
-	RandomnessID *big.Int
+const (
+	RandomnessRequested = 0
+)
+
+type RandomnessRequestedEvent struct {
+	ID *big.Int
 }
 
-func generateRandomUint256() (*big.Int, error) {
-	maxInt := new(big.Int).Lsh(big.NewInt(1), 256)
-	maxInt.Sub(maxInt, big.NewInt(1))
-
-	randomNumber, err := rand.Int(rand.Reader, maxInt)
+func parseRandomnessRequestedEvent(data []byte) (*RandomnessRequestedEvent, error) {
+	parsedABI, err := abi.JSON(strings.NewReader(`[{"anonymous":false,"inputs":[{"indexed":false,"name":"id","type":"uint256"}],"name":"RandomnessRequestedEvent","type":"event"}]`))
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate random uint256: %v", err)
+		return nil, fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
-	return randomNumber, nil
+	var event RandomnessRequestedEvent
+	err = parsedABI.UnpackIntoInterface(&event, "RandomnessRequestedEvent", data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unpack event data: %w", err)
+	}
+
+	if event.ID == nil {
+		return nil, fmt.Errorf("randomness ID is nil")
+	}
+
+	return &event, nil
 }
 
-func (a *RNGAgent) ListenForSmartContractEvents() error {
-	contractABI, err := abi.JSON(strings.NewReader(contractapi.RandomnessGeneratorMetaData.ABI))
-	if err != nil {
-		return fmt.Errorf("error parsing contract ABI: %v", err)
-	}
-
-	eventNewRandomnessRequestID := contractABI.Events["EventNewRandomnessRequest"].ID
-
-	query := ethereum.FilterQuery{
-		Addresses: []common.Address{a.ContractAddress},
-		Topics:    [][]common.Hash{{eventNewRandomnessRequestID}},
-	}
-
-	logs := make(chan types.Log)
-	sub, err := a.EthClient.SubscribeFilterLogs(context.Background(), query, logs)
-	if err != nil {
-		return fmt.Errorf("error subscribing to logs: %v", err)
-	}
-
-	//sub.Unsubscribe()
-
-	println("KAL SOBAKI")
-
+func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
 	for {
 		select {
+		case <-ctx.Done():
+			log.Println("context canceled, exiting event loop")
+			return ctx.Err()
+		default:
+			events, err := a.ContractAPI.PollEvents(nil, RandomnessRequested)
+			if err != nil {
+				log.Printf("error polling events from contract: %v", err)
+				continue
+			}
 
-		case err := <-sub.Err():
-			log.Printf("error with subscription: %v", err)
-
-			dialRetries := 3
-			for err != nil && dialRetries > 0 {
-				log.Println("dialRetries: ", dialRetries)
-				if dialRetries != 3 {
-					time.Sleep(1000 * time.Millisecond)
+			var processedEvents []*big.Int
+			for _, event := range events {
+				r, err := parseRandomnessRequestedEvent(event.Data)
+				if err != nil {
+					log.Printf("error parsing randomness requested event: %v", err)
+					continue
 				}
-				a.EthClient, err = ethclient.Dial("ws://127.0.0.1:8546")
-				dialRetries -= 1
+
+				randID := r.ID
+				randomness, err := a.Generator.GenerateUInt256()
+				if err != nil {
+					log.Printf("can't generate u256 random: %v", err)
+					continue
+				}
+
+				err = a.DB.Put(randID.Bytes(), randomness.Bytes(), nil)
+				if err != nil {
+					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomness, err)
+					continue
+				}
+
+				log.Printf("[%s:%s]", randID.String(), randomness.String())
+
+				tx, err := a.ContractAPI.PostRandomness(a.Auth, randID, randomness)
+				if err != nil {
+					log.Printf("error PostRandomness tx: %v", err)
+					continue
+				}
+				err = waitForTransaction(a.EthClient, tx)
+				if err != nil {
+					log.Println(a.Auth.From.String())
+					log.Printf("PostRandomness tx failed: %v", err)
+					continue
+				}
+
+				processedEvents = append(processedEvents, event.EventId)
 			}
 
-			if err == nil {
-				println("OK")
+			if len(processedEvents) > 0 {
+				tx, err := a.ContractAPI.EraseEvents(a.Auth, processedEvents, RandomnessRequested)
+				if err != nil {
+					log.Printf("error sending EraseEvents tx: %v", err)
+					continue
+				}
+				err = waitForTransaction(a.EthClient, tx)
+				if err != nil {
+					log.Printf("EraseEvents tx failed: %v", err)
+				}
 			}
 
-			return err
-		case l := <-logs:
-			var event EventNewRandomnessRequest
-			err := contractABI.UnpackIntoInterface(&event, "EventNewRandomnessRequest", l.Data)
-			if err != nil {
-				log.Printf("error unpacking log: %v", err)
-				continue
-			}
-
-			randID := event.RandomnessID
-			fmt.Printf("tx[%s], Randomness requested: ID: %s\n", l.TxHash.Hex(), randID.String())
-
-			randomness, err := generateRandomUint256()
-			if err != nil {
-				log.Printf("can't generate u256 random: %v", err)
-				continue
-			}
-
-			err = a.DB.Put(randID.Bytes(), randomness.Bytes(), nil)
-			if err != nil {
-				log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomness, err)
-				continue
-			}
-
-			log.Printf("[%s:%s]", randID.String(), randomness.String())
-
-			_, err = a.ContractAPI.PostRandomness(a.Auth, randID, randomness)
-			if err != nil {
-				log.Printf("%v", err)
-			}
-		case <-time.After(60 * time.Second):
-			log.Println("timeout 1min retry dial")
-			// https://github.com/ethereum/go-ethereum/blob/245f3146c26698193c4b479e7bc5825b058c444a/rpc/subscription.go#L243
-			sub.Unsubscribe()
+			time.Sleep(10 * time.Second)
 		}
 	}
-
 }
 
 func (a *RNGAgent) handleGetRandomness(w http.ResponseWriter, r *http.Request) {
@@ -210,21 +214,32 @@ func (a *RNGAgent) handleGetRandomness(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprintf(w, randomness.String())
 }
 
-func (a *RNGAgent) StartHTTPServer(address string) error {
+func (a *RNGAgent) StartHTTPServer(ctx context.Context, address string) error {
+	server := &http.Server{
+		Addr: address,
+	}
+
 	http.HandleFunc("/randomness", a.handleGetRandomness)
 
+	go func() {
+		<-ctx.Done()
+		_ = server.Shutdown(context.Background())
+	}()
+
 	log.Printf("Starting HTTP server at %s", address)
-	err := http.ListenAndServe(address, nil)
-	return fmt.Errorf("failed to start HTTP server: %v", err)
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		return err
+	}
+	return nil
 }
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	config := Config{
-		NodeURL:            "ws://127.0.0.1:8546", // Local Hardhat node
+		NodeURL:            "http://127.0.0.1:8545", // Local Hardhat node
 		Mnemonic:           "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		HexContractAddress: "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0", // Replace with the correct contract address
+		HexContractAddress: "0xEb5cFC6bE2e20F71aa02947b3bD96b4F891F956b", // Replace with the correct contract address
 		DerivationPath:     "m/44'/60'/0'/0/0",
 		GasLimit:           60000,
 		GasFeeCap:          big.NewInt(30000000000), // 30 Gwei
@@ -240,16 +255,82 @@ func main() {
 		log.Fatalf("error while creating rng agent: %v", err)
 	}
 
-	g.Go(agent.ListenForSmartContractEvents)
-	g.Go(func() error { return agent.StartHTTPServer(config.HTTPServerAddr) })
+	g.Go(func() error { return agent.ListenForSmartContractEvents(ctx) })
+	g.Go(func() error { return agent.StartHTTPServer(ctx, config.HTTPServerAddr) })
 
 	if err := g.Wait(); err != nil {
 		log.Fatalf("failed: %v", err)
 	}
 }
 
+func waitForTransaction(client *ethclient.Client, tx *types.Transaction) error {
+	receipt, err := bind.WaitMined(context.Background(), client, tx)
+	if err != nil {
+		return fmt.Errorf("error waiting for transaction confirmation: %v", err)
+	}
+
+	if receipt.Status == 1 {
+		return nil
+	}
+
+	revertReason, err := getRevertReason(client, tx.Hash())
+	if err != nil {
+		return err
+	}
+	return fmt.Errorf("tx failed, revert reason: %s", revertReason)
+}
+
+func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, error) {
+	receipt, err := client.TransactionReceipt(context.Background(), txHash)
+	if err != nil {
+		return "", fmt.Errorf("failed to get receipt: %v", err)
+	}
+
+	if receipt.Status != 0 {
+		return "", fmt.Errorf("transaction did not fail")
+	}
+
+	tx, _, err := client.TransactionByHash(context.Background(), txHash)
+	if err != nil {
+		return "", fmt.Errorf("failed to get transaction: %v", err)
+	}
+
+	msg := ethereum.CallMsg{
+		To:   tx.To(),
+		Data: tx.Data(),
+	}
+
+	res, err := client.CallContract(context.Background(), msg, receipt.BlockNumber)
+	if err != nil {
+		return "", fmt.Errorf("failed to call contract: %v", err)
+	}
+
+	if len(res) < 4 {
+		return "No revert reason", nil
+	}
+
+	// The revert reason is ABI encoded: first 4 bytes are the function selector for Error(string)
+	const errorMethodID = "0x08c379a0"
+	if fmt.Sprintf("0x%x", res[:4]) != errorMethodID {
+		return "Could not decode revert reason", nil
+	}
+
+	abiError, err := abi.JSON(strings.NewReader(`[{"inputs":[{"internalType":"string","name":"reason","type":"string"}],"name":"Error","type":"function"}]`))
+	if err != nil {
+		return "", fmt.Errorf("failed to parse ABI: %v", err)
+	}
+
+	var errorMsg string
+	err = abiError.UnpackIntoInterface(&errorMsg, "Error", res[4:])
+	if err != nil {
+		return "", fmt.Errorf("failed to unpack revert reason: %v", err)
+	}
+
+	return errorMsg, nil
+}
+
 func contractExists(client *ethclient.Client, address common.Address) (bool, error) {
-	code, err := client.CodeAt(context.Background(), address, nil) // Проверка кода на контракте
+	code, err := client.CodeAt(context.Background(), address, nil)
 	if err != nil {
 		return false, fmt.Errorf("failed to check contract existence: %v", err)
 	}
