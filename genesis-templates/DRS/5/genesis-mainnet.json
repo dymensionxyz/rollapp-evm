@@ -266,7 +266,7 @@
     },
     "sequencers": {
       "params": {
-        "unbonding_time": "1814400s",
+        "unbonding_time": "259200s",
         "historical_entries": 10000
       },
       "sequencers": []
