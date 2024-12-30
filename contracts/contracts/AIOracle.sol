@@ -7,12 +7,12 @@ pragma solidity ^0.8.0;
  */
 contract AIOracle {
     address public aiAgent; // Address allowed to provide answers and modify prompters
-    uint256 public latestPromptId;
-    mapping(uint256 => string) public answers; // Stores answers by prompt ID
+    uint64 public latestPromptId;
+    mapping(uint64 => string) public answers; // Stores answers by prompt ID
     mapping(address => bool) private whitelistedPrompters; // Whitelisted addresses that can submit prompts
 
-    event PromptSubmitted(uint256 promptId, string prompt);
-    event AnswerSubmitted(uint256 promptId, string answer);
+    event PromptSubmitted(uint64 promptId, string prompt);
+    event AnswerSubmitted(uint64 promptId, string answer);
 
     event AddWhitelisted(address indexed account);
     event RemoveWhitelisted(address indexed account);
@@ -55,7 +55,7 @@ contract AIOracle {
      * @param prompt The prompt string
      * @return The ID of the newly created prompt
      */
-    function submitPrompt(string memory prompt) external onlyWhitelistedPrompter returns (uint256) {
+    function submitPrompt(string memory prompt) external onlyWhitelistedPrompter returns (uint64) {
         require(bytes(prompt).length > 0, "AIOracle: prompt cannot be empty");
 
         latestPromptId++;
@@ -68,7 +68,7 @@ contract AIOracle {
      * @param id The ID of the prompt
      * @param answer The answer string
      */
-    function submitAnswer(uint256 id, string memory answer) external onlyAIAgent {
+    function submitAnswer(uint64 id, string memory answer) external onlyAIAgent {
         require(id > 0 && id <= latestPromptId, "AIOracle: invalid prompt ID");
         require(bytes(answers[id]).length == 0, "AIOracle: answer already exists");
         require(bytes(answer).length > 0, "AIOracle: answer cannot be empty");
@@ -82,7 +82,7 @@ contract AIOracle {
      * @param id The ID of the prompt
      * @return The answer string
      */
-    function getAnswer(uint256 id) external view returns (string memory) {
+    function getAnswer(uint64 id) external view returns (string memory) {
         string memory answer = answers[id];
         require(bytes(answer).length > 0, "AIOracle: answer does not exist");
         return answer;

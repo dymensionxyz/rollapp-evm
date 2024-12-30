@@ -5,12 +5,6 @@ import (
 	"sync"
 )
 
-type Repository interface {
-	Get(key []byte) ([]byte, error)
-	Save(key, value []byte) error
-	Close() error
-}
-
 type MemoryDB struct {
 	data map[string][]byte
 	mu   sync.RWMutex

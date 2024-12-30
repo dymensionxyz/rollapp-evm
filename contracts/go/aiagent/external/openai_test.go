@@ -1,0 +1,49 @@
+package external_test
+
+import (
+	"testing"
+	"time"
+
+	"agent/external"
+	"github.com/stretchr/testify/require"
+)
+
+func TestOpenAIClient_SubmitPrompt(t *testing.T) {
+	t.Skip("provide your OpenAI API key to run this test")
+
+	apiKey := "put your OpenAI API key here"
+	baseUrl := "https://api.openai.com"
+
+	client := external.NewOpenAIClient(apiKey, baseUrl, 15, 100*time.Millisecond, 4*time.Second)
+
+	tests := []struct {
+		name     string
+		prompt   string
+		promptID uint64
+	}{
+		{
+			name:     "Valid prompt",
+			prompt:   "Generate a random number between 1 and 100",
+			promptID: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := client.SubmitPrompt(external.SubmitPromptRequest{
+				Prompt:   tt.prompt,
+				PromptID: tt.promptID,
+			})
+
+			t.Logf("result: %+v\n", result)
+
+			require.NoError(t, err)
+			require.NotEmpty(t, result.Answer)
+			require.NotEmpty(t, result.PromptMessageID)
+			require.NotEmpty(t, result.AnswerMessageID)
+			require.NotEmpty(t, result.ThreadID)
+			require.NotEmpty(t, result.RunID)
+			require.NotEmpty(t, result.AssistantID)
+		})
+	}
+}

@@ -1,13 +1,13 @@
 package external
 
-type Request[ReqT any] struct {
-	Body ReqT
+type Request interface {
+	IsRequest()
 }
 
-type Response[RespT any] struct {
-	Body RespT
+type Response interface {
+	IsResponse()
 }
 
-type Client[ReqT, RespT any] interface {
-	Do(Request[ReqT]) (Response[RespT], error)
+type Client interface {
+	Do(Request) (Response, error)
 }
