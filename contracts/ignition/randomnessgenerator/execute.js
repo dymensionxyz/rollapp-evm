@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const randomnessGeneratorAddress = "0xEb5cFC6bE2e20F71aa02947b3bD96b4F891F956b";
+    const randomnessGeneratorAddress = "0x371e7cE96f696F8A8d108172862b2d8e03dE701d";
 
     const randomnessGenerator = await ethers.getContractAt("RandomnessGenerator", randomnessGeneratorAddress);
 
@@ -24,12 +24,12 @@ async function main() {
         // console.log("Randomness request sent. ID:", tx1.hash.toString());
         // await tx1.wait();
 
-        const tx2 = await randomnessGenerator.getRandomness(2)
+        const tx2 = await randomnessGenerator.getRandomness(1)
         console.log(tx2.toString())
-        const tx3 = await randomnessGenerator.postRandomness(10, 10)
+        // const tx3 = await randomnessGenerator.postRandomness(10, 10)
 
-        // const updatedEvents = await randomnessGenerator.pollEvents(0);
-        // console.log("Updated Events:", updatedEvents);
+        const updatedEvents = await randomnessGenerator.pollEvents(0);
+        console.log("Updated Events:", updatedEvents);
 
     } catch (error) {
         console.error("Error:", error.message);

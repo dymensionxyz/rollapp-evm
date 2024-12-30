@@ -6,15 +6,16 @@ import "./EventManager.sol";
 contract RandomnessGenerator is EventManager {
     uint256 public randomnessId;
     mapping(uint256 => uint256) public randomnessJobs;
+    address public writer;
 
     // Don't change the order of the entries in enum declaration. Backend relies on integer number under the enum
     enum EventType {
-        RandomnessRequested,
-        RandomnessProvided
+        RandomnessRequested
     }
 
-    constructor(address _writer) EventManager(10240, _writer) {
+    constructor(address _writer) EventManager(10240) {
         randomnessId = 0;
+        writer = _writer;
     }
 
     function requestRandomness() external returns (uint256) {
@@ -29,6 +30,7 @@ contract RandomnessGenerator is EventManager {
         require(randomnessJobs[id] == 0, "Randomness already posted");
 
         randomnessJobs[id] = randomness;
+        eraseEvent(randomnessId, uint16(EventType.RandomnessRequested));
     }
 
     function getRandomness(uint256 id) external view returns (uint256) {

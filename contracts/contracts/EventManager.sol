@@ -1,50 +1,54 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract EventManager {
+abstract contract EventManager {
     struct Event {
         uint256 eventId;
         uint16 eventType;
         bytes data;
     }
 
-    mapping(uint => Event[]) private _eventsByType;
-    uint private _eventBufferSize;
-    address public writer;
+    struct EventEntries {
+        Event[] data;
+        mapping(uint256 => uint256) dataIdxByEventId;
+    }
 
-    constructor(uint bufferSize, address _writer) {
+    mapping(uint16 => EventEntries) private _eventsByType;
+
+    uint private _eventBufferSize;
+
+    constructor(uint bufferSize) {
         _eventBufferSize = bufferSize;
-        writer = _writer;
     }
 
     function insertEvent(uint256 eventId, uint16 eventType, bytes memory data) internal {
-        require(_eventsByType[eventType].length < _eventBufferSize, "Event buffer is full");
-        _eventsByType[eventType].push(Event(eventId, eventType, data));
+        Event[] storage events = _eventsByType[eventType].data;
+        require(events.length < _eventBufferSize, "Event buffer is full");
+
+        events.push(Event(eventId, eventType, data));
+        _eventsByType[eventType].dataIdxByEventId[eventId] = events.length - 1;
     }
 
-    function eraseEvents(uint256[] memory eventIds, uint16 eventType) external {
-        require(msg.sender == writer, "Only writer can erase events");
+    function eraseEvent(uint256 eventId, uint16 eventType) internal {
+        EventEntries storage entries = _eventsByType[eventType];
 
-        Event[] storage events = _eventsByType[eventType];
-        uint256 i = 0;
+        uint256 index = entries.dataIdxByEventId[eventId];
+        require(index < entries.data.length, "Event does not exist");
 
-        while (i < events.length) {
-            bool found = false;
-            for (uint256 j = 0; j < eventIds.length; j++) {
-                if (events[i].eventId == eventIds[j]) {
-                    events[i] = events[events.length - 1];
-                    events.pop();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                i++;
-            }
+        // Swap the last event with the one to delete and then pop the last
+        uint256 lastIndex = entries.data.length - 1;
+        if (index != lastIndex) {
+            Event storage lastEvent = entries.data[lastIndex];
+            entries.data[index] = lastEvent;
+            entries.dataIdxByEventId[lastEvent.eventId] = index;
         }
+
+        entries.data.pop();
+        delete entries.dataIdxByEventId[eventId];
     }
 
     function pollEvents(uint16 eventType) external view returns (Event[] memory) {
-        return _eventsByType[eventType];
+        EventEntries memory entries = _eventsByType[eventType];
+        return entries.data;
     }
 }

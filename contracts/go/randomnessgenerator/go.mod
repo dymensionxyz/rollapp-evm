@@ -1,4 +1,4 @@
-module example1
+module randomnessgenerator
 
 go 1.23.4
 
