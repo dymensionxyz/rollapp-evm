@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
-	randomnessgeneratorAPI "example1/contractapi"
-	"example1/usecases"
-	"example1/usecases/service"
+	"errors"
+	randomnessgeneratorAPI "example1/agent/contractapi"
+	"example1/agent/usecases"
+	"example1/agent/usecases/service"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -118,14 +119,14 @@ func parseRandomnessRequestedEvent(data []byte) (*RandomnessRequestedEvent, erro
 	return &event, nil
 }
 
-func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
+func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Config) error {
 	for {
 		select {
 		case <-ctx.Done():
 			log.Println("context canceled, exiting event loop")
 			return ctx.Err()
 		default:
-			events, err := a.ContractAPI.PollEvents(nil, RandomnessRequested)
+			events, err := a.ContractAPI.PollEvents(&bind.CallOpts{Context: ctx}, RandomnessRequested)
 			if err != nil {
 				log.Printf("error polling events from contract: %v", err)
 				continue
@@ -146,6 +147,15 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
 					continue
 				}
 
+				_, err = a.DB.Get(randID.Bytes(), nil)
+				if err == nil {
+					log.Printf("randomness already put in db for ID: %s", randID.String())
+					continue
+				} else if !errors.Is(err, leveldb.ErrNotFound) {
+					log.Printf("error while getting randomness key in db: %v", err)
+					continue
+				}
+
 				err = a.DB.Put(randID.Bytes(), randomness.Bytes(), nil)
 				if err != nil {
 					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomness, err)
@@ -154,7 +164,8 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
 
 				log.Printf("[%s:%s]", randID.String(), randomness.String())
 
-				tx, err := a.ContractAPI.PostRandomness(a.Auth, randID, randomness)
+				auth := createTransactOpts(a.EthClient, config)
+				tx, err := a.ContractAPI.PostRandomness(auth, randID, randomness)
 				if err != nil {
 					log.Printf("error PostRandomness tx: %v", err)
 					continue
@@ -170,7 +181,8 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
 			}
 
 			if len(processedEvents) > 0 {
-				tx, err := a.ContractAPI.EraseEvents(a.Auth, processedEvents, RandomnessRequested)
+				auth := createTransactOpts(a.EthClient, config)
+				tx, err := a.ContractAPI.EraseEvents(auth, processedEvents, RandomnessRequested)
 				if err != nil {
 					log.Printf("error sending EraseEvents tx: %v", err)
 					continue
@@ -181,7 +193,7 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context) error {
 				}
 			}
 
-			time.Sleep(10 * time.Second)
+			time.Sleep(time.Second)
 		}
 	}
 }
@@ -202,7 +214,7 @@ func (a *RNGAgent) handleGetRandomness(w http.ResponseWriter, r *http.Request) {
 
 	randomnessBytes, err := a.DB.Get(idBytes.Bytes(), nil)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
+		if errors.Is(err, leveldb.ErrNotFound) {
 			http.Error(w, "Randomness not found", http.StatusNotFound)
 		} else {
 			http.Error(w, fmt.Sprintf("Error retrieving randomness: %v", err), http.StatusInternalServerError)
@@ -239,11 +251,11 @@ func main() {
 	config := Config{
 		NodeURL:            "http://127.0.0.1:8545", // Local Hardhat node
 		Mnemonic:           "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		HexContractAddress: "0xEb5cFC6bE2e20F71aa02947b3bD96b4F891F956b", // Replace with the correct contract address
+		HexContractAddress: "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0", // Replace with the correct contract address
 		DerivationPath:     "m/44'/60'/0'/0/0",
-		GasLimit:           60000,
-		GasFeeCap:          big.NewInt(30000000000), // 30 Gwei
-		GasTipCap:          big.NewInt(2000000000),  // 2 Gwei
+		GasLimit:           1e7,
+		GasFeeCap:          big.NewInt(3e15),             // 30 Gwei
+		GasTipCap:          big.NewInt(2000000000000000), // 2 Gwei
 		HTTPServerAddr:     ":8080",
 	}
 
@@ -255,7 +267,7 @@ func main() {
 		log.Fatalf("error while creating rng agent: %v", err)
 	}
 
-	g.Go(func() error { return agent.ListenForSmartContractEvents(ctx) })
+	g.Go(func() error { return agent.ListenForSmartContractEvents(ctx, config) })
 	g.Go(func() error { return agent.StartHTTPServer(ctx, config.HTTPServerAddr) })
 
 	if err := g.Wait(); err != nil {
@@ -277,7 +289,7 @@ func waitForTransaction(client *ethclient.Client, tx *types.Transaction) error {
 	if err != nil {
 		return err
 	}
-	return fmt.Errorf("tx failed, revert reason: %s", revertReason)
+	return fmt.Errorf("tx[%s] failed, revert reason: %s", tx.Hash().String(), revertReason)
 }
 
 func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, error) {

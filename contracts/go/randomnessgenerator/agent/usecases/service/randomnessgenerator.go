@@ -2,7 +2,7 @@ package service
 
 import (
 	"crypto/rand"
-	"example1/usecases"
+	"example1/agent/usecases"
 	"fmt"
 	"math/big"
 )
