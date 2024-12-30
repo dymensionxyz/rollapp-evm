@@ -6,8 +6,6 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"errors"
-	randomnessgeneratorAPI "example1/agent/contractapi"
-	"example1/agent/service"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -23,11 +21,12 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	randomnessgeneratorAPI "randomnessgenerator/agent/contractapi"
+	"randomnessgenerator/agent/service"
 	"strings"
 	"time"
 )
 
-// Config holds the configuration parameters
 type Config struct {
 	NodeURL              string
 	Mnemonic             string
@@ -39,9 +38,6 @@ type Config struct {
 	HTTPServerAddr       string
 	RandomnessServiceURL string
 }
-
-// Deploying contracts with the account: 0x84ac82e5Ae41685D76021b909Db4f8E7C4bE279E
-// RandomnessGenerator deployed at: 0x833F2FE4BFF66e712aA2C676ce8AdF08fd65B028
 
 type RNGAgent struct {
 	EthClient       *ethclient.Client
@@ -55,19 +51,19 @@ type RNGAgent struct {
 func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 	client, err := ethclient.Dial(cfg.NodeURL)
 	if err != nil {
-		return nil, fmt.Errorf("can't connect to evm: %v", err)
+		return nil, fmt.Errorf("can't connect to evm: %w", err)
 	}
 	log.Printf("connected to Ethereum node at %s", cfg.NodeURL)
 
 	db, err := leveldb.OpenFile("./db", nil)
 	if err != nil {
-		return nil, fmt.Errorf("can't connect to db: %v", err)
+		return nil, fmt.Errorf("can't connect to db: %w", err)
 	}
 
 	contractAddress := common.HexToAddress(cfg.HexContractAddress)
 	contract, err := randomnessgeneratorAPI.NewContract(contractAddress, client)
 	if err != nil {
-		return nil, fmt.Errorf("can't use rng smart-contract API: %v", err)
+		return nil, fmt.Errorf("can't use rng smart-contract API: %w", err)
 	}
 
 	exists, err := contractExists(client, contractAddress)
@@ -80,7 +76,7 @@ func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 
 	g, err := service.NewRandomnessGenerator(cfg.RandomnessServiceURL)
 	if err != nil {
-		return nil, fmt.Errorf("can't connect to randomness generator service: %v", err)
+		return nil, fmt.Errorf("can't connect to randomness generator service: %w", err)
 	}
 
 	auth := createTransactOpts(client, cfg)
@@ -253,13 +249,13 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	config := Config{
-		NodeURL:              "http://127.0.0.1:8545", // Local Hardhat node
+		NodeURL:              "http://127.0.0.1:8545",
 		Mnemonic:             "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		HexContractAddress:   "0x371e7cE96f696F8A8d108172862b2d8e03dE701d", // Replace with the correct contract address
+		HexContractAddress:   "0x371e7cE96f696F8A8d108172862b2d8e03dE701d",
 		DerivationPath:       "m/44'/60'/0'/0/0",
 		GasLimit:             1e9,
-		GasFeeCap:            big.NewInt(3e16),              // 30 Gwei
-		GasTipCap:            big.NewInt(20000000000000000), // 2 Gwei
+		GasFeeCap:            big.NewInt(3e16),
+		GasTipCap:            big.NewInt(20000000000000000),
 		HTTPServerAddr:       ":8080",
 		RandomnessServiceURL: "http://127.0.0.1:8081/generate",
 	}
@@ -283,7 +279,7 @@ func main() {
 func waitForTransaction(ctx context.Context, client *ethclient.Client, tx *types.Transaction) error {
 	receipt, err := bind.WaitMined(ctx, client, tx)
 	if err != nil {
-		return fmt.Errorf("error waiting for transaction confirmation: %v", err)
+		return fmt.Errorf("error waiting for transaction confirmation: %w", err)
 	}
 
 	if receipt.Status == 1 {
@@ -292,15 +288,15 @@ func waitForTransaction(ctx context.Context, client *ethclient.Client, tx *types
 
 	revertReason, err := getRevertReason(client, tx.Hash())
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting revert reason: %w", err)
 	}
-	return fmt.Errorf("tx[%s] failed, revert reason: %s", tx.Hash().String(), revertReason)
+	return fmt.Errorf("tx reverted: hash: %s, reason: %s", tx.Hash().String(), revertReason)
 }
 
 func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, error) {
 	receipt, err := client.TransactionReceipt(context.Background(), txHash)
 	if err != nil {
-		return "", fmt.Errorf("failed to get receipt: %v", err)
+		return "", fmt.Errorf("failed to get receipt: %w", err)
 	}
 
 	if receipt.Status != 0 {
@@ -309,7 +305,7 @@ func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, erro
 
 	tx, _, err := client.TransactionByHash(context.Background(), txHash)
 	if err != nil {
-		return "", fmt.Errorf("failed to get transaction: %v", err)
+		return "", fmt.Errorf("failed to get transaction: %w", err)
 	}
 
 	msg := ethereum.CallMsg{
@@ -319,14 +315,13 @@ func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, erro
 
 	res, err := client.CallContract(context.Background(), msg, receipt.BlockNumber)
 	if err != nil {
-		return "", fmt.Errorf("failed to call contract: %v", err)
+		return "", fmt.Errorf("failed to call contract: %w", err)
 	}
 
 	if len(res) < 4 {
 		return "No revert reason", nil
 	}
 
-	// The revert reason is ABI encoded: first 4 bytes are the function selector for Error(string)
 	const errorMethodID = "0x08c379a0"
 	if fmt.Sprintf("0x%x", res[:4]) != errorMethodID {
 		return "Could not decode revert reason", nil
@@ -334,13 +329,13 @@ func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, erro
 
 	abiError, err := abi.JSON(strings.NewReader(`[{"inputs":[{"internalType":"string","name":"reason","type":"string"}],"name":"Error","type":"function"}]`))
 	if err != nil {
-		return "", fmt.Errorf("failed to parse ABI: %v", err)
+		return "", fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
 	var errorMsg string
 	err = abiError.UnpackIntoInterface(&errorMsg, "Error", res[4:])
 	if err != nil {
-		return "", fmt.Errorf("failed to unpack revert reason: %v", err)
+		return "", fmt.Errorf("failed to unpack revert reason: %w", err)
 	}
 
 	return errorMsg, nil
@@ -349,7 +344,7 @@ func getRevertReason(client *ethclient.Client, txHash common.Hash) (string, erro
 func contractExists(client *ethclient.Client, address common.Address) (bool, error) {
 	code, err := client.CodeAt(context.Background(), address, nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to check contract existence: %v", err)
+		return false, fmt.Errorf("failed to check contract existence: %w", err)
 	}
 	return len(code) > 0, nil
 }
@@ -358,7 +353,7 @@ func createTransactOpts(client *ethclient.Client, config Config) *bind.TransactO
 	seed := bip39.NewSeed(config.Mnemonic, "")
 	masterKey, err := bip32.NewMasterKey(seed)
 	if err != nil {
-		log.Fatalf("Error creating master key: %v", err)
+		log.Fatalf("error creating master key: %v", err)
 	}
 
 	parts := strings.Split(config.DerivationPath, "/")
@@ -372,7 +367,7 @@ func createTransactOpts(client *ethclient.Client, config Config) *bind.TransactO
 		index := 0
 		_, err := fmt.Sscanf(p, "%d", &index)
 		if err != nil {
-			log.Fatalf("Invalid path element %s: %v", p, err)
+			log.Fatalf("invalid path element %s: %v", p, err)
 		}
 
 		if hardened {
@@ -381,23 +376,23 @@ func createTransactOpts(client *ethclient.Client, config Config) *bind.TransactO
 			key, err = key.NewChildKey(uint32(index))
 		}
 		if err != nil {
-			log.Fatalf("Failed to derive key at index %d: %v", index, err)
+			log.Fatalf("failed to derive key at index %d: %v", index, err)
 		}
 	}
 
 	privateKeyECDSA, err := crypto.ToECDSA(key.Key)
 	if err != nil {
-		log.Fatalf("Error converting to ECDSA: %v", err)
+		log.Fatalf("error converting to ECDSA: %v", err)
 	}
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
-		log.Fatalf("Error getting Chain ID: %v", err)
+		log.Fatalf("error getting Chain ID: %v", err)
 	}
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKeyECDSA, chainID)
 	if err != nil {
-		log.Fatalf("Error creating signed transactor: %v", err)
+		log.Fatalf("error creating signed transactor: %v", err)
 	}
 
 	auth.GasLimit = config.GasLimit
