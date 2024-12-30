@@ -168,7 +168,7 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 					log.Printf("error PostRandomness tx: %v", err)
 					continue
 				}
-				err = waitForTransaction(a.EthClient, tx)
+				err = waitForTransaction(ctx, a.EthClient, tx)
 				if err != nil {
 					log.Println(a.Auth.From.String())
 					log.Printf("PostRandomness tx failed: %v", err)
@@ -280,8 +280,8 @@ func main() {
 	}
 }
 
-func waitForTransaction(client *ethclient.Client, tx *types.Transaction) error {
-	receipt, err := bind.WaitMined(context.Background(), client, tx)
+func waitForTransaction(ctx context.Context, client *ethclient.Client, tx *types.Transaction) error {
+	receipt, err := bind.WaitMined(ctx, client, tx)
 	if err != nil {
 		return fmt.Errorf("error waiting for transaction confirmation: %v", err)
 	}
