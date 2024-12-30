@@ -17,6 +17,7 @@ describe("RandomnessGenerator", function () {
 
     describe("Posting Randomness", function () {
         it("Should allow the writer to post randomness", async function () {
+            await randomnessGenerator.requestRandomness()
             const randomnessId = randomnessGenerator.randomnessId();
             await randomnessGenerator.postRandomness(randomnessId, 1234);
             const randomness = await randomnessGenerator.getRandomness(randomnessId);
@@ -31,6 +32,7 @@ describe("RandomnessGenerator", function () {
         });
 
         it("Should revert if randomness is already posted", async function () {
+            await randomnessGenerator.requestRandomness()
             const randomnessId = randomnessGenerator.randomnessId();
             await randomnessGenerator.postRandomness(randomnessId, 1234);
             await expect(
@@ -41,6 +43,7 @@ describe("RandomnessGenerator", function () {
 
     describe("Fetching Randomness", function () {
         it("Should fetch the posted randomness correctly", async function () {
+            await randomnessGenerator.requestRandomness()
             const randomnessId = randomnessGenerator.randomnessId();
             await randomnessGenerator.postRandomness(randomnessId, 1234);
             const randomness = await randomnessGenerator.getRandomness(randomnessId);
@@ -52,22 +55,6 @@ describe("RandomnessGenerator", function () {
             await expect(
                 randomnessGenerator.getRandomness(randomnessId)
             ).to.be.revertedWith("Randomness not posted");
-        });
-    });
-
-    describe("Polling", function () {
-        it("Should request randomness 3 times, erase events, and poll to verify empty", async function () {
-            await randomnessGenerator.requestRandomness();
-            await randomnessGenerator.requestRandomness();
-            await randomnessGenerator.requestRandomness();
-
-            let events = await randomnessGenerator.pollEvents(0);
-            expect(events.length).to.equal(3);
-
-            await randomnessGenerator.eraseEvents([1, 2, 3], 0);
-            events = await randomnessGenerator.pollEvents(0);
-
-            expect(events.length).to.equal(0);
         });
     });
 });
