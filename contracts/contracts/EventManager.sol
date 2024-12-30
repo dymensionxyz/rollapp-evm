@@ -48,7 +48,7 @@ abstract contract EventManager {
     }
 
     function pollEvents(uint16 eventType) external view returns (Event[] memory) {
-        EventEntries storage entries = _eventsByType[eventType];
+        EventEntries memory entries = _eventsByType[eventType];
         return entries.data;
     }
 }
