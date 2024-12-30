@@ -65,7 +65,7 @@ describe("EventManagerMock", function () {
 
             await expect(
                 eventManagerMock.eraseEventPublic(eventId, eventType)
-            ).to.be.revertedWith("Event with provided ID not found");
+            ).to.be.revertedWith("Event does not exist");
         });
     });
 

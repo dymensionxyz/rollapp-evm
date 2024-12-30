@@ -8,7 +8,13 @@ abstract contract EventManager {
         bytes data;
     }
 
-    mapping(uint => Event[]) private _eventsByType;
+    struct EventEntries {
+        Event[] data;
+        mapping(uint256 => uint256) dataIdxByEventId;
+    }
+
+    mapping(uint16 => EventEntries) private _eventsByType;
+
     uint private _eventBufferSize;
 
     constructor(uint bufferSize) {
@@ -16,24 +22,33 @@ abstract contract EventManager {
     }
 
     function insertEvent(uint256 eventId, uint16 eventType, bytes memory data) internal {
-        require(_eventsByType[eventType].length < _eventBufferSize, "Event buffer is full");
-        _eventsByType[eventType].push(Event(eventId, eventType, data));
+        Event[] storage events = _eventsByType[eventType].data;
+        require(events.length < _eventBufferSize, "Event buffer is full");
+
+        events.push(Event(eventId, eventType, data));
+        _eventsByType[eventType].dataIdxByEventId[eventId] = events.length - 1;
     }
 
     function eraseEvent(uint256 eventId, uint16 eventType) internal {
-        Event[] storage events = _eventsByType[eventType];
-        for (uint256 i = 0; i < events.length; i++) {
-            if (events[i].eventId == eventId) {
-                events[i] = events[events.length - 1];
-                events.pop();
-                return;
-            }
+        EventEntries storage entries = _eventsByType[eventType];
+
+        uint256 index = entries.dataIdxByEventId[eventId];
+        require(index < entries.data.length, "Event does not exist");
+
+        // Swap the last event with the one to delete and then pop the last
+        uint256 lastIndex = entries.data.length - 1;
+        if (index != lastIndex) {
+            Event storage lastEvent = entries.data[lastIndex];
+            entries.data[index] = lastEvent;
+            entries.dataIdxByEventId[lastEvent.eventId] = index;
         }
 
-        revert("Event with provided ID not found");
+        entries.data.pop();
+        delete entries.dataIdxByEventId[eventId];
     }
 
     function pollEvents(uint16 eventType) external view returns (Event[] memory) {
-        return _eventsByType[eventType];
+        EventEntries storage entries = _eventsByType[eventType];
+        return entries.data;
     }
 }
