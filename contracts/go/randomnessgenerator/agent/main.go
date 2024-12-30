@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
-	"crypto/ecdsa"
+	"encoding/gob"
+	"encoding/json"
 	"errors"
 	randomnessgeneratorAPI "example1/agent/contractapi"
-	"example1/agent/usecases"
-	"example1/agent/usecases/service"
+	"example1/agent/service"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -28,14 +29,15 @@ import (
 
 // Config holds the configuration parameters
 type Config struct {
-	NodeURL            string
-	Mnemonic           string
-	HexContractAddress string
-	DerivationPath     string
-	GasLimit           uint64
-	GasFeeCap          *big.Int
-	GasTipCap          *big.Int
-	HTTPServerAddr     string
+	NodeURL              string
+	Mnemonic             string
+	HexContractAddress   string
+	DerivationPath       string
+	GasLimit             uint64
+	GasFeeCap            *big.Int
+	GasTipCap            *big.Int
+	HTTPServerAddr       string
+	RandomnessServiceURL string
 }
 
 // Deploying contracts with the account: 0x84ac82e5Ae41685D76021b909Db4f8E7C4bE279E
@@ -47,7 +49,7 @@ type RNGAgent struct {
 	ContractAddress common.Address
 	DB              *leveldb.DB
 	Auth            *bind.TransactOpts
-	Generator       usecases.RandomnessGenerator
+	Generator       *service.RandomnessGenerator
 }
 
 func NewRNGAgent(cfg Config) (*RNGAgent, error) {
@@ -76,7 +78,7 @@ func NewRNGAgent(cfg Config) (*RNGAgent, error) {
 		return nil, fmt.Errorf("contract does not exist at address: %s", contractAddress.Hex())
 	}
 
-	g, err := service.NewRandomnessGenerator()
+	g, err := service.NewRandomnessGenerator(cfg.RandomnessServiceURL)
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to randomness generator service: %v", err)
 	}
@@ -132,7 +134,6 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 				continue
 			}
 
-			var processedEvents []*big.Int
 			for _, event := range events {
 				r, err := parseRandomnessRequestedEvent(event.Data)
 				if err != nil {
@@ -141,31 +142,28 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 				}
 
 				randID := r.ID
-				randomness, err := a.Generator.GenerateUInt256()
+				randomnessResp, err := a.Generator.GenerateUInt256()
 				if err != nil {
 					log.Printf("can't generate u256 random: %v", err)
 					continue
 				}
 
-				_, err = a.DB.Get(randID.Bytes(), nil)
-				if err == nil {
-					log.Printf("randomness already put in db for ID: %s", randID.String())
-					continue
-				} else if !errors.Is(err, leveldb.ErrNotFound) {
-					log.Printf("error while getting randomness key in db: %v", err)
-					continue
-				}
-
-				err = a.DB.Put(randID.Bytes(), randomness.Bytes(), nil)
+				var buf bytes.Buffer
+				enc := gob.NewEncoder(&buf)
+				err = enc.Encode(randomnessResp)
 				if err != nil {
-					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomness, err)
+					log.Printf("randomness response serialization err: %v", err)
+				}
+				err = a.DB.Put(randID.Bytes(), buf.Bytes(), nil)
+				if err != nil {
+					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomnessResp.Randomness, err)
 					continue
 				}
 
-				log.Printf("[%s:%s]", randID.String(), randomness.String())
+				log.Printf("[%s:%s]", randID.String(), randomnessResp.Randomness.String())
 
 				auth := createTransactOpts(a.EthClient, config)
-				tx, err := a.ContractAPI.PostRandomness(auth, randID, randomness)
+				tx, err := a.ContractAPI.PostRandomness(auth, randID, randomnessResp.Randomness)
 				if err != nil {
 					log.Printf("error PostRandomness tx: %v", err)
 					continue
@@ -175,21 +173,6 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 					log.Println(a.Auth.From.String())
 					log.Printf("PostRandomness tx failed: %v", err)
 					continue
-				}
-
-				processedEvents = append(processedEvents, event.EventId)
-			}
-
-			if len(processedEvents) > 0 {
-				auth := createTransactOpts(a.EthClient, config)
-				tx, err := a.ContractAPI.EraseEvents(auth, processedEvents, RandomnessRequested)
-				if err != nil {
-					log.Printf("error sending EraseEvents tx: %v", err)
-					continue
-				}
-				err = waitForTransaction(a.EthClient, tx)
-				if err != nil {
-					log.Printf("EraseEvents tx failed: %v", err)
 				}
 			}
 
@@ -201,29 +184,50 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 func (a *RNGAgent) handleGetRandomness(w http.ResponseWriter, r *http.Request) {
 	ids, ok := r.URL.Query()["id"]
 	if !ok || len(ids[0]) < 1 {
-		http.Error(w, "Missing ID parameter", http.StatusBadRequest)
+		http.Error(w, "missing ID parameter", http.StatusBadRequest)
 		return
 	}
 	id := ids[0]
 
 	idBytes, success := new(big.Int).SetString(id, 10)
 	if !success {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		http.Error(w, "invalid ID format", http.StatusBadRequest)
 		return
 	}
 
 	randomnessBytes, err := a.DB.Get(idBytes.Bytes(), nil)
 	if err != nil {
 		if errors.Is(err, leveldb.ErrNotFound) {
-			http.Error(w, "Randomness not found", http.StatusNotFound)
+			http.Error(w, "randomness not found", http.StatusNotFound)
 		} else {
-			http.Error(w, fmt.Sprintf("Error retrieving randomness: %v", err), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("error retrieving randomness: %v", err), http.StatusInternalServerError)
 		}
 		return
 	}
 
-	randomness := new(big.Int).SetBytes(randomnessBytes)
-	_, _ = fmt.Fprintf(w, randomness.String())
+	var randomnessResp service.RandomnessResponse
+	buf := bytes.NewBuffer(randomnessBytes)
+	dec := gob.NewDecoder(buf)
+	err = dec.Decode(&randomnessResp)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error decoding randomness: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	randomnessStr := randomnessResp.Randomness.String()
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(struct {
+		RequestID  string `json:"requestID"`
+		Randomness string `json:"randomness"`
+	}{
+		RequestID:  randomnessResp.RequestID,
+		Randomness: randomnessStr,
+	})
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error encoding response to JSON: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (a *RNGAgent) StartHTTPServer(ctx context.Context, address string) error {
@@ -249,14 +253,15 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	config := Config{
-		NodeURL:            "http://127.0.0.1:8545", // Local Hardhat node
-		Mnemonic:           "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		HexContractAddress: "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0", // Replace with the correct contract address
-		DerivationPath:     "m/44'/60'/0'/0/0",
-		GasLimit:           1e7,
-		GasFeeCap:          big.NewInt(3e15),             // 30 Gwei
-		GasTipCap:          big.NewInt(2000000000000000), // 2 Gwei
-		HTTPServerAddr:     ":8080",
+		NodeURL:              "http://127.0.0.1:8545", // Local Hardhat node
+		Mnemonic:             "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
+		HexContractAddress:   "0x371e7cE96f696F8A8d108172862b2d8e03dE701d", // Replace with the correct contract address
+		DerivationPath:       "m/44'/60'/0'/0/0",
+		GasLimit:             1e9,
+		GasFeeCap:            big.NewInt(3e16),              // 30 Gwei
+		GasTipCap:            big.NewInt(20000000000000000), // 2 Gwei
+		HTTPServerAddr:       ":8080",
+		RandomnessServiceURL: "http://127.0.0.1:8081/generate",
 	}
 
 	ctx := context.Background()
@@ -384,10 +389,6 @@ func createTransactOpts(client *ethclient.Client, config Config) *bind.TransactO
 	if err != nil {
 		log.Fatalf("Error converting to ECDSA: %v", err)
 	}
-
-	publicKey := privateKeyECDSA.Public().(*ecdsa.PublicKey)
-	fromAddress := crypto.PubkeyToAddress(*publicKey)
-	fmt.Printf("Derived Address: %s\n", fromAddress.Hex())
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {

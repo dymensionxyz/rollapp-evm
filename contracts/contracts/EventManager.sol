@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-contract EventManager {
+abstract contract EventManager {
     struct Event {
         uint256 eventId;
         uint16 eventType;
@@ -10,11 +10,9 @@ contract EventManager {
 
     mapping(uint => Event[]) private _eventsByType;
     uint private _eventBufferSize;
-    address public writer;
 
-    constructor(uint bufferSize, address _writer) {
+    constructor(uint bufferSize) {
         _eventBufferSize = bufferSize;
-        writer = _writer;
     }
 
     function insertEvent(uint256 eventId, uint16 eventType, bytes memory data) internal {
@@ -22,26 +20,17 @@ contract EventManager {
         _eventsByType[eventType].push(Event(eventId, eventType, data));
     }
 
-    function eraseEvents(uint256[] memory eventIds, uint16 eventType) external {
-        require(msg.sender == writer, "Only writer can erase events");
-
+    function eraseEvent(uint256 eventId, uint16 eventType) internal {
         Event[] storage events = _eventsByType[eventType];
-        uint256 i = 0;
-
-        while (i < events.length) {
-            bool found = false;
-            for (uint256 j = 0; j < eventIds.length; j++) {
-                if (events[i].eventId == eventIds[j]) {
-                    events[i] = events[events.length - 1];
-                    events.pop();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                i++;
+        for (uint256 i = 0; i < events.length; i++) {
+            if (events[i].eventId == eventId) {
+                events[i] = events[events.length - 1];
+                events.pop();
+                return;
             }
         }
+
+        revert("Event with provided ID not found");
     }
 
     function pollEvents(uint16 eventType) external view returns (Event[] memory) {
