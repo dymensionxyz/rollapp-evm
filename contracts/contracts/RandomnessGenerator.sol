@@ -1,22 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract RandomnessGenerator {
-    event EventNewRandomnessRequest(uint256 randomnessId);
-    event EventRandomnessProvided(uint256 randomnessId, uint256 randomnessValue);
+import "./EventManager.sol";
 
-    address public writer;
+contract RandomnessGenerator is EventManager {
     uint256 public randomnessId;
     mapping(uint256 => uint256) public randomnessJobs;
 
-    constructor(address _writer) {
-        writer = _writer;
+    // Don't change the order of the entries in enum declaration. Backend relies on integer number under the enum
+    enum EventType {
+        RandomnessRequested,
+        RandomnessProvided
+    }
+
+    constructor(address _writer) EventManager(10240, _writer) {
         randomnessId = 0;
     }
 
     function requestRandomness() external returns (uint256) {
         randomnessId += 1;
-        emit EventNewRandomnessRequest(randomnessId);
+        bytes memory requestData = abi.encode(randomnessId);
+        insertEvent(randomnessId, uint16(EventType.RandomnessRequested), requestData);
         return randomnessId;
     }
 
@@ -25,7 +29,6 @@ contract RandomnessGenerator {
         require(randomnessJobs[id] == 0, "Randomness already posted");
 
         randomnessJobs[id] = randomness;
-        emit EventRandomnessProvided(id, randomness);
     }
 
     function getRandomness(uint256 id) external view returns (uint256) {
