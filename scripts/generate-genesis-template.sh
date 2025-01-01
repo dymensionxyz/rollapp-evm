@@ -68,7 +68,7 @@ update_params() {
     DELEGATOR_UNBONDING_TIME="604800s" # 1 weeks
     VOTING_PERIOD="432000s" # 5 days
   else
-    SEQUENCER_UNBONDING_TIME="1814400s" # 2 weeks
+    SEQUENCER_UNBONDING_TIME="1814400s" # 3 weeks
     DELEGATOR_UNBONDING_TIME="86400s" # 1 day
     VOTING_PERIOD="300s" # 5 minutes
   fi
