@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2024-12-26T14:48:48.948821Z",
+  "genesis_time": "2024-12-31T16:57:29.960515Z",
   "chain_id": "rollappevm_1234-1",
   "initial_height": "1",
   "consensus_params": {
@@ -266,14 +266,14 @@
     },
     "sequencers": {
       "params": {
-        "unbonding_time": "1309600s",
+        "unbonding_time": "1814400s",
         "historical_entries": 10000
       },
       "sequencers": []
     },
     "staking": {
       "params": {
-        "unbonding_time": "1309600s",
+        "unbonding_time": "86400s",
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 10000,
