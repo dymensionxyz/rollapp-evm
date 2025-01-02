@@ -23,7 +23,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: storetypes.StoreUpgrades{
 		Deleted: []string{
 			claimstypes.ModuleName,
-			"denommetadata", // TODO: check
+			"denommetadata",
 		},
 		Added: []string{
 			authztypes.ModuleName,
