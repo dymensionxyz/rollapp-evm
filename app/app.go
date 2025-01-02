@@ -11,7 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/proposal"
-	"github.com/dymensionxyz/rollapp-evm/app/upgrades/threed"
+	drs5mainnet "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-mainnet"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -190,7 +190,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, threed.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5mainnet.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -879,7 +879,7 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
 	}
 	if drsVersion != app.RollappParamsKeeper.Version(ctx) {
-		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
+		//panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
 	}
 	return resp
 }

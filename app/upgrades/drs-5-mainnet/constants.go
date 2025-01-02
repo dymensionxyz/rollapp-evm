@@ -1,4 +1,4 @@
-package threed
+package drs5mainnet
 
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -15,8 +15,8 @@ import (
 
 const (
 	UpgradeName        = "3D"
-	drs         uint32 = 5
-	da          string = "celestia"
+	DRS         uint32 = 5
+	DA          string = "celestia"
 )
 
 var Upgrade = upgrades.Upgrade{
