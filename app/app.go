@@ -165,7 +165,6 @@ import (
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
-	threed "github.com/dymensionxyz/rollapp-evm/app/upgrades/threed"
 )
 
 const (
