@@ -367,4 +367,6 @@ replace (
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241128205759-2a9d5f015da5
 )
 
-replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
+// TODO: cleanup after rdk is merged
+//replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
+replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250102180458-aea83a151bf2
