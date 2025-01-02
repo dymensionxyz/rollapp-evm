@@ -164,6 +164,7 @@ import (
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
+	foo "github.com/dymensionxyz/rollapp-evm/app/upgrades/foo"
 )
 
 const (
@@ -189,7 +190,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, foo.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -463,7 +464,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-		// insert mint hooks receivers here
+			// insert mint hooks receivers here
 		),
 	)
 
@@ -556,7 +557,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 
