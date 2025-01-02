@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/proposal"
+	"github.com/dymensionxyz/rollapp-evm/app/upgrades/threed"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -164,7 +165,7 @@ import (
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
-	foo "github.com/dymensionxyz/rollapp-evm/app/upgrades/foo"
+	threed "github.com/dymensionxyz/rollapp-evm/app/upgrades/threed"
 )
 
 const (
@@ -190,7 +191,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, foo.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, threed.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
