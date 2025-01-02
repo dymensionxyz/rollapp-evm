@@ -11,8 +11,6 @@ import (
 )
 
 func CreateUpgradeHandler(
-	rpKeeper rollappparamskeeper.Keeper,
-	evmKeeper *evmkeeper.Keeper,
 	mm *module.Manager,
 	configurator module.Configurator,
 ) upgradetypes.UpgradeHandler {

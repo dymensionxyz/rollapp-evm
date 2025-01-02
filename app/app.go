@@ -1143,12 +1143,15 @@ func (app *App) setupUpgradeHandlers() {
 	}
 }
 
-func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
+func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 	app.UpgradeKeeper.SetUpgradeHandler(
-		upgrade.Name,
-		upgrade.CreateHandler(
-			app.RollappParamsKeeper,
-			app.EvmKeeper,
+		u.Name,
+		u.CreateHandler(
+			upgrades.UpgradeKeepers{
+				RpKeeper:  app.RollappParamsKeeper,
+				EvmKeeper: app.EvmKeeper,
+				HubgenK:   app.HubGenesisKeeper,
+			},
 			app.mm,
 			app.configurator,
 		),
@@ -1159,8 +1162,8 @@ func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
 		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
 	}
 
-	if upgradeInfo.Name == upgrade.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == u.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader with the store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &u.StoreUpgrades))
 	}
 }
