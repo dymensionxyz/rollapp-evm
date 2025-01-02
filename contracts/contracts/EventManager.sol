@@ -51,4 +51,9 @@ abstract contract EventManager {
         EventEntries storage entries = _eventsByType[eventType];
         return entries.data;
     }
+
+    function getEvents(uint16 eventType) internal view returns (Event[] memory) {
+        EventEntries storage entries = _eventsByType[eventType];
+        return entries.data;
+    }
 }

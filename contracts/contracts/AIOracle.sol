@@ -21,7 +21,7 @@ contract AIOracle is Whitelist, EventManager {
         PromptSubmitted
     }
 
-    struct EventPromptSubmitted {
+    struct UnprocessedPrompt {
         uint64 promptId;
         string prompt;
     }
@@ -43,9 +43,11 @@ contract AIOracle is Whitelist, EventManager {
 
         latestPromptId++;
 
-        EventPromptSubmitted memory e = EventPromptSubmitted(latestPromptId, prompt);
-        bytes memory requestData = abi.encode(e);
-        insertEvent(latestPromptId, uint16(EventType.PromptSubmitted), bytes(requestData));
+        insertEvent(
+            latestPromptId,
+            uint16(EventType.PromptSubmitted),
+            encodeUnprocessedPrompt(latestPromptId, prompt)
+        );
         emit PromptSubmitted(latestPromptId, prompt);
 
         return latestPromptId;
@@ -72,5 +74,32 @@ contract AIOracle is Whitelist, EventManager {
         string memory answer = answers[promptId];
         require(bytes(answer).length > 0, "AIOracle: answer does not exist");
         return answer;
+    }
+
+    /**
+     * @dev Encode prompt data
+     */
+    function encodeUnprocessedPrompt(uint64 promptId, string memory prompt) internal pure returns (bytes memory) {
+        return abi.encode(promptId, prompt);
+    }
+
+    /**
+     * @dev Decode prompt data
+     */
+    function decodeUnprocessedPrompt(bytes memory data) internal pure returns (UnprocessedPrompt memory) {
+        (uint64 promptId, string memory prompt) = abi.decode(data, (uint64, string));
+        return UnprocessedPrompt(promptId, prompt);
+    }
+
+    /**
+     * @dev Get all unprocessed prompts
+     */
+    function getUnprocessedPrompts() external view returns (UnprocessedPrompt[] memory) {
+        Event[] memory events = getEvents(uint16(EventType.PromptSubmitted));
+        UnprocessedPrompt[] memory res = new UnprocessedPrompt[](events.length);
+        for (uint64 i; i < events.length; i++) {
+            res[i] = decodeUnprocessedPrompt(events[i].data);
+        }
+        return res;
     }
 }

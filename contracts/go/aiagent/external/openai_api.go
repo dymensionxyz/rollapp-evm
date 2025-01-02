@@ -1,6 +1,7 @@
 package external
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-resty/resty/v2"
@@ -14,10 +15,11 @@ const (
 	defaultOrder = "desc"
 )
 
-func (c *OpenAIClient) CreateMessage(role, content string, promptID uint64) (ThreadMessage, error) {
+func (c *OpenAIClient) CreateMessage(ctx context.Context, role, content string, promptID uint64) (ThreadMessage, error) {
 	var result ThreadMessage
 
 	resp, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("thread_id", defaultThreadID).
 		SetBody(CreateMessageReq{
 			Role:    role,
@@ -40,10 +42,11 @@ func (c *OpenAIClient) CreateMessage(role, content string, promptID uint64) (Thr
 	return result, nil
 }
 
-func (c *OpenAIClient) RetrieveMessage(messageID string) (ThreadMessage, error) {
+func (c *OpenAIClient) RetrieveMessage(ctx context.Context, messageID string) (ThreadMessage, error) {
 	var result ThreadMessage
 
 	resp, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("thread_id", defaultThreadID).
 		SetPathParam("message_id", messageID).
 		SetResult(&result).
@@ -60,25 +63,26 @@ func (c *OpenAIClient) RetrieveMessage(messageID string) (ThreadMessage, error) 
 	return result, nil
 }
 
-func (c *OpenAIClient) ListMessagesByRun(runID string) (ThreadMessageList, error) {
-	return c.listMessages(map[string]string{
+func (c *OpenAIClient) ListMessagesByRun(ctx context.Context, runID string) (ThreadMessageList, error) {
+	return c.listMessages(ctx, map[string]string{
 		"run_id": runID,
 		"limit":  defaultLimit,
 		"order":  defaultOrder,
 	})
 }
 
-func (c *OpenAIClient) ListMessages() (ThreadMessageList, error) {
-	return c.listMessages(map[string]string{
+func (c *OpenAIClient) ListMessages(ctx context.Context) (ThreadMessageList, error) {
+	return c.listMessages(ctx, map[string]string{
 		"limit": defaultLimit,
 		"order": defaultOrder,
 	})
 }
 
-func (c *OpenAIClient) listMessages(queryParams map[string]string) (ThreadMessageList, error) {
+func (c *OpenAIClient) listMessages(ctx context.Context, queryParams map[string]string) (ThreadMessageList, error) {
 	var result ThreadMessageList
 
 	resp, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("thread_id", defaultThreadID).
 		SetQueryParams(queryParams).
 		SetResult(&result).
@@ -95,10 +99,11 @@ func (c *OpenAIClient) listMessages(queryParams map[string]string) (ThreadMessag
 	return result, nil
 }
 
-func (c *OpenAIClient) CreateRun(promptID uint64) (ThreadRun, error) {
+func (c *OpenAIClient) CreateRun(ctx context.Context, promptID uint64) (ThreadRun, error) {
 	var result ThreadRun
 
 	resp, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("thread_id", defaultThreadID).
 		SetBody(CreateRunReq{
 			AssistantId: defaultAssistantID,
@@ -120,11 +125,11 @@ func (c *OpenAIClient) CreateRun(promptID uint64) (ThreadRun, error) {
 	return result, nil
 }
 
-func (c *OpenAIClient) RetrieveRun(runID string) (ThreadRun, error) {
-	return retrieveRun(c.http, runID)
+func (c *OpenAIClient) RetrieveRun(ctx context.Context, runID string) (ThreadRun, error) {
+	return retrieveRun(ctx, c.http, runID)
 }
 
-func (c *OpenAIClient) PollRunResult(runID string) (ThreadRun, error) {
+func (c *OpenAIClient) PollRunResult(ctx context.Context, runID string) (ThreadRun, error) {
 	// Do `Clone` to avoid modifying the original client.
 	pollingClient := c.http.Clone().
 		SetRetryCount(c.pollRetryCount).
@@ -133,13 +138,14 @@ func (c *OpenAIClient) PollRunResult(runID string) (ThreadRun, error) {
 		AddRetryCondition(func(r *resty.Response, err error) bool {
 			return r.Result().(*ThreadRun).Status != "completed"
 		})
-	return retrieveRun(pollingClient, runID)
+	return retrieveRun(ctx, pollingClient, runID)
 }
 
-func retrieveRun(client *resty.Client, runID string) (ThreadRun, error) {
+func retrieveRun(ctx context.Context, client *resty.Client, runID string) (ThreadRun, error) {
 	var result ThreadRun
 
 	resp, err := client.R().
+		SetContext(ctx).
 		SetPathParam("thread_id", defaultThreadID).
 		SetPathParam("run_id", runID).
 		SetResult(&result).

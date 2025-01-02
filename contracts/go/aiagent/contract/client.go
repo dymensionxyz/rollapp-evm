@@ -8,7 +8,7 @@ type Result struct {
 	Body []byte
 }
 
-type Client interface {
-	GetEvents() ([]Event, error)
-	CommitResult(Result) error
-}
+//type AIOracleClient interface {
+//	GetEvents() ([]Event, error)
+//	CommitResult(Result) error
+//}

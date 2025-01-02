@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package main
+package contract
 
 import (
 	"errors"
@@ -29,9 +29,22 @@ var (
 	_ = abi.ConvertType
 )
 
+// AIOracleUnprocessedPrompt is an auto generated low-level Go binding around an user-defined struct.
+type AIOracleUnprocessedPrompt struct {
+	PromptId uint64
+	Prompt   string
+}
+
+// EventManagerEvent is an auto generated low-level Go binding around an user-defined struct.
+type EventManagerEvent struct {
+	EventId   uint64
+	EventType uint16
+	Data      []byte
+}
+
 // AIOracleMetaData contains all meta data concerning the AIOracle contract.
 var AIOracleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_authorizedWriter\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"AddWhitelisted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"promptId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"answer\",\"type\":\"string\"}],\"name\":\"AnswerSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAIAgent\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAIAgent\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"promptId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"prompt\",\"type\":\"string\"}],\"name\":\"PromptSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"RemoveWhitelisted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"addWhitelistAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"aiAgent\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"answers\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"getAnswer\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isWhitelistedPrompter\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestPromptId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"removeWhitelistAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"answer\",\"type\":\"string\"}],\"name\":\"submitAnswer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"prompt\",\"type\":\"string\"}],\"name\":\"submitPrompt\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAIAgent\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"initialOwner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"WhitelistUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"AddWhitelisted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"promptId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"answer\",\"type\":\"string\"}],\"name\":\"AnswerSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"promptId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"prompt\",\"type\":\"string\"}],\"name\":\"PromptSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"RemoveWhitelisted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"addWhitelisted\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"answers\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"promptId\",\"type\":\"uint64\"}],\"name\":\"getAnswer\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getUnprocessedPrompts\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"promptId\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"prompt\",\"type\":\"string\"}],\"internalType\":\"structAIOracle.UnprocessedPrompt[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"isWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestPromptId\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"}],\"name\":\"pollEvents\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"eventId\",\"type\":\"uint64\"},{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structEventManager.Event[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"removeWhitelisted\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"promptId\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"answer\",\"type\":\"string\"}],\"name\":\"submitAnswer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"prompt\",\"type\":\"string\"}],\"name\":\"submitPrompt\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // AIOracleABI is the input ABI used to generate the binding from.
@@ -180,41 +193,10 @@ func (_AIOracle *AIOracleTransactorRaw) Transact(opts *bind.TransactOpts, method
 	return _AIOracle.Contract.contract.Transact(opts, method, params...)
 }
 
-// AiAgent is a free data retrieval call binding the contract method 0xa6d5b732.
+// Answers is a free data retrieval call binding the contract method 0x91dc9a62.
 //
-// Solidity: function aiAgent() view returns(address)
-func (_AIOracle *AIOracleCaller) AiAgent(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := _AIOracle.contract.Call(opts, &out, "aiAgent")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
-}
-
-// AiAgent is a free data retrieval call binding the contract method 0xa6d5b732.
-//
-// Solidity: function aiAgent() view returns(address)
-func (_AIOracle *AIOracleSession) AiAgent() (common.Address, error) {
-	return _AIOracle.Contract.AiAgent(&_AIOracle.CallOpts)
-}
-
-// AiAgent is a free data retrieval call binding the contract method 0xa6d5b732.
-//
-// Solidity: function aiAgent() view returns(address)
-func (_AIOracle *AIOracleCallerSession) AiAgent() (common.Address, error) {
-	return _AIOracle.Contract.AiAgent(&_AIOracle.CallOpts)
-}
-
-// Answers is a free data retrieval call binding the contract method 0x17599cc5.
-//
-// Solidity: function answers(uint256 ) view returns(string)
-func (_AIOracle *AIOracleCaller) Answers(opts *bind.CallOpts, arg0 *big.Int) (string, error) {
+// Solidity: function answers(uint64 ) view returns(string)
+func (_AIOracle *AIOracleCaller) Answers(opts *bind.CallOpts, arg0 uint64) (string, error) {
 	var out []interface{}
 	err := _AIOracle.contract.Call(opts, &out, "answers", arg0)
 
@@ -228,26 +210,26 @@ func (_AIOracle *AIOracleCaller) Answers(opts *bind.CallOpts, arg0 *big.Int) (st
 
 }
 
-// Answers is a free data retrieval call binding the contract method 0x17599cc5.
+// Answers is a free data retrieval call binding the contract method 0x91dc9a62.
 //
-// Solidity: function answers(uint256 ) view returns(string)
-func (_AIOracle *AIOracleSession) Answers(arg0 *big.Int) (string, error) {
+// Solidity: function answers(uint64 ) view returns(string)
+func (_AIOracle *AIOracleSession) Answers(arg0 uint64) (string, error) {
 	return _AIOracle.Contract.Answers(&_AIOracle.CallOpts, arg0)
 }
 
-// Answers is a free data retrieval call binding the contract method 0x17599cc5.
+// Answers is a free data retrieval call binding the contract method 0x91dc9a62.
 //
-// Solidity: function answers(uint256 ) view returns(string)
-func (_AIOracle *AIOracleCallerSession) Answers(arg0 *big.Int) (string, error) {
+// Solidity: function answers(uint64 ) view returns(string)
+func (_AIOracle *AIOracleCallerSession) Answers(arg0 uint64) (string, error) {
 	return _AIOracle.Contract.Answers(&_AIOracle.CallOpts, arg0)
 }
 
-// GetAnswer is a free data retrieval call binding the contract method 0xb5ab58dc.
+// GetAnswer is a free data retrieval call binding the contract method 0xf7bfb6e7.
 //
-// Solidity: function getAnswer(uint256 id) view returns(string)
-func (_AIOracle *AIOracleCaller) GetAnswer(opts *bind.CallOpts, id *big.Int) (string, error) {
+// Solidity: function getAnswer(uint64 promptId) view returns(string)
+func (_AIOracle *AIOracleCaller) GetAnswer(opts *bind.CallOpts, promptId uint64) (string, error) {
 	var out []interface{}
-	err := _AIOracle.contract.Call(opts, &out, "getAnswer", id)
+	err := _AIOracle.contract.Call(opts, &out, "getAnswer", promptId)
 
 	if err != nil {
 		return *new(string), err
@@ -259,26 +241,57 @@ func (_AIOracle *AIOracleCaller) GetAnswer(opts *bind.CallOpts, id *big.Int) (st
 
 }
 
-// GetAnswer is a free data retrieval call binding the contract method 0xb5ab58dc.
+// GetAnswer is a free data retrieval call binding the contract method 0xf7bfb6e7.
 //
-// Solidity: function getAnswer(uint256 id) view returns(string)
-func (_AIOracle *AIOracleSession) GetAnswer(id *big.Int) (string, error) {
-	return _AIOracle.Contract.GetAnswer(&_AIOracle.CallOpts, id)
+// Solidity: function getAnswer(uint64 promptId) view returns(string)
+func (_AIOracle *AIOracleSession) GetAnswer(promptId uint64) (string, error) {
+	return _AIOracle.Contract.GetAnswer(&_AIOracle.CallOpts, promptId)
 }
 
-// GetAnswer is a free data retrieval call binding the contract method 0xb5ab58dc.
+// GetAnswer is a free data retrieval call binding the contract method 0xf7bfb6e7.
 //
-// Solidity: function getAnswer(uint256 id) view returns(string)
-func (_AIOracle *AIOracleCallerSession) GetAnswer(id *big.Int) (string, error) {
-	return _AIOracle.Contract.GetAnswer(&_AIOracle.CallOpts, id)
+// Solidity: function getAnswer(uint64 promptId) view returns(string)
+func (_AIOracle *AIOracleCallerSession) GetAnswer(promptId uint64) (string, error) {
+	return _AIOracle.Contract.GetAnswer(&_AIOracle.CallOpts, promptId)
 }
 
-// IsWhitelistedPrompter is a free data retrieval call binding the contract method 0x01ce61be.
+// GetUnprocessedPrompts is a free data retrieval call binding the contract method 0xd860dfb5.
 //
-// Solidity: function isWhitelistedPrompter(address account) view returns(bool)
-func (_AIOracle *AIOracleCaller) IsWhitelistedPrompter(opts *bind.CallOpts, account common.Address) (bool, error) {
+// Solidity: function getUnprocessedPrompts() view returns((uint64,string)[])
+func (_AIOracle *AIOracleCaller) GetUnprocessedPrompts(opts *bind.CallOpts) ([]AIOracleUnprocessedPrompt, error) {
 	var out []interface{}
-	err := _AIOracle.contract.Call(opts, &out, "isWhitelistedPrompter", account)
+	err := _AIOracle.contract.Call(opts, &out, "getUnprocessedPrompts")
+
+	if err != nil {
+		return *new([]AIOracleUnprocessedPrompt), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]AIOracleUnprocessedPrompt)).(*[]AIOracleUnprocessedPrompt)
+
+	return out0, err
+
+}
+
+// GetUnprocessedPrompts is a free data retrieval call binding the contract method 0xd860dfb5.
+//
+// Solidity: function getUnprocessedPrompts() view returns((uint64,string)[])
+func (_AIOracle *AIOracleSession) GetUnprocessedPrompts() ([]AIOracleUnprocessedPrompt, error) {
+	return _AIOracle.Contract.GetUnprocessedPrompts(&_AIOracle.CallOpts)
+}
+
+// GetUnprocessedPrompts is a free data retrieval call binding the contract method 0xd860dfb5.
+//
+// Solidity: function getUnprocessedPrompts() view returns((uint64,string)[])
+func (_AIOracle *AIOracleCallerSession) GetUnprocessedPrompts() ([]AIOracleUnprocessedPrompt, error) {
+	return _AIOracle.Contract.GetUnprocessedPrompts(&_AIOracle.CallOpts)
+}
+
+// IsWhitelisted is a free data retrieval call binding the contract method 0x3af32abf.
+//
+// Solidity: function isWhitelisted(address _address) view returns(bool)
+func (_AIOracle *AIOracleCaller) IsWhitelisted(opts *bind.CallOpts, _address common.Address) (bool, error) {
+	var out []interface{}
+	err := _AIOracle.contract.Call(opts, &out, "isWhitelisted", _address)
 
 	if err != nil {
 		return *new(bool), err
@@ -290,32 +303,32 @@ func (_AIOracle *AIOracleCaller) IsWhitelistedPrompter(opts *bind.CallOpts, acco
 
 }
 
-// IsWhitelistedPrompter is a free data retrieval call binding the contract method 0x01ce61be.
+// IsWhitelisted is a free data retrieval call binding the contract method 0x3af32abf.
 //
-// Solidity: function isWhitelistedPrompter(address account) view returns(bool)
-func (_AIOracle *AIOracleSession) IsWhitelistedPrompter(account common.Address) (bool, error) {
-	return _AIOracle.Contract.IsWhitelistedPrompter(&_AIOracle.CallOpts, account)
+// Solidity: function isWhitelisted(address _address) view returns(bool)
+func (_AIOracle *AIOracleSession) IsWhitelisted(_address common.Address) (bool, error) {
+	return _AIOracle.Contract.IsWhitelisted(&_AIOracle.CallOpts, _address)
 }
 
-// IsWhitelistedPrompter is a free data retrieval call binding the contract method 0x01ce61be.
+// IsWhitelisted is a free data retrieval call binding the contract method 0x3af32abf.
 //
-// Solidity: function isWhitelistedPrompter(address account) view returns(bool)
-func (_AIOracle *AIOracleCallerSession) IsWhitelistedPrompter(account common.Address) (bool, error) {
-	return _AIOracle.Contract.IsWhitelistedPrompter(&_AIOracle.CallOpts, account)
+// Solidity: function isWhitelisted(address _address) view returns(bool)
+func (_AIOracle *AIOracleCallerSession) IsWhitelisted(_address common.Address) (bool, error) {
+	return _AIOracle.Contract.IsWhitelisted(&_AIOracle.CallOpts, _address)
 }
 
 // LatestPromptId is a free data retrieval call binding the contract method 0x6f2a2816.
 //
-// Solidity: function latestPromptId() view returns(uint256)
-func (_AIOracle *AIOracleCaller) LatestPromptId(opts *bind.CallOpts) (*big.Int, error) {
+// Solidity: function latestPromptId() view returns(uint64)
+func (_AIOracle *AIOracleCaller) LatestPromptId(opts *bind.CallOpts) (uint64, error) {
 	var out []interface{}
 	err := _AIOracle.contract.Call(opts, &out, "latestPromptId")
 
 	if err != nil {
-		return *new(*big.Int), err
+		return *new(uint64), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+	out0 := *abi.ConvertType(out[0], new(uint64)).(*uint64)
 
 	return out0, err
 
@@ -323,121 +336,204 @@ func (_AIOracle *AIOracleCaller) LatestPromptId(opts *bind.CallOpts) (*big.Int, 
 
 // LatestPromptId is a free data retrieval call binding the contract method 0x6f2a2816.
 //
-// Solidity: function latestPromptId() view returns(uint256)
-func (_AIOracle *AIOracleSession) LatestPromptId() (*big.Int, error) {
+// Solidity: function latestPromptId() view returns(uint64)
+func (_AIOracle *AIOracleSession) LatestPromptId() (uint64, error) {
 	return _AIOracle.Contract.LatestPromptId(&_AIOracle.CallOpts)
 }
 
 // LatestPromptId is a free data retrieval call binding the contract method 0x6f2a2816.
 //
-// Solidity: function latestPromptId() view returns(uint256)
-func (_AIOracle *AIOracleCallerSession) LatestPromptId() (*big.Int, error) {
+// Solidity: function latestPromptId() view returns(uint64)
+func (_AIOracle *AIOracleCallerSession) LatestPromptId() (uint64, error) {
 	return _AIOracle.Contract.LatestPromptId(&_AIOracle.CallOpts)
 }
 
-// AddWhitelistAddress is a paid mutator transaction binding the contract method 0x94a7ef15.
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function addWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleTransactor) AddWhitelistAddress(opts *bind.TransactOpts, account common.Address) (*types.Transaction, error) {
-	return _AIOracle.contract.Transact(opts, "addWhitelistAddress", account)
+// Solidity: function owner() view returns(address)
+func (_AIOracle *AIOracleCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _AIOracle.contract.Call(opts, &out, "owner")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
-// AddWhitelistAddress is a paid mutator transaction binding the contract method 0x94a7ef15.
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function addWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleSession) AddWhitelistAddress(account common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.AddWhitelistAddress(&_AIOracle.TransactOpts, account)
+// Solidity: function owner() view returns(address)
+func (_AIOracle *AIOracleSession) Owner() (common.Address, error) {
+	return _AIOracle.Contract.Owner(&_AIOracle.CallOpts)
 }
 
-// AddWhitelistAddress is a paid mutator transaction binding the contract method 0x94a7ef15.
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function addWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleTransactorSession) AddWhitelistAddress(account common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.AddWhitelistAddress(&_AIOracle.TransactOpts, account)
+// Solidity: function owner() view returns(address)
+func (_AIOracle *AIOracleCallerSession) Owner() (common.Address, error) {
+	return _AIOracle.Contract.Owner(&_AIOracle.CallOpts)
 }
 
-// RemoveWhitelistAddress is a paid mutator transaction binding the contract method 0xb7ecbaae.
+// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
 //
-// Solidity: function removeWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleTransactor) RemoveWhitelistAddress(opts *bind.TransactOpts, account common.Address) (*types.Transaction, error) {
-	return _AIOracle.contract.Transact(opts, "removeWhitelistAddress", account)
+// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_AIOracle *AIOracleCaller) PollEvents(opts *bind.CallOpts, eventType uint16) ([]EventManagerEvent, error) {
+	var out []interface{}
+	err := _AIOracle.contract.Call(opts, &out, "pollEvents", eventType)
+
+	if err != nil {
+		return *new([]EventManagerEvent), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]EventManagerEvent)).(*[]EventManagerEvent)
+
+	return out0, err
+
 }
 
-// RemoveWhitelistAddress is a paid mutator transaction binding the contract method 0xb7ecbaae.
+// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
 //
-// Solidity: function removeWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleSession) RemoveWhitelistAddress(account common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.RemoveWhitelistAddress(&_AIOracle.TransactOpts, account)
+// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_AIOracle *AIOracleSession) PollEvents(eventType uint16) ([]EventManagerEvent, error) {
+	return _AIOracle.Contract.PollEvents(&_AIOracle.CallOpts, eventType)
 }
 
-// RemoveWhitelistAddress is a paid mutator transaction binding the contract method 0xb7ecbaae.
+// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
 //
-// Solidity: function removeWhitelistAddress(address account) returns()
-func (_AIOracle *AIOracleTransactorSession) RemoveWhitelistAddress(account common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.RemoveWhitelistAddress(&_AIOracle.TransactOpts, account)
+// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_AIOracle *AIOracleCallerSession) PollEvents(eventType uint16) ([]EventManagerEvent, error) {
+	return _AIOracle.Contract.PollEvents(&_AIOracle.CallOpts, eventType)
 }
 
-// SubmitAnswer is a paid mutator transaction binding the contract method 0x01fa3bec.
+// AddWhitelisted is a paid mutator transaction binding the contract method 0x10154bad.
 //
-// Solidity: function submitAnswer(uint256 id, string answer) returns()
-func (_AIOracle *AIOracleTransactor) SubmitAnswer(opts *bind.TransactOpts, id *big.Int, answer string) (*types.Transaction, error) {
-	return _AIOracle.contract.Transact(opts, "submitAnswer", id, answer)
+// Solidity: function addWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleTransactor) AddWhitelisted(opts *bind.TransactOpts, _address common.Address) (*types.Transaction, error) {
+	return _AIOracle.contract.Transact(opts, "addWhitelisted", _address)
 }
 
-// SubmitAnswer is a paid mutator transaction binding the contract method 0x01fa3bec.
+// AddWhitelisted is a paid mutator transaction binding the contract method 0x10154bad.
 //
-// Solidity: function submitAnswer(uint256 id, string answer) returns()
-func (_AIOracle *AIOracleSession) SubmitAnswer(id *big.Int, answer string) (*types.Transaction, error) {
-	return _AIOracle.Contract.SubmitAnswer(&_AIOracle.TransactOpts, id, answer)
+// Solidity: function addWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleSession) AddWhitelisted(_address common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.AddWhitelisted(&_AIOracle.TransactOpts, _address)
 }
 
-// SubmitAnswer is a paid mutator transaction binding the contract method 0x01fa3bec.
+// AddWhitelisted is a paid mutator transaction binding the contract method 0x10154bad.
 //
-// Solidity: function submitAnswer(uint256 id, string answer) returns()
-func (_AIOracle *AIOracleTransactorSession) SubmitAnswer(id *big.Int, answer string) (*types.Transaction, error) {
-	return _AIOracle.Contract.SubmitAnswer(&_AIOracle.TransactOpts, id, answer)
+// Solidity: function addWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleTransactorSession) AddWhitelisted(_address common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.AddWhitelisted(&_AIOracle.TransactOpts, _address)
+}
+
+// RemoveWhitelisted is a paid mutator transaction binding the contract method 0x291d9549.
+//
+// Solidity: function removeWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleTransactor) RemoveWhitelisted(opts *bind.TransactOpts, _address common.Address) (*types.Transaction, error) {
+	return _AIOracle.contract.Transact(opts, "removeWhitelisted", _address)
+}
+
+// RemoveWhitelisted is a paid mutator transaction binding the contract method 0x291d9549.
+//
+// Solidity: function removeWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleSession) RemoveWhitelisted(_address common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.RemoveWhitelisted(&_AIOracle.TransactOpts, _address)
+}
+
+// RemoveWhitelisted is a paid mutator transaction binding the contract method 0x291d9549.
+//
+// Solidity: function removeWhitelisted(address _address) returns()
+func (_AIOracle *AIOracleTransactorSession) RemoveWhitelisted(_address common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.RemoveWhitelisted(&_AIOracle.TransactOpts, _address)
+}
+
+// RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
+//
+// Solidity: function renounceOwnership() returns()
+func (_AIOracle *AIOracleTransactor) RenounceOwnership(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _AIOracle.contract.Transact(opts, "renounceOwnership")
+}
+
+// RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
+//
+// Solidity: function renounceOwnership() returns()
+func (_AIOracle *AIOracleSession) RenounceOwnership() (*types.Transaction, error) {
+	return _AIOracle.Contract.RenounceOwnership(&_AIOracle.TransactOpts)
+}
+
+// RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
+//
+// Solidity: function renounceOwnership() returns()
+func (_AIOracle *AIOracleTransactorSession) RenounceOwnership() (*types.Transaction, error) {
+	return _AIOracle.Contract.RenounceOwnership(&_AIOracle.TransactOpts)
+}
+
+// SubmitAnswer is a paid mutator transaction binding the contract method 0x6c6d57ce.
+//
+// Solidity: function submitAnswer(uint64 promptId, string answer) returns()
+func (_AIOracle *AIOracleTransactor) SubmitAnswer(opts *bind.TransactOpts, promptId uint64, answer string) (*types.Transaction, error) {
+	return _AIOracle.contract.Transact(opts, "submitAnswer", promptId, answer)
+}
+
+// SubmitAnswer is a paid mutator transaction binding the contract method 0x6c6d57ce.
+//
+// Solidity: function submitAnswer(uint64 promptId, string answer) returns()
+func (_AIOracle *AIOracleSession) SubmitAnswer(promptId uint64, answer string) (*types.Transaction, error) {
+	return _AIOracle.Contract.SubmitAnswer(&_AIOracle.TransactOpts, promptId, answer)
+}
+
+// SubmitAnswer is a paid mutator transaction binding the contract method 0x6c6d57ce.
+//
+// Solidity: function submitAnswer(uint64 promptId, string answer) returns()
+func (_AIOracle *AIOracleTransactorSession) SubmitAnswer(promptId uint64, answer string) (*types.Transaction, error) {
+	return _AIOracle.Contract.SubmitAnswer(&_AIOracle.TransactOpts, promptId, answer)
 }
 
 // SubmitPrompt is a paid mutator transaction binding the contract method 0x28b43144.
 //
-// Solidity: function submitPrompt(string prompt) returns(uint256)
+// Solidity: function submitPrompt(string prompt) returns(uint64)
 func (_AIOracle *AIOracleTransactor) SubmitPrompt(opts *bind.TransactOpts, prompt string) (*types.Transaction, error) {
 	return _AIOracle.contract.Transact(opts, "submitPrompt", prompt)
 }
 
 // SubmitPrompt is a paid mutator transaction binding the contract method 0x28b43144.
 //
-// Solidity: function submitPrompt(string prompt) returns(uint256)
+// Solidity: function submitPrompt(string prompt) returns(uint64)
 func (_AIOracle *AIOracleSession) SubmitPrompt(prompt string) (*types.Transaction, error) {
 	return _AIOracle.Contract.SubmitPrompt(&_AIOracle.TransactOpts, prompt)
 }
 
 // SubmitPrompt is a paid mutator transaction binding the contract method 0x28b43144.
 //
-// Solidity: function submitPrompt(string prompt) returns(uint256)
+// Solidity: function submitPrompt(string prompt) returns(uint64)
 func (_AIOracle *AIOracleTransactorSession) SubmitPrompt(prompt string) (*types.Transaction, error) {
 	return _AIOracle.Contract.SubmitPrompt(&_AIOracle.TransactOpts, prompt)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
 //
-// Solidity: function transferOwnership(address newAIAgent) returns()
-func (_AIOracle *AIOracleTransactor) TransferOwnership(opts *bind.TransactOpts, newAIAgent common.Address) (*types.Transaction, error) {
-	return _AIOracle.contract.Transact(opts, "transferOwnership", newAIAgent)
+// Solidity: function transferOwnership(address newOwner) returns()
+func (_AIOracle *AIOracleTransactor) TransferOwnership(opts *bind.TransactOpts, newOwner common.Address) (*types.Transaction, error) {
+	return _AIOracle.contract.Transact(opts, "transferOwnership", newOwner)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
 //
-// Solidity: function transferOwnership(address newAIAgent) returns()
-func (_AIOracle *AIOracleSession) TransferOwnership(newAIAgent common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.TransferOwnership(&_AIOracle.TransactOpts, newAIAgent)
+// Solidity: function transferOwnership(address newOwner) returns()
+func (_AIOracle *AIOracleSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.TransferOwnership(&_AIOracle.TransactOpts, newOwner)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
 //
-// Solidity: function transferOwnership(address newAIAgent) returns()
-func (_AIOracle *AIOracleTransactorSession) TransferOwnership(newAIAgent common.Address) (*types.Transaction, error) {
-	return _AIOracle.Contract.TransferOwnership(&_AIOracle.TransactOpts, newAIAgent)
+// Solidity: function transferOwnership(address newOwner) returns()
+func (_AIOracle *AIOracleTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
+	return _AIOracle.Contract.TransferOwnership(&_AIOracle.TransactOpts, newOwner)
 }
 
 // AIOracleAddWhitelistedIterator is returned from FilterAddWhitelisted and is used to iterate over the raw logs and unpacked data for AddWhitelisted events raised by the AIOracle contract.
@@ -653,14 +749,14 @@ func (it *AIOracleAnswerSubmittedIterator) Close() error {
 
 // AIOracleAnswerSubmitted represents a AnswerSubmitted event raised by the AIOracle contract.
 type AIOracleAnswerSubmitted struct {
-	PromptId *big.Int
+	PromptId uint64
 	Answer   string
 	Raw      types.Log // Blockchain specific contextual infos
 }
 
-// FilterAnswerSubmitted is a free log retrieval operation binding the contract event 0x04cf4660632bddc9871c3099c79fc6e85c889dbee3192ea0cfa1fde0419dfd7d.
+// FilterAnswerSubmitted is a free log retrieval operation binding the contract event 0xc3950102c2624b7422bfb96a37562850ea120192beb9b2000a8eab01efff4698.
 //
-// Solidity: event AnswerSubmitted(uint256 promptId, string answer)
+// Solidity: event AnswerSubmitted(uint64 promptId, string answer)
 func (_AIOracle *AIOracleFilterer) FilterAnswerSubmitted(opts *bind.FilterOpts) (*AIOracleAnswerSubmittedIterator, error) {
 
 	logs, sub, err := _AIOracle.contract.FilterLogs(opts, "AnswerSubmitted")
@@ -670,9 +766,9 @@ func (_AIOracle *AIOracleFilterer) FilterAnswerSubmitted(opts *bind.FilterOpts) 
 	return &AIOracleAnswerSubmittedIterator{contract: _AIOracle.contract, event: "AnswerSubmitted", logs: logs, sub: sub}, nil
 }
 
-// WatchAnswerSubmitted is a free log subscription operation binding the contract event 0x04cf4660632bddc9871c3099c79fc6e85c889dbee3192ea0cfa1fde0419dfd7d.
+// WatchAnswerSubmitted is a free log subscription operation binding the contract event 0xc3950102c2624b7422bfb96a37562850ea120192beb9b2000a8eab01efff4698.
 //
-// Solidity: event AnswerSubmitted(uint256 promptId, string answer)
+// Solidity: event AnswerSubmitted(uint64 promptId, string answer)
 func (_AIOracle *AIOracleFilterer) WatchAnswerSubmitted(opts *bind.WatchOpts, sink chan<- *AIOracleAnswerSubmitted) (event.Subscription, error) {
 
 	logs, sub, err := _AIOracle.contract.WatchLogs(opts, "AnswerSubmitted")
@@ -707,9 +803,9 @@ func (_AIOracle *AIOracleFilterer) WatchAnswerSubmitted(opts *bind.WatchOpts, si
 	}), nil
 }
 
-// ParseAnswerSubmitted is a log parse operation binding the contract event 0x04cf4660632bddc9871c3099c79fc6e85c889dbee3192ea0cfa1fde0419dfd7d.
+// ParseAnswerSubmitted is a log parse operation binding the contract event 0xc3950102c2624b7422bfb96a37562850ea120192beb9b2000a8eab01efff4698.
 //
-// Solidity: event AnswerSubmitted(uint256 promptId, string answer)
+// Solidity: event AnswerSubmitted(uint64 promptId, string answer)
 func (_AIOracle *AIOracleFilterer) ParseAnswerSubmitted(log types.Log) (*AIOracleAnswerSubmitted, error) {
 	event := new(AIOracleAnswerSubmitted)
 	if err := _AIOracle.contract.UnpackLog(event, "AnswerSubmitted", log); err != nil {
@@ -788,26 +884,26 @@ func (it *AIOracleOwnershipTransferredIterator) Close() error {
 
 // AIOracleOwnershipTransferred represents a OwnershipTransferred event raised by the AIOracle contract.
 type AIOracleOwnershipTransferred struct {
-	OldAIAgent common.Address
-	NewAIAgent common.Address
-	Raw        types.Log // Blockchain specific contextual infos
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
 }
 
 // FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
 //
-// Solidity: event OwnershipTransferred(address indexed oldAIAgent, address indexed newAIAgent)
-func (_AIOracle *AIOracleFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, oldAIAgent []common.Address, newAIAgent []common.Address) (*AIOracleOwnershipTransferredIterator, error) {
+// Solidity: event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+func (_AIOracle *AIOracleFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*AIOracleOwnershipTransferredIterator, error) {
 
-	var oldAIAgentRule []interface{}
-	for _, oldAIAgentItem := range oldAIAgent {
-		oldAIAgentRule = append(oldAIAgentRule, oldAIAgentItem)
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
 	}
-	var newAIAgentRule []interface{}
-	for _, newAIAgentItem := range newAIAgent {
-		newAIAgentRule = append(newAIAgentRule, newAIAgentItem)
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
 	}
 
-	logs, sub, err := _AIOracle.contract.FilterLogs(opts, "OwnershipTransferred", oldAIAgentRule, newAIAgentRule)
+	logs, sub, err := _AIOracle.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
 	if err != nil {
 		return nil, err
 	}
@@ -816,19 +912,19 @@ func (_AIOracle *AIOracleFilterer) FilterOwnershipTransferred(opts *bind.FilterO
 
 // WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
 //
-// Solidity: event OwnershipTransferred(address indexed oldAIAgent, address indexed newAIAgent)
-func (_AIOracle *AIOracleFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *AIOracleOwnershipTransferred, oldAIAgent []common.Address, newAIAgent []common.Address) (event.Subscription, error) {
+// Solidity: event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+func (_AIOracle *AIOracleFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *AIOracleOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
 
-	var oldAIAgentRule []interface{}
-	for _, oldAIAgentItem := range oldAIAgent {
-		oldAIAgentRule = append(oldAIAgentRule, oldAIAgentItem)
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
 	}
-	var newAIAgentRule []interface{}
-	for _, newAIAgentItem := range newAIAgent {
-		newAIAgentRule = append(newAIAgentRule, newAIAgentItem)
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
 	}
 
-	logs, sub, err := _AIOracle.contract.WatchLogs(opts, "OwnershipTransferred", oldAIAgentRule, newAIAgentRule)
+	logs, sub, err := _AIOracle.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
 	if err != nil {
 		return nil, err
 	}
@@ -862,7 +958,7 @@ func (_AIOracle *AIOracleFilterer) WatchOwnershipTransferred(opts *bind.WatchOpt
 
 // ParseOwnershipTransferred is a log parse operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
 //
-// Solidity: event OwnershipTransferred(address indexed oldAIAgent, address indexed newAIAgent)
+// Solidity: event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
 func (_AIOracle *AIOracleFilterer) ParseOwnershipTransferred(log types.Log) (*AIOracleOwnershipTransferred, error) {
 	event := new(AIOracleOwnershipTransferred)
 	if err := _AIOracle.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
@@ -941,14 +1037,14 @@ func (it *AIOraclePromptSubmittedIterator) Close() error {
 
 // AIOraclePromptSubmitted represents a PromptSubmitted event raised by the AIOracle contract.
 type AIOraclePromptSubmitted struct {
-	PromptId *big.Int
+	PromptId uint64
 	Prompt   string
 	Raw      types.Log // Blockchain specific contextual infos
 }
 
-// FilterPromptSubmitted is a free log retrieval operation binding the contract event 0xf53cb06c91632882a222e576c4100718a072c6648442e3cb944b44358b5ab839.
+// FilterPromptSubmitted is a free log retrieval operation binding the contract event 0x403d8c597e4843d65753f1349184b185e2b87f88a8e542de450ce29f733d31e0.
 //
-// Solidity: event PromptSubmitted(uint256 promptId, string prompt)
+// Solidity: event PromptSubmitted(uint64 promptId, string prompt)
 func (_AIOracle *AIOracleFilterer) FilterPromptSubmitted(opts *bind.FilterOpts) (*AIOraclePromptSubmittedIterator, error) {
 
 	logs, sub, err := _AIOracle.contract.FilterLogs(opts, "PromptSubmitted")
@@ -958,9 +1054,9 @@ func (_AIOracle *AIOracleFilterer) FilterPromptSubmitted(opts *bind.FilterOpts) 
 	return &AIOraclePromptSubmittedIterator{contract: _AIOracle.contract, event: "PromptSubmitted", logs: logs, sub: sub}, nil
 }
 
-// WatchPromptSubmitted is a free log subscription operation binding the contract event 0xf53cb06c91632882a222e576c4100718a072c6648442e3cb944b44358b5ab839.
+// WatchPromptSubmitted is a free log subscription operation binding the contract event 0x403d8c597e4843d65753f1349184b185e2b87f88a8e542de450ce29f733d31e0.
 //
-// Solidity: event PromptSubmitted(uint256 promptId, string prompt)
+// Solidity: event PromptSubmitted(uint64 promptId, string prompt)
 func (_AIOracle *AIOracleFilterer) WatchPromptSubmitted(opts *bind.WatchOpts, sink chan<- *AIOraclePromptSubmitted) (event.Subscription, error) {
 
 	logs, sub, err := _AIOracle.contract.WatchLogs(opts, "PromptSubmitted")
@@ -995,9 +1091,9 @@ func (_AIOracle *AIOracleFilterer) WatchPromptSubmitted(opts *bind.WatchOpts, si
 	}), nil
 }
 
-// ParsePromptSubmitted is a log parse operation binding the contract event 0xf53cb06c91632882a222e576c4100718a072c6648442e3cb944b44358b5ab839.
+// ParsePromptSubmitted is a log parse operation binding the contract event 0x403d8c597e4843d65753f1349184b185e2b87f88a8e542de450ce29f733d31e0.
 //
-// Solidity: event PromptSubmitted(uint256 promptId, string prompt)
+// Solidity: event PromptSubmitted(uint64 promptId, string prompt)
 func (_AIOracle *AIOracleFilterer) ParsePromptSubmitted(log types.Log) (*AIOraclePromptSubmitted, error) {
 	event := new(AIOraclePromptSubmitted)
 	if err := _AIOracle.contract.UnpackLog(event, "PromptSubmitted", log); err != nil {

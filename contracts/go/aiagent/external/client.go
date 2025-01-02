@@ -1,5 +1,7 @@
 package external
 
+import "context"
+
 type Request interface {
 	IsRequest()
 }
@@ -9,5 +11,5 @@ type Response interface {
 }
 
 type Client interface {
-	Do(Request) (Response, error)
+	Do(context.Context, Request) (Response, error)
 }

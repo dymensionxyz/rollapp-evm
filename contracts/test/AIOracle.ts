@@ -74,6 +74,13 @@ describe("AIOracle", function () {
                 .withArgs(1, "What is the capital of France?");
 
             expect(await aiOracle.latestPromptId()).to.equal(1);
+
+            const unprocessedPrompts = await aiOracle.connect(prompter1).getUnprocessedPrompts();
+            expect(unprocessedPrompts).to.have.lengthOf(1);
+
+            // Check the details of each unprocessed prompt
+            expect(unprocessedPrompts[0].promptId).to.equal(1);
+            expect(unprocessedPrompts[0].prompt).to.equal("What is the capital of France?");
         });
 
         it("Should not allow a non-whitelisted prompter to submit a prompt", async function () {
