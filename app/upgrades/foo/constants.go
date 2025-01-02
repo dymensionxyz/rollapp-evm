@@ -33,6 +33,5 @@ var Upgrade = upgrades.Upgrade{
 			hubgenesistypes.ModuleName,
 			rollappparamstypes.ModuleName,
 		},
-		Renamed: []storetypes.StoreRename{},
 	},
 }
