@@ -464,7 +464,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-		// insert mint hooks receivers here
+			// insert mint hooks receivers here
 		),
 	)
 
@@ -557,7 +557,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 
@@ -879,7 +879,7 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
 	}
 	if drsVersion != app.RollappParamsKeeper.Version(ctx) {
-		//panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
+		panic(fmt.Errorf("DRS version mismatch. rollapp DRS version: %d binary DRS version:%d", app.RollappParamsKeeper.Version(ctx), drsVersion))
 	}
 	return resp
 }
