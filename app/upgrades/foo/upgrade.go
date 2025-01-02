@@ -8,6 +8,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	hubgenkeeper "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/keeper"
 	hubgenesistypes "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/types"
+	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
 	"github.com/dymensionxyz/rollapp-evm/app/upgrades"
 )
 
@@ -20,6 +21,10 @@ func CreateUpgradeHandler(
 
 		if err := migrateHubGenesis(ctx, kk.HubgenK); err != nil {
 			return nil, fmt.Errorf("migrate hub genesis: %w", err)
+		}
+
+		if err := migrateRollappParams(ctx, kk.RpKeeper); err != nil {
+			return nil, fmt.Errorf("migrate rollapp params: %w", err)
 		}
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
@@ -36,4 +41,15 @@ func migrateHubGenesis(ctx sdk.Context, k hubgenkeeper.Keeper) error {
 	}
 	k.SetState(ctx, s)
 	return k.PopulateGenesisInfo(ctx, nil)
+}
+
+func migrateRollappParams(ctx sdk.Context, k rollappparamskeeper.Keeper) error {
+	if err := k.SetVersion(ctx, drs); err != nil {
+		return fmt.Errorf("set version: %w", err)
+	}
+	if err := k.SetDA(ctx, da); err != nil {
+		return fmt.Errorf("set DA: %w", err)
+	}
+	// no need to set min gas prices, rollapp can do it when it likes
+	return nil
 }
