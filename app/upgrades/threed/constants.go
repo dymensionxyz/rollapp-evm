@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	UpgradeName        = "foo"
+	UpgradeName        = "3D"
 	drs         uint32 = 5
 	da          string = "celestia"
 )
