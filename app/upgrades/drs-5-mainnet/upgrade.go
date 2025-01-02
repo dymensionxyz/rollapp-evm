@@ -1,4 +1,4 @@
-package threed
+package drs5mainnet
 
 import (
 	"fmt"
@@ -44,10 +44,10 @@ func migrateHubGenesis(ctx sdk.Context, k hubgenkeeper.Keeper) error {
 }
 
 func migrateRollappParams(ctx sdk.Context, k rollappparamskeeper.Keeper) error {
-	if err := k.SetVersion(ctx, drs); err != nil {
+	if err := k.SetVersion(ctx, DRS); err != nil {
 		return fmt.Errorf("set version: %w", err)
 	}
-	if err := k.SetDA(ctx, da); err != nil {
+	if err := k.SetDA(ctx, DA); err != nil {
 		return fmt.Errorf("set DA: %w", err)
 	}
 	// no need to set min gas prices, rollapp can do it when it likes
