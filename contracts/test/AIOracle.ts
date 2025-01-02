@@ -16,7 +16,7 @@ describe("AIOracle", function () {
     describe("Deployment", function () {
         it("Should set the correct AI agent on deployment", async function () {
             const { aiOracle, aiAgent } = await loadFixture(deployAIOracleFixture);
-            expect(await aiOracle.aiAgent()).to.equal(aiAgent.address);
+            expect(await aiOracle.owner()).to.equal(aiAgent.address);
         });
 
         it("Should initialize with no prompts", async function () {
@@ -29,39 +29,37 @@ describe("AIOracle", function () {
         it("Should allow AI agent to whitelist a prompter", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address))
+            await expect(aiOracle.connect(aiAgent).addWhitelisted(prompter1.address))
                 .to.emit(aiOracle, "AddWhitelisted")
                 .withArgs(prompter1.address);
 
-            expect(await aiOracle.isWhitelistedPrompter(prompter1.address)).to.equal(true);
+            expect(await aiOracle.isWhitelisted(prompter1.address)).to.equal(true);
         });
 
         it("Should not allow non-AI agent to whitelist a prompter", async function () {
             const { aiOracle, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.addWhitelistAddress(prompter1.address)).to.be.revertedWith(
-                "AIOracle: caller is not the AI agent"
-            );
+            await expect(aiOracle.addWhitelisted(prompter1.address))
+                .to.be.revertedWithCustomError(aiOracle, "OwnableUnauthorizedAccount");
         });
 
         it("Should allow AI agent to remove a prompter from the whitelist", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
-            await expect(aiOracle.connect(aiAgent).removeWhitelistAddress(prompter1.address))
+            await expect(aiOracle.connect(aiAgent).removeWhitelisted(prompter1.address))
                 .to.emit(aiOracle, "RemoveWhitelisted")
                 .withArgs(prompter1.address);
 
-            expect(await aiOracle.isWhitelistedPrompter(prompter1.address)).to.equal(false);
+            expect(await aiOracle.isWhitelisted(prompter1.address)).to.equal(false);
         });
 
-        it("Should not allow removing a non-whitelisted address", async function () {
+        it("Should allow removing a non-whitelisted address", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(aiAgent).removeWhitelistAddress(prompter1.address)).to.be.revertedWith(
-                "AIOracle: address not whitelisted"
-            );
+            await expect(aiOracle.connect(aiAgent).removeWhitelisted(prompter1.address))
+                .to.emit(aiOracle, "RemoveWhitelisted").withArgs(prompter1.address);
         });
     });
 
@@ -69,7 +67,7 @@ describe("AIOracle", function () {
         it("Should allow a whitelisted prompter to submit a prompt", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await expect(aiOracle.connect(prompter1).submitPrompt("What is the capital of France?"))
                 .to.emit(aiOracle, "PromptSubmitted")
@@ -81,15 +79,14 @@ describe("AIOracle", function () {
         it("Should not allow a non-whitelisted prompter to submit a prompt", async function () {
             const { aiOracle, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(prompter1).submitPrompt("What is the capital of France?")).to.be.revertedWith(
-                "AIOracle: caller is not a whitelisted prompter"
-            );
+            await expect(aiOracle.connect(prompter1).submitPrompt("What is the capital of France?"))
+                .to.be.revertedWithCustomError(aiOracle, "WhitelistUnauthorizedAccount");
         });
 
         it("Should revert when submitting an empty prompt", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await expect(aiOracle.connect(prompter1).submitPrompt("")).to.be.revertedWith("AIOracle: prompt cannot be empty");
         });
@@ -99,7 +96,7 @@ describe("AIOracle", function () {
         it("Should allow the AI agent to submit an answer for a valid prompt", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await aiOracle.connect(prompter1).submitPrompt("What is the capital of France?");
             const promptId = await aiOracle.latestPromptId();
@@ -115,9 +112,8 @@ describe("AIOracle", function () {
         it("Should not allow a non-AI agent to submit an answer", async function () {
             const { aiOracle, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(prompter1).submitAnswer(1, "Paris")).to.be.revertedWith(
-                "AIOracle: caller is not the AI agent"
-            );
+            await expect(aiOracle.connect(prompter1).submitAnswer(1, "Paris"))
+                .to.be.revertedWithCustomError(aiOracle, "OwnableUnauthorizedAccount");
         });
 
         it("Should not allow an answer for an invalid prompt ID", async function () {
@@ -131,7 +127,7 @@ describe("AIOracle", function () {
         it("Should not allow an empty answer", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await aiOracle.connect(prompter1).submitPrompt("What is the capital of France?");
             const promptId = await aiOracle.latestPromptId();
@@ -144,7 +140,7 @@ describe("AIOracle", function () {
         it("Should not allow multiple answers for the same prompt", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await aiOracle.connect(prompter1).submitPrompt("What is the capital of France?");
             const promptId = await aiOracle.latestPromptId();
@@ -161,7 +157,7 @@ describe("AIOracle", function () {
         it("Should allow anyone to retrieve an answer for a valid prompt ID", async function () {
             const { aiOracle, aiAgent, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await aiOracle.connect(aiAgent).addWhitelistAddress(prompter1.address);
+            await aiOracle.connect(aiAgent).addWhitelisted(prompter1.address);
 
             await aiOracle.connect(prompter1).submitPrompt("What is the capital of France?");
             const promptId = await aiOracle.latestPromptId();
@@ -187,23 +183,21 @@ describe("AIOracle", function () {
                 .to.emit(aiOracle, "OwnershipTransferred")
                 .withArgs(aiAgent.address, prompter1.address);
 
-            expect(await aiOracle.aiAgent()).to.equal(prompter1.address);
+            expect(await aiOracle.owner()).to.equal(prompter1.address);
         });
 
         it("Should not allow a non-AI agent to transfer ownership", async function () {
             const { aiOracle, prompter1 } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(prompter1).transferOwnership(prompter1.address)).to.be.revertedWith(
-                "AIOracle: caller is not the AI agent"
-            );
+            await expect(aiOracle.connect(prompter1).transferOwnership(prompter1.address))
+                .to.be.revertedWithCustomError(aiOracle, "OwnableUnauthorizedAccount");
         });
 
         it("Should revert when transferring ownership to the zero address", async function () {
             const { aiOracle, aiAgent } = await loadFixture(deployAIOracleFixture);
 
-            await expect(aiOracle.connect(aiAgent).transferOwnership(hre.ethers.ZeroAddress)).to.be.revertedWith(
-                "AIOracle: new owner is the zero address"
-            );
+            await expect(aiOracle.connect(aiAgent).transferOwnership(hre.ethers.ZeroAddress))
+                .to.be.revertedWithCustomError(aiOracle, "OwnableInvalidOwner");
         });
     });
 });
