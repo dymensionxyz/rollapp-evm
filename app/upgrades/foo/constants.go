@@ -1,4 +1,4 @@
-package drs5
+package foo
 
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
