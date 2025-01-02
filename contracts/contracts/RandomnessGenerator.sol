@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./EventManager.sol";
 
 contract RandomnessGenerator is EventManager {
-    uint256 public randomnessId;
+    uint64 public randomnessId;
     mapping(uint256 => uint256) public randomnessJobs;
     address public writer;
 
@@ -25,7 +25,7 @@ contract RandomnessGenerator is EventManager {
         return randomnessId;
     }
 
-    function postRandomness(uint256 id, uint256 randomness) external {
+    function postRandomness(uint64 id, uint256 randomness) external {
         require(msg.sender == writer, "Only writer can post randomness");
         require(randomnessJobs[id] == 0, "Randomness already posted");
 

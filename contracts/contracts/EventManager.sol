@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 abstract contract EventManager {
     struct Event {
-        uint256 eventId;
+        uint64 eventId;
         uint16 eventType;
         bytes data;
     }
 
     struct EventEntries {
         Event[] data;
-        mapping(uint256 => uint256) dataIdxByEventId;
+        mapping(uint64 => uint64) dataIdxByEventId;
     }
 
     mapping(uint16 => EventEntries) private _eventsByType;
@@ -21,22 +21,22 @@ abstract contract EventManager {
         _eventBufferSize = bufferSize;
     }
 
-    function insertEvent(uint256 eventId, uint16 eventType, bytes memory data) internal {
+    function insertEvent(uint64 eventId, uint16 eventType, bytes memory data) internal {
         Event[] storage events = _eventsByType[eventType].data;
         require(events.length < _eventBufferSize, "Event buffer is full");
 
         events.push(Event(eventId, eventType, data));
-        _eventsByType[eventType].dataIdxByEventId[eventId] = events.length - 1;
+        _eventsByType[eventType].dataIdxByEventId[eventId] = uint64(events.length) - 1;
     }
 
-    function eraseEvent(uint256 eventId, uint16 eventType) internal {
+    function eraseEvent(uint64 eventId, uint16 eventType) internal {
         EventEntries storage entries = _eventsByType[eventType];
 
-        uint256 index = entries.dataIdxByEventId[eventId];
+        uint64 index = entries.dataIdxByEventId[eventId];
         require(index < entries.data.length, "Event does not exist");
 
         // Swap the last event with the one to delete and then pop the last
-        uint256 lastIndex = entries.data.length - 1;
+        uint64 lastIndex = uint64(entries.data.length) - 1;
         if (index != lastIndex) {
             Event storage lastEvent = entries.data[lastIndex];
             entries.data[index] = lastEvent;
