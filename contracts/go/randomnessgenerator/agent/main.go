@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
@@ -95,7 +96,7 @@ const (
 )
 
 type RandomnessRequestedEvent struct {
-	ID *big.Int
+	ID uint64
 }
 
 func parseRandomnessRequestedEvent(data []byte) (*RandomnessRequestedEvent, error) {
@@ -108,10 +109,6 @@ func parseRandomnessRequestedEvent(data []byte) (*RandomnessRequestedEvent, erro
 	err = parsedABI.UnpackIntoInterface(&event, "RandomnessRequestedEvent", data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unpack event data: %w", err)
-	}
-
-	if event.ID == nil {
-		return nil, fmt.Errorf("randomness ID is nil")
 	}
 
 	return &event, nil
@@ -150,13 +147,16 @@ func (a *RNGAgent) ListenForSmartContractEvents(ctx context.Context, config Conf
 				if err != nil {
 					log.Printf("randomness response serialization err: %v", err)
 				}
-				err = a.DB.Put(randID.Bytes(), buf.Bytes(), nil)
+
+				key := make([]byte, 8)
+				binary.BigEndian.PutUint64(key, randID)
+				err = a.DB.Put(key, buf.Bytes(), nil)
 				if err != nil {
-					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID.String(), randomnessResp.Randomness, err)
+					log.Printf("error putting [key;value] = [%s;%d] into DB: %v", randID, randomnessResp.Randomness, err)
 					continue
 				}
 
-				log.Printf("[%s:%s]", randID.String(), randomnessResp.Randomness.String())
+				log.Printf("[%d:%s]", randID, randomnessResp.Randomness.String())
 
 				auth := createTransactOpts(a.EthClient, config)
 				tx, err := a.ContractAPI.PostRandomness(auth, randID, randomnessResp.Randomness)
