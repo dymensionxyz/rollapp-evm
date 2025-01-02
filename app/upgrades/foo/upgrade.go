@@ -15,6 +15,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+		l := ctx.Logger().With("upgrade", UpgradeName)
 
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
