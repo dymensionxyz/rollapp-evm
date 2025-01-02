@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	UpgradeName = "foo"
+	UpgradeName        = "foo"
+	drs         uint32 = 5
+	da          string = "celestia"
 )
 
 var Upgrade = upgrades.Upgrade{
