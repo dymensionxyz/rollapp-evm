@@ -2,9 +2,9 @@ package threed
 
 import (
 	"testing"
-	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/dymensionxyz/rollapp-evm/app"
 	"github.com/stretchr/testify/require"
