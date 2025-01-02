@@ -1,8 +1,9 @@
-package threed
+package threed_test
 
 import (
 	"testing"
 
+	"github.com/dymensionxyz/rollapp-evm/app/upgrades/threed"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -19,7 +20,7 @@ func TestBeginBlocker(t *testing.T) {
 		ChainID: "testchain_9000-1",
 	})
 	err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradetypes.Plan{
-		Name:   UpgradeName,
+		Name:   threed.UpgradeName,
 		Height: h,
 	})
 	require.NoError(t, err)
