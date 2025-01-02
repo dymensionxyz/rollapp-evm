@@ -2,15 +2,12 @@ package external
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 )
-
-var _ Client = new(OpenAIClient)
 
 type OpenAIClient struct {
 	http *resty.Client
@@ -44,22 +41,6 @@ func NewOpenAIClient(
 	}
 }
 
-func (c *OpenAIClient) Do(ctx context.Context, r Request) (Response, error) {
-	switch req := r.(type) {
-	case SubmitPromptRequest:
-		return c.SubmitPrompt(ctx, req)
-	default:
-		return nil, fmt.Errorf("unknown request type: %T", r)
-	}
-}
-
-type SubmitPromptRequest struct {
-	PromptID uint64
-	Prompt   string
-}
-
-func (SubmitPromptRequest) IsRequest() {}
-
 type SubmitPromptResponse struct {
 	Answer          string
 	PromptMessageID string
@@ -69,36 +50,19 @@ type SubmitPromptResponse struct {
 	AssistantID     string
 }
 
-// MustToBytes converts SubmitPromptResponse to bytes
-func (resp SubmitPromptResponse) MustToBytes() []byte {
-	b, err := json.Marshal(resp)
-	if err != nil {
-		panic(fmt.Errorf("marshal submit prompt response: %w", err))
-	}
-	return b
-}
-
-// MustFromBytes converts bytes to SubmitPromptResponse
-func (resp *SubmitPromptResponse) MustFromBytes(data []byte) {
-	err := json.Unmarshal(data, resp)
-	if err != nil {
-		panic(fmt.Errorf("unmarshal submit prompt response: %w", err))
-	}
-}
-
 func (SubmitPromptResponse) IsResponse() {}
 
 // SubmitPrompt sends a prompt to the OpenAI API.
-func (c *OpenAIClient) SubmitPrompt(ctx context.Context, req SubmitPromptRequest) (SubmitPromptResponse, error) {
+func (c *OpenAIClient) SubmitPrompt(ctx context.Context, promptID uint64, prompt string) (SubmitPromptResponse, error) {
 	c.threadMu.Lock()
 	defer c.threadMu.Unlock()
 
-	promptMsg, err := c.CreateMessage(ctx, "user", req.Prompt, req.PromptID)
+	promptMsg, err := c.CreateMessage(ctx, "user", prompt, promptID)
 	if err != nil {
 		return SubmitPromptResponse{}, fmt.Errorf("create message: %w", err)
 	}
 
-	run, err := c.CreateRun(ctx, req.PromptID)
+	run, err := c.CreateRun(ctx, promptID)
 	if err != nil {
 		return SubmitPromptResponse{}, fmt.Errorf("create run: %w", err)
 	}

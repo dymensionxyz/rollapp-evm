@@ -26,12 +26,11 @@ type Config struct {
 	GasLimit        uint64
 	GasFeeCap       *big.Int
 	GasTipCap       *big.Int
-
-	PollInterval time.Duration
+	PollInterval    time.Duration
 }
 
 type AIOracleClient struct {
-	logger slog.Logger
+	logger *slog.Logger
 
 	config      Config
 	ethClient   *ethclient.Client
@@ -39,7 +38,7 @@ type AIOracleClient struct {
 	txAuth      *bind.TransactOpts
 }
 
-func NewContractAgent(ctx context.Context, logger slog.Logger, config Config) (*AIOracleClient, error) {
+func NewAIOracleClient(ctx context.Context, logger *slog.Logger, config Config) (*AIOracleClient, error) {
 	client, err := ethclient.Dial(config.NodeURL)
 	if err != nil {
 		return nil, fmt.Errorf("eth client dial: %w", err)

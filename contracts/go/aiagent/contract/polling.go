@@ -23,7 +23,8 @@ func (a *AIOracleClient) ListenSmartContractEvents(ctx context.Context) <-chan [
 		for {
 			select {
 			case <-ctx.Done():
-				a.logger.Info("Context done, exiting event loop", "error", ctx.Err())
+				a.logger.With("error", ctx.Err()).
+					Info("Context done, exiting event loop")
 				return
 
 			case <-ticker.C:
