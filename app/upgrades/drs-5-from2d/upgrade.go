@@ -1,4 +1,4 @@
-package drs5mainnet
+package drs5from2d
 
 import (
 	"fmt"

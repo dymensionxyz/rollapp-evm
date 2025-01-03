@@ -11,7 +11,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/proposal"
-	drs5mainnet "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-mainnet"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -165,6 +164,7 @@ import (
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
+	drs5from2d "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-from2d"
 )
 
 const (
@@ -190,7 +190,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5mainnet.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5from2d.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -464,7 +464,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-			// insert mint hooks receivers here
+		// insert mint hooks receivers here
 		),
 	)
 
@@ -557,7 +557,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
