@@ -13,7 +13,11 @@ import (
 )
 
 func TestBeginBlocker(t *testing.T) {
+
 	app, _ := app.SetupWithOneValidator(t)
+	app.SetDymintVersionGetter(func() (uint32, error) {
+		return uint32(up.DRS), nil
+	})
 	h := int64(42)
 	ctx := app.NewUncachedContext(true, types.Header{
 		Height:  h - 1,
