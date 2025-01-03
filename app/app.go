@@ -344,6 +344,9 @@ type App struct {
 	configurator module.Configurator
 
 	consensusMessageAdmissionHandler consensus.AdmissionHandler
+
+	// optionally override the way to query the dymint version
+	dymintVersionGetter func() (uint32, error)
 }
 
 // NewRollapp returns a reference to an initialized blockchain app
@@ -875,6 +878,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 	resp.ConsensusMessagesResponses = consensusResponses
 
 	drsVersion, err := dymintversion.GetDRSVersion()
+	if app.dymintVersionGetter != nil {
+		drsVersion, err = app.dymintVersionGetter()
+	}
 	if err != nil {
 		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
 	}
@@ -1166,4 +1172,8 @@ func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 		// configure store loader with the store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &u.StoreUpgrades))
 	}
+}
+
+func (app *App) SetDymintVersionGetter(getter func() (uint32, error)) {
+	app.dymintVersionGetter = getter
 }
