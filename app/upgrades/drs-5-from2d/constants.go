@@ -10,7 +10,6 @@ import (
 	timeupgradetypes "github.com/dymensionxyz/dymension-rdk/x/timeupgrade/types"
 
 	"github.com/dymensionxyz/rollapp-evm/app/upgrades"
-	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
 )
 
 const (
@@ -23,10 +22,10 @@ var Upgrade = upgrades.Upgrade{
 	Name:          UpgradeName,
 	CreateHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
-		Deleted: []string{
-			claimstypes.ModuleName,
-			"denommetadata",
-		},
+		//Deleted: []string{
+		//	claimstypes.ModuleName,
+		//	"denommetadata",
+		//},
 		Added: []string{
 			authztypes.ModuleName,
 			feegrant.ModuleName,
