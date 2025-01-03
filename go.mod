@@ -368,5 +368,6 @@ replace (
 )
 
 // TODO: cleanup after rdk is merged
-//replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
-replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250102180458-aea83a151bf2
+replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
+//replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250102180458-aea83a151bf2
+replace github.com/cosmos/cosmos-sdk => /Users/danwt/Documents/dym/d-cosmos-sdk
