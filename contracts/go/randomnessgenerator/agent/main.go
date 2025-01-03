@@ -100,7 +100,7 @@ type RandomnessRequestedEvent struct {
 }
 
 func parseRandomnessRequestedEvent(data []byte) (*RandomnessRequestedEvent, error) {
-	parsedABI, err := abi.JSON(strings.NewReader(`[{"anonymous":false,"inputs":[{"indexed":false,"name":"id","type":"uint256"}],"name":"RandomnessRequestedEvent","type":"event"}]`))
+	parsedABI, err := abi.JSON(strings.NewReader(`[{"anonymous":false,"inputs":[{"indexed":false,"name":"id","type":"uint64"}],"name":"RandomnessRequestedEvent","type":"event"}]`))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse ABI: %w", err)
 	}
@@ -251,11 +251,11 @@ func main() {
 	config := Config{
 		NodeURL:              "http://127.0.0.1:8545",
 		Mnemonic:             "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
-		HexContractAddress:   "0x371e7cE96f696F8A8d108172862b2d8e03dE701d",
+		HexContractAddress:   "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0",
 		DerivationPath:       "m/44'/60'/0'/0/0",
-		GasLimit:             1e9,
-		GasFeeCap:            big.NewInt(3e16),
-		GasTipCap:            big.NewInt(20000000000000000),
+		GasLimit:             60000000,
+		GasFeeCap:            big.NewInt(30000000000), // 30 Gwei
+		GasTipCap:            big.NewInt(2000000000),  // 2 Gwei
 		HTTPServerAddr:       ":8080",
 		RandomnessServiceURL: "http://127.0.0.1:8081/generate",
 	}

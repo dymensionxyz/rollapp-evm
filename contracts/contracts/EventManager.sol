@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/**
+ * @dev This contract provides simple event managing functionality:
+ * inserting, deleting and polling events.
+ *
+ * This module is used through inheritance.
+ */
 abstract contract EventManager {
     struct Event {
         uint64 eventId;
@@ -15,15 +21,15 @@ abstract contract EventManager {
 
     mapping(uint16 => EventEntries) private _eventsByType;
 
-    uint private _eventBufferSize;
+    uint private _maxEventsPerType;
 
-    constructor(uint bufferSize) {
-        _eventBufferSize = bufferSize;
+    constructor(uint maxEventsPerType) {
+        _maxEventsPerType = maxEventsPerType;
     }
 
     function insertEvent(uint64 eventId, uint16 eventType, bytes memory data) internal {
         Event[] storage events = _eventsByType[eventType].data;
-        require(events.length < _eventBufferSize, "Event buffer is full");
+        require(events.length < _maxEventsPerType, "Event buffer is full");
 
         events.push(Event(eventId, eventType, data));
         _eventsByType[eventType].dataIdxByEventId[eventId] = uint64(events.length) - 1;
@@ -42,7 +48,6 @@ abstract contract EventManager {
             entries.data[index] = lastEvent;
             entries.dataIdxByEventId[lastEvent.eventId] = index;
         }
-
         entries.data.pop();
         delete entries.dataIdxByEventId[eventId];
     }
