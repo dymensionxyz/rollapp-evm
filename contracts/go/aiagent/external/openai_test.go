@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"agent/config"
 	"agent/external"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +16,13 @@ func TestOpenAIClient_SubmitPrompt(t *testing.T) {
 	apiKey := "put your OpenAI API key here"
 	baseUrl := "https://api.openai.com"
 
-	client := external.NewOpenAIClient(apiKey, baseUrl, 15, 100*time.Millisecond, 4*time.Second)
+	client := external.NewOpenAIClient(config.OpenAIConfig{
+		APIKey:               apiKey,
+		BaseURL:              baseUrl,
+		PollRetryCount:       10,
+		PollRetryWaitTime:    100 * time.Millisecond,
+		PollRetryMaxWaitTime: 4 * time.Second,
+	})
 
 	tests := []struct {
 		name     string
@@ -31,10 +38,7 @@ func TestOpenAIClient_SubmitPrompt(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := client.SubmitPrompt(context.Background(), external.SubmitPromptRequest{
-				Prompt:   tt.prompt,
-				PromptID: tt.promptID,
-			})
+			result, err := client.SubmitPrompt(context.Background(), tt.promptID, tt.prompt)
 
 			t.Logf("result: %+v\n", result)
 

@@ -26,18 +26,18 @@ async function main() {
 
     try {
         // Check if prompter is whitelisted
-        const isWhitelisted = await AIOracle.isWhitelistedPrompter(prompter.address);
+        const isWhitelisted = await AIOracle.isWhitelisted(prompter.address);
         console.log("Prompter whitelisted: ", isWhitelisted);
 
         if (!isWhitelisted) {
             console.log("Whitelisting prompter...");
-            const whitelistTx = await AIOracle.connect(aiAgent).addWhitelistAddress(prompter.address, txOptions);
+            const whitelistTx = await AIOracle.connect(aiAgent).addWhitelisted(prompter.address, txOptions);
             await whitelistTx.wait();
             console.log("Prompter successfully whitelisted!");
         }
 
         // Submit a prompt
-        const promptTx = await AIOracle.connect(prompter).submitPrompt("What is the capital of France?", txOptions);
+        const promptTx = await AIOracle.connect(prompter).submitPrompt("Generate a random number between 1 and 10", txOptions);
         const receipt = await promptTx.wait();
 
         console.log("Prompt submitted. TX receipt: ", receipt);

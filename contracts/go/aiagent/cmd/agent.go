@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"agent/agent"
-	"agent/config"
 	"agent/contract"
 	"agent/external"
 	"agent/repository"
@@ -75,44 +74,19 @@ func StartCmd() *cobra.Command {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			openAI := external.NewOpenAIClient(
-				cmdCtx.Config.OpenAIAPIKey,
-				cmdCtx.Config.OpenAIBaseURL,
-				cmdCtx.Config.PollRetryCount,
-				cmdCtx.Config.PollRetryWaitTime,
-				cmdCtx.Config.PollRetryMaxWaitTime,
-			)
+			openAI := external.NewOpenAIClient(cmdCtx.Config.External)
 
-			aiOracle, err := contract.NewAIOracleClient(
-				ctx,
-				cmdCtx.Logger,
-				contract.Config{
-					NodeURL:         cmdCtx.Config.NodeURL,
-					Mnemonic:        cmdCtx.Config.Mnemonic,
-					ContractAddress: cmdCtx.Config.ContractAddress,
-					DerivationPath:  cmdCtx.Config.DerivationPath,
-					GasLimit:        cmdCtx.Config.GasLimit,
-					GasFeeCap:       cmdCtx.Config.GasFeeCap,
-					GasTipCap:       cmdCtx.Config.GasTipCap,
-					PollInterval:    cmdCtx.Config.ContractPollInterval,
-				},
-			)
+			aiOracle, err := contract.NewAIOracleClient(ctx, cmdCtx.Logger, cmdCtx.Config.Contract)
 			if err != nil {
 				return fmt.Errorf("new AI oracle client: %w", err)
 			}
 
-			levelDB, err := repository.NewLevelDB(cmdCtx.Config.DBPath)
+			levelDB, err := repository.NewLevelDB(cmdCtx.Config.DB.DBPath)
 			if err != nil {
 				return fmt.Errorf("new levelDB: %w", err)
 			}
 
-			aiAgent := agent.NewAgent(
-				cmdCtx.Logger,
-				cmdCtx.Config.HTTPServerAddress,
-				aiOracle,
-				openAI,
-				levelDB,
-			)
+			aiAgent := agent.NewAgent(cmdCtx.Logger, cmdCtx.Config.Agent.HTTPServerAddress, aiOracle, openAI, levelDB)
 
 			go aiAgent.Run(ctx)
 
@@ -131,27 +105,4 @@ func StartCmd() *cobra.Command {
 		},
 	}
 	return cmd
-}
-
-func InitConfig(logger *slog.Logger, configFolder string, configFile string) error {
-	configPath := filepath.Join(configFolder, configFile)
-	stat, _ := os.Stat(configPath)
-	if stat != nil {
-		logger.Info("Skipping creating config file: file already exists", "configPath", configPath)
-		return nil
-	}
-
-	err := os.MkdirAll(configFolder, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("mkdir: %w", err)
-	}
-
-	err = StoreConfig(configPath, config.DefaultConfig())
-	if err != nil {
-		return fmt.Errorf("store config: %w", err)
-	}
-
-	logger.Info("Created config file", "filePath", configPath)
-
-	return nil
 }

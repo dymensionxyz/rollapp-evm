@@ -16,10 +16,11 @@ func (a *AIOracleClient) ListenSmartContractEvents(ctx context.Context) <-chan [
 	prompts := make(chan []AIOracleUnprocessedPrompt)
 
 	ticker := time.NewTicker(a.config.PollInterval)
-	defer ticker.Stop()
 
 	go func() {
 		defer close(prompts)
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():

@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"agent/config"
-	"github.com/spf13/viper"
 )
 
 type Context struct {
@@ -26,7 +25,7 @@ func InitContext() (Context, error) {
 		return Context{}, fmt.Errorf("can't get home dir: %w", err)
 	}
 
-	configPath := filepath.Join(homeDir, "config")
+	configPath := filepath.Join(homeDir, "config", configFile)
 
 	cfg, err := GetConfig(configPath)
 	if err != nil {
@@ -48,22 +47,42 @@ func GetHomeDir() (string, error) {
 	return filepath.Join(userHomeDir, DefaultAppDir), nil
 }
 
+func InitConfig(logger *slog.Logger, configFolder string, configFile string) error {
+	configPath := filepath.Join(configFolder, configFile)
+	stat, _ := os.Stat(configPath)
+	if stat != nil {
+		logger.Info("Skipping creating config file: file already exists", "configPath", configPath)
+		return nil
+	}
+
+	err := os.MkdirAll(configFolder, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+
+	err = StoreConfig(configPath, config.DefaultConfig())
+	if err != nil {
+		return fmt.Errorf("store config: %w", err)
+	}
+
+	logger.Info("Created config file", "filePath", configPath)
+
+	return nil
+}
+
 func GetConfig(configPath string) (config.Config, error) {
-	v := viper.New()
-	v.AddConfigPath(configPath)
-	v.SetConfigName(configFileName)
-	v.SetConfigType(configFileExt)
-
-	if err := v.ReadInConfig(); err != nil {
-		return config.Config{}, err
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return config.Config{}, fmt.Errorf("read file: %w", err)
 	}
 
-	var conf config.Config
-	if err := v.Unmarshal(&conf); err != nil {
-		return config.Config{}, err
+	var cfg config.Config
+	err = json.Unmarshal(data, &cfg)
+	if err != nil {
+		return config.Config{}, fmt.Errorf("unmarshal config: %w", err)
 	}
 
-	return conf, nil
+	return cfg, nil
 }
 
 func StoreConfig(configPath string, cfg config.Config) error {

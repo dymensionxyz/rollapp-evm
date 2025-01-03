@@ -10,6 +10,7 @@ const { ethers } = require("hardhat");
  * 4. Waits for the deployment to complete and logs the contract address.
  */
 async function main() {
+    // 0x84ac82e5Ae41685D76021b909Db4f8E7C4bE279E
     [ deployer ] = await ethers.getSigners();
     console.log("Deploying contracts with the account:", deployer.address);
 

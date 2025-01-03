@@ -5,10 +5,9 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"log/slog"
-	"math/big"
 	"strings"
-	"time"
 
+	"agent/config"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -17,28 +16,16 @@ import (
 	"github.com/tyler-smith/go-bip39"
 )
 
-// Config holds the configuration parameters
-type Config struct {
-	NodeURL         string
-	Mnemonic        string
-	ContractAddress string
-	DerivationPath  string
-	GasLimit        uint64
-	GasFeeCap       *big.Int
-	GasTipCap       *big.Int
-	PollInterval    time.Duration
-}
-
 type AIOracleClient struct {
 	logger *slog.Logger
 
-	config      Config
+	config      config.ContractConfig
 	ethClient   *ethclient.Client
 	contractAPI *AIOracle
 	txAuth      *bind.TransactOpts
 }
 
-func NewAIOracleClient(ctx context.Context, logger *slog.Logger, config Config) (*AIOracleClient, error) {
+func NewAIOracleClient(ctx context.Context, logger *slog.Logger, config config.ContractConfig) (*AIOracleClient, error) {
 	client, err := ethclient.Dial(config.NodeURL)
 	if err != nil {
 		return nil, fmt.Errorf("eth client dial: %w", err)
@@ -71,6 +58,7 @@ func NewAIOracleClient(ctx context.Context, logger *slog.Logger, config Config) 
 
 	return &AIOracleClient{
 		logger:      logger,
+		config:      config,
 		ethClient:   client,
 		contractAPI: contract,
 		txAuth:      auth,
@@ -86,7 +74,7 @@ func contractExists(ctx context.Context, client *ethclient.Client, address commo
 }
 
 // createTransactor creates a signed transactor for sending transactions
-func createTransactor(ctx context.Context, client *ethclient.Client, privateKey *ecdsa.PrivateKey, config Config) (*bind.TransactOpts, error) {
+func createTransactor(ctx context.Context, client *ethclient.Client, privateKey *ecdsa.PrivateKey, config config.ContractConfig) (*bind.TransactOpts, error) {
 	chainID, err := client.NetworkID(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get network ID: %w", err)

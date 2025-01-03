@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -132,10 +133,11 @@ func (c *OpenAIClient) RetrieveRun(ctx context.Context, runID string) (ThreadRun
 func (c *OpenAIClient) PollRunResult(ctx context.Context, runID string) (ThreadRun, error) {
 	// Do `Clone` to avoid modifying the original client.
 	pollingClient := c.http.Clone().
-		SetRetryCount(c.pollRetryCount).
-		SetRetryWaitTime(c.pollRetryWaitTime).
-		SetRetryMaxWaitTime(c.pollRetryMaxWaitTime).
+		SetRetryCount(c.config.PollRetryCount).
+		SetRetryWaitTime(c.config.PollRetryWaitTime).
+		SetRetryMaxWaitTime(c.config.PollRetryMaxWaitTime).
 		AddRetryCondition(func(r *resty.Response, err error) bool {
+			log.Println("Polling run status...")
 			return r.Result().(*ThreadRun).Status != "completed"
 		})
 	return retrieveRun(ctx, pollingClient, runID)

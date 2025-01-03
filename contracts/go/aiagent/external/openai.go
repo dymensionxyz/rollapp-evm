@@ -4,40 +4,28 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
+	"agent/config"
 	"github.com/go-resty/resty/v2"
 )
 
 type OpenAIClient struct {
-	http *resty.Client
-
-	// Answer polling
-	pollRetryCount       int
-	pollRetryWaitTime    time.Duration
-	pollRetryMaxWaitTime time.Duration
-
+	http     *resty.Client
+	config   config.OpenAIConfig
 	threadMu sync.Mutex
 }
 
 // NewOpenAIClient creates and returns a new instance of OpenAIClient.
-func NewOpenAIClient(
-	apiKey, baseUrl string,
-	pollRetryCount int,
-	pollRetryWaitTime time.Duration,
-	pollRetryMaxWaitTime time.Duration,
-) *OpenAIClient {
+func NewOpenAIClient(config config.OpenAIConfig) *OpenAIClient {
 	return &OpenAIClient{
 		http: resty.New().
-			SetBaseURL(baseUrl).
-			SetAuthToken(apiKey).
+			SetBaseURL(config.BaseURL).
+			SetAuthToken(config.APIKey).
 			SetAuthScheme("Bearer").
 			SetHeader("Content-Type", "application/json").
 			SetHeader("OpenAI-Beta", "assistants=v2"),
-		pollRetryCount:       pollRetryCount,
-		pollRetryWaitTime:    pollRetryWaitTime,
-		pollRetryMaxWaitTime: pollRetryMaxWaitTime,
-		threadMu:             sync.Mutex{},
+		config:   config,
+		threadMu: sync.Mutex{},
 	}
 }
 
