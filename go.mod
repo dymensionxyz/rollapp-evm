@@ -11,7 +11,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.8.0-rc02
-	github.com/dymensionxyz/dymint v1.3.0-rc03
+	github.com/dymensionxyz/dymint v1.3.0-rc02.0.20250103163841-ca8fff3c69ef
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gogo/protobuf v1.3.3
@@ -366,3 +366,9 @@ replace (
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241128205759-2a9d5f015da5
 )
+
+// TODO: cleanup after rdk is merged
+replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
+
+//replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250102180458-aea83a151bf2
+//replace github.com/cosmos/cosmos-sdk => /Users/danwt/Documents/dym/d-cosmos-sdk

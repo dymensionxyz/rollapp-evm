@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -164,6 +165,7 @@ import (
 	drs3 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-3"
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
+	drs5from2d "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-from2d"
 )
 
 const (
@@ -189,7 +191,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5from2d.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -343,6 +345,9 @@ type App struct {
 	configurator module.Configurator
 
 	consensusMessageAdmissionHandler consensus.AdmissionHandler
+
+	// optionally override the way to query the dymint version
+	dymintVersionGetter func() (uint32, error)
 }
 
 // NewRollapp returns a reference to an initialized blockchain app
@@ -838,6 +843,7 @@ func NewRollapp(
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
+			err = errorsmod.Wrap(err, "new rollapp: load latest version")
 			tmos.Exit(err.Error())
 		}
 	}
@@ -874,6 +880,9 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 	resp.ConsensusMessagesResponses = consensusResponses
 
 	drsVersion, err := dymintversion.GetDRSVersion()
+	if app.dymintVersionGetter != nil {
+		drsVersion, err = app.dymintVersionGetter()
+	}
 	if err != nil {
 		panic(fmt.Errorf("Unable to get DRS version from binary: %w", err))
 	}
@@ -1142,12 +1151,15 @@ func (app *App) setupUpgradeHandlers() {
 	}
 }
 
-func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
+func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 	app.UpgradeKeeper.SetUpgradeHandler(
-		upgrade.Name,
-		upgrade.CreateHandler(
-			app.RollappParamsKeeper,
-			app.EvmKeeper,
+		u.Name,
+		u.CreateHandler(
+			upgrades.UpgradeKeepers{
+				RpKeeper:  app.RollappParamsKeeper,
+				EvmKeeper: app.EvmKeeper,
+				HubgenK:   app.HubGenesisKeeper,
+			},
 			app.mm,
 			app.configurator,
 		),
@@ -1158,8 +1170,14 @@ func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
 		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
 	}
 
-	if upgradeInfo.Name == upgrade.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == u.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader with the store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &u.StoreUpgrades))
+
+		app.Logger().Info("SetupUpgradeHandler Set store loader.")
 	}
+}
+
+func (app *App) SetDymintVersionGetter(getter func() (uint32, error)) {
+	app.dymintVersionGetter = getter
 }

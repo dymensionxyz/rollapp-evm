@@ -4,9 +4,16 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	hubgenkeeper "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/keeper"
 	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
 	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
 )
+
+type UpgradeKeepers struct {
+	RpKeeper  rollappparamskeeper.Keeper
+	EvmKeeper *evmkeeper.Keeper
+	HubgenK   hubgenkeeper.Keeper
+}
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal
 // must have written, in order for the state migration to go smoothly.
@@ -18,8 +25,7 @@ type Upgrade struct {
 
 	// CreateHandler defines the function that creates an upgrade handler
 	CreateHandler func(
-		rpKeeper rollappparamskeeper.Keeper,
-		evmKeeper *evmkeeper.Keeper,
+		kk UpgradeKeepers,
 		mm *module.Manager,
 		configurator module.Configurator,
 	) upgradetypes.UpgradeHandler
