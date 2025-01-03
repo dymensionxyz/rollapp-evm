@@ -43,12 +43,11 @@ func (db *DB) Close() error {
 }
 
 type Answer struct {
-	Answer          string
-	PromptMessageID string
-	AnswerMessageID string
-	ThreadID        string
-	RunID           string
-	AssistantID     string
+	Answer      string `json:"answer,omitempty"`
+	MessageID   string `json:"message_id,omitempty"`
+	ThreadID    string `json:"thread_id,omitempty"`
+	RunID       string `json:"run_id,omitempty"`
+	AssistantID string `json:"assistant_id,omitempty"`
 }
 
 // MustToBytes converts SubmitPromptResponse to bytes

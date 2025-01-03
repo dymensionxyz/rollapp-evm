@@ -45,7 +45,7 @@ func TestOpenAIClient_SubmitPrompt(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, result.Answer)
 			require.NotEmpty(t, result.PromptMessageID)
-			require.NotEmpty(t, result.AnswerMessageID)
+			require.NotEmpty(t, result.MessageID)
 			require.NotEmpty(t, result.ThreadID)
 			require.NotEmpty(t, result.RunID)
 			require.NotEmpty(t, result.AssistantID)

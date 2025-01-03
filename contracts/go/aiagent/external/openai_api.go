@@ -3,7 +3,6 @@ package external
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -64,27 +63,27 @@ func (c *OpenAIClient) RetrieveMessage(ctx context.Context, messageID string) (T
 	return result, nil
 }
 
-func (c *OpenAIClient) ListMessagesByRun(ctx context.Context, runID string) (ThreadMessageList, error) {
-	return c.listMessages(ctx, map[string]string{
+func (c *OpenAIClient) ListMessagesByRun(ctx context.Context, threadID, runID string) (ThreadMessageList, error) {
+	return c.listMessages(ctx, threadID, map[string]string{
 		"run_id": runID,
 		"limit":  defaultLimit,
 		"order":  defaultOrder,
 	})
 }
 
-func (c *OpenAIClient) ListMessages(ctx context.Context) (ThreadMessageList, error) {
-	return c.listMessages(ctx, map[string]string{
+func (c *OpenAIClient) ListMessages(ctx context.Context, threadID string) (ThreadMessageList, error) {
+	return c.listMessages(ctx, threadID, map[string]string{
 		"limit": defaultLimit,
 		"order": defaultOrder,
 	})
 }
 
-func (c *OpenAIClient) listMessages(ctx context.Context, queryParams map[string]string) (ThreadMessageList, error) {
+func (c *OpenAIClient) listMessages(ctx context.Context, threadID string, queryParams map[string]string) (ThreadMessageList, error) {
 	var result ThreadMessageList
 
 	resp, err := c.http.R().
 		SetContext(ctx).
-		SetPathParam("thread_id", defaultThreadID).
+		SetPathParam("thread_id", threadID).
 		SetQueryParams(queryParams).
 		SetResult(&result).
 		SetError(&ErrorResp{}).
@@ -100,21 +99,27 @@ func (c *OpenAIClient) listMessages(ctx context.Context, queryParams map[string]
 	return result, nil
 }
 
-func (c *OpenAIClient) CreateRun(ctx context.Context, promptID uint64) (ThreadRun, error) {
+// CreateThreadAndRunMessage creates a thread and runs it with the message constructed from the given role and content.
+func (c *OpenAIClient) CreateThreadAndRunMessage(ctx context.Context, role, content string, promptID uint64) (ThreadRun, error) {
 	var result ThreadRun
 
 	resp, err := c.http.R().
 		SetContext(ctx).
-		SetPathParam("thread_id", defaultThreadID).
 		SetBody(CreateRunReq{
 			AssistantId: defaultAssistantID,
-			Metadata: map[string]string{
-				"prompt_id": fmt.Sprintf("%d", promptID),
+			Thread: CreateThreadReq{
+				Messages: []CreateMessageReq{{
+					Role:    role,
+					Content: content,
+				}},
+				Metadata: map[string]string{
+					"prompt_id": fmt.Sprintf("%d", promptID),
+				},
 			},
 		}).
 		SetResult(&result).
 		SetError(&ErrorResp{}).
-		Post("/v1/threads/{thread_id}/runs")
+		Post("/v1/threads/runs")
 
 	if err != nil {
 		return ThreadRun{}, fmt.Errorf("failed to create run: %w", err)
@@ -126,29 +131,29 @@ func (c *OpenAIClient) CreateRun(ctx context.Context, promptID uint64) (ThreadRu
 	return result, nil
 }
 
-func (c *OpenAIClient) RetrieveRun(ctx context.Context, runID string) (ThreadRun, error) {
-	return retrieveRun(ctx, c.http, runID)
+func (c *OpenAIClient) RetrieveRun(ctx context.Context, threadID, runID string) (ThreadRun, error) {
+	return retrieveRun(ctx, c.http, threadID, runID)
 }
 
-func (c *OpenAIClient) PollRunResult(ctx context.Context, runID string) (ThreadRun, error) {
+func (c *OpenAIClient) PollRunResult(ctx context.Context, threadID, runID string) (ThreadRun, error) {
 	// Do `Clone` to avoid modifying the original client.
 	pollingClient := c.http.Clone().
 		SetRetryCount(c.config.PollRetryCount).
 		SetRetryWaitTime(c.config.PollRetryWaitTime).
 		SetRetryMaxWaitTime(c.config.PollRetryMaxWaitTime).
 		AddRetryCondition(func(r *resty.Response, err error) bool {
-			log.Println("Polling run status...")
+			c.logger.Debug("Polling run status...", "threadId", threadID, "runId", runID)
 			return r.Result().(*ThreadRun).Status != "completed"
 		})
-	return retrieveRun(ctx, pollingClient, runID)
+	return retrieveRun(ctx, pollingClient, threadID, runID)
 }
 
-func retrieveRun(ctx context.Context, client *resty.Client, runID string) (ThreadRun, error) {
+func retrieveRun(ctx context.Context, client *resty.Client, threadID, runID string) (ThreadRun, error) {
 	var result ThreadRun
 
 	resp, err := client.R().
 		SetContext(ctx).
-		SetPathParam("thread_id", defaultThreadID).
+		SetPathParam("thread_id", threadID).
 		SetPathParam("run_id", runID).
 		SetResult(&result).
 		SetError(&ErrorResp{}).
@@ -232,7 +237,14 @@ type ThreadMessageList struct {
 }
 
 type CreateRunReq struct {
-	AssistantId string `json:"assistant_id"`
+	AssistantId string          `json:"assistant_id"`
+	Thread      CreateThreadReq `json:"thread"`
+	// Optional. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
+	Metadata map[string]string `json:"metadata"`
+}
+
+type CreateThreadReq struct {
+	Messages []CreateMessageReq `json:"messages"`
 	// Optional. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
 	Metadata map[string]string `json:"metadata"`
 }
