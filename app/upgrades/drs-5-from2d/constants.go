@@ -4,7 +4,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	hubgenesistypes "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/types"
 	hubtypes "github.com/dymensionxyz/dymension-rdk/x/hub/types"
 	rollappparamstypes "github.com/dymensionxyz/dymension-rdk/x/rollappparams/types"
 	timeupgradetypes "github.com/dymensionxyz/dymension-rdk/x/timeupgrade/types"
@@ -32,7 +31,6 @@ var Upgrade = upgrades.Upgrade{
 			feegrant.ModuleName,
 			timeupgradetypes.ModuleName,
 			hubtypes.ModuleName,
-			hubgenesistypes.ModuleName,
 			rollappparamstypes.ModuleName,
 		},
 	},
