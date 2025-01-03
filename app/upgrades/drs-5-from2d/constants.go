@@ -1,4 +1,4 @@
-package drs5mainnet
+package drs5from2d
 
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	UpgradeName        = "3D"
+	UpgradeName        = "drs-5-from2D"
 	DRS         uint32 = 5
 	DA          string = "celestia"
 )

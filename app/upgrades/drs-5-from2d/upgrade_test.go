@@ -1,9 +1,9 @@
-package drs5mainnet_test
+package drs5from2d_test
 
 import (
 	"testing"
 
-	drs5mainnet "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-mainnet"
+	up "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-from2d"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -20,7 +20,7 @@ func TestBeginBlocker(t *testing.T) {
 		ChainID: "testchain_9000-1",
 	})
 	err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradetypes.Plan{
-		Name:   drs5mainnet.UpgradeName,
+		Name:   up.UpgradeName,
 		Height: h,
 	})
 	require.NoError(t, err)
@@ -46,6 +46,6 @@ func TestBeginBlocker(t *testing.T) {
 	require.Equal(t, "channel-0", state.HubPortAndChannel.Channel, "Channel should be 'channel-0'")
 
 	p := app.RollappParamsKeeper.GetParams(ctx)
-	require.Equal(t, drs5mainnet.DRS, p.DrsVersion, "Version should be set to DRS")
-	require.Equal(t, drs5mainnet.DA, p.Da, "Version should be set to DRS")
+	require.Equal(t, up.DRS, p.DrsVersion, "Version should be set to DRS")
+	require.Equal(t, up.DA, p.Da, "Version should be set to DRS")
 }
