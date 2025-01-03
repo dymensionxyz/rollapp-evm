@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -842,6 +843,7 @@ func NewRollapp(
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
+			err = errorsmod.Wrap(err, "new rollapp: load latest version")
 			tmos.Exit(err.Error())
 		}
 	}
@@ -1171,6 +1173,8 @@ func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 	if upgradeInfo.Name == u.Name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// configure store loader with the store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &u.StoreUpgrades))
+
+		app.Logger().Info("SetupUpgradeHandler Set store loader.")
 	}
 }
 
