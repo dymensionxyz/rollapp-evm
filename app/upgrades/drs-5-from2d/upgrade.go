@@ -46,8 +46,12 @@ func migrateHubGenesis(ctx sdk.Context, k hubgenkeeper.Keeper) error {
 		Channel: "channel-0",
 	}
 	k.SetState(ctx, s)
+
 	/*
-		We need to set this otherwise PopulateGenesisInfo complains.
+		We set PopulateGenesisInfo because the state it writes is used by GetBaseDenom
+
+
+		We need to set a dummy checksum otherwise PopulateGenesisInfo complains.
 		It's not actually used anywhere.
 	*/
 	k.SetGenesisInfo(ctx, hubgenesistypes.GenesisInfo{GenesisChecksum: "This is a placeholder - only exists for nim and mande due to migration - not real checksum"})
