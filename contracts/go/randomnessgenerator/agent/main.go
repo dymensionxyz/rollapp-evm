@@ -253,9 +253,9 @@ func main() {
 		Mnemonic:             "depend version wrestle document episode celery nuclear main penalty hundred trap scale candy donate search glory build valve round athlete become beauty indicate hamster",
 		HexContractAddress:   "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0",
 		DerivationPath:       "m/44'/60'/0'/0/0",
-		GasLimit:             60000000,
-		GasFeeCap:            big.NewInt(30000000000), // 30 Gwei
-		GasTipCap:            big.NewInt(2000000000),  // 2 Gwei
+		GasLimit:             60_000_000,
+		GasFeeCap:            big.NewInt(30_000_000_000), // 30 Gwei
+		GasTipCap:            big.NewInt(2_000_000_000),  // 2 Gwei
 		HTTPServerAddr:       ":8080",
 		RandomnessServiceURL: "http://127.0.0.1:8081/generate",
 	}

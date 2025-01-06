@@ -23,7 +23,7 @@ export default function CoinFlipGame() {
   const [coinFlipContract, setCoinFlipContract] = useState<any>(null);
   const [connected, setConnected] = useState(false);
 
-  const CONTRACT_ADDRESS = '0xb590e26c1f5F24a9ff29F3e7D24eC7eba2ab05d4'; // Введите адрес задеплоенного контракта
+  const CONTRACT_ADDRESS = '0x5adfA443a4D6F70A0226dF8ADBD72aA78E14E256'; // Введите адрес задеплоенного контракта
 
   useEffect(() => {
     if (window.ethereum) {
@@ -60,7 +60,7 @@ export default function CoinFlipGame() {
   }, []);
 
   const flipCoin = async () => {
-    console.log("flipping the coin")
+    console.log("flipping the coin with user choice: " + side)
 
     if (!connected) {
       setError('Please connect to MetaMask');
@@ -78,18 +78,12 @@ export default function CoinFlipGame() {
 
     try {
       const currentNonce = await provider.getTransactionCount(signer.address, "latest");
-
       const sideEnum = side === 'heads' ? 0 : 1; // 0 - HEADS, 1 - TAILS
-      const tx = await coinFlipContract.createGame(sideEnum);
+      const tx = await coinFlipContract.startGame(sideEnum);
       await tx.wait()
-      const gameId = await coinFlipContract.gameId()
-      console.log('Game created with ID:', gameId);
+      console.log('Game started');
 
-
-      await sleep(1500);
-      setTimeout(async () => {
-        await completeGame(gameId);
-      }, 5000);
+      await completeGame()
 
     } catch (err) {
       console.error('Error flipping the coin:', err);
@@ -98,31 +92,48 @@ export default function CoinFlipGame() {
     }
   };
 
-  const completeGame = async (gameId: string) => {
-    console.log(`completing the game with ID:${gameId}`)
+  const completeGame = async () => {
+    console.log(`completing the game`)
     try {
       const currentNonce = await provider.getTransactionCount(signer.address, "latest");
 
-      const tx = await coinFlipContract.completeGame(gameId, {
-        nonce: currentNonce
-      });
+      var retry = 0
+      while (retry < 3) {
+        await sleep(1250);
+        try {
+          const tx = await coinFlipContract.completeGame({
+            nonce: currentNonce
+          });
+          await tx.wait()
+          break
+        } catch (err) {
+          retry++
+          setError(`Error completing the game, retry #${retry}.`);
+          console.error(`Retry reason: ${err}`)
+        }
+      }
 
-      await tx.wait()
+      if (retry >= 3) {
+        return;
+      }
 
-      const gameResult = await coinFlipContract.getGameResult(gameId);
+      const gameResult = await coinFlipContract.getPlayerLastGameResult();
       console.log(gameResult);
 
-      if (gameResult.status == 0) {
-        throw (`Game wasn't finished.`);
+      if (gameResult.status != 2) {
+        setError("Game wasn't finished.")
+        console.error("Game wasn't finished.")
+        return
       }
       const didWin = gameResult.won;
-      const playerChoice = gameResult.playerChoice === 0 ? 'heads' : 'tails'
+      const playerChoice = gameResult.playerChoice ? 'tails': 'heads'
       const flipResult = didWin ? playerChoice : (playerChoice === 'heads' ? 'tails' : 'heads');
+
+      console.log("playerChoice: " + playerChoice + ", flipResult: " + flipResult)
 
       setResult(flipResult);
       setIsFlipping(false);
 
-      // Обновляем баланс
       if (didWin) {
         setBalance(balance + bet);
         toast.success(`You won $${bet}. Your new balance is $${balance + bet}.`);
@@ -157,7 +168,7 @@ export default function CoinFlipGame() {
                   ease: 'easeInOut', // Плавный поворот
                 }}
             >
-              {result && <div className="text-2xl font-bold">{result === 'heads' ? 'Heads' : 'Tails'}</div>}
+              {result && <div className="text-2xl font-bold">{result === 'heads' ? 'heads' : 'tails'}</div>}
             </motion.div>
           </div>
 
@@ -174,8 +185,8 @@ export default function CoinFlipGame() {
             </div>
 
             <RadioGroup value={side} onChange={(e) => setSide(e.target.value)}>
-              <FormControlLabel value="heads" control={<Radio/>} label="Heads"/>
-              <FormControlLabel value="tails" control={<Radio/>} label="Tails"/>
+              <FormControlLabel value="heads" control={<Radio/>} label="heads"/>
+              <FormControlLabel value="tails" control={<Radio/>} label="tails"/>
             </RadioGroup>
 
             <Button variant="contained" onClick={flipCoin} disabled={isFlipping} fullWidth>

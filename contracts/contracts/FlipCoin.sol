@@ -5,48 +5,40 @@ import "./RandomnessGenerator.sol";
 
 contract CoinFlip {
     enum CoinSide { HEADS, TAILS }
-    enum GameStatus { PENDING, COMPLETED }
+    enum GameStatus { NULL, PENDING, COMPLETED }
 
     struct Game {
-        address player;
         CoinSide playerChoice;
         uint256 randomnessId;
         GameStatus status;
         bool won;
     }
 
-    event GameCreated(uint256 gameId, address player, CoinSide choice);
-    event GameCompleted(uint256 gameId, address player, bool won);
+    event GameCreated(address player, CoinSide choice);
+    event GameCompleted(address player, bool won);
 
     RandomnessGenerator public randomnessGenerator;
-    uint256 public gameId;
-    mapping(uint256 => Game) public games;
+    mapping(address => Game) public gameByPlayer;
 
     constructor(address _randomnessGenerator) {
         randomnessGenerator = RandomnessGenerator(_randomnessGenerator);
-        gameId = 0;
     }
 
-    function createGame(CoinSide choice) external returns (uint256) {
-        gameId += 1;
-
+    function startGame(CoinSide choice) external {
         uint256 randomnessId = randomnessGenerator.requestRandomness();
 
-        games[gameId] = Game({
-            player: msg.sender,
+        gameByPlayer[msg.sender] = Game({
             playerChoice: choice,
             randomnessId: randomnessId,
             status: GameStatus.PENDING,
             won: false
         });
 
-        emit GameCreated(gameId, msg.sender, choice);
-        return gameId;
+        emit GameCreated(msg.sender, choice);
     }
 
-    function completeGame(uint256 _gameId) external {
-        Game storage game = games[_gameId];
-        require(game.player != address(0), "Game does not exist");
+    function completeGame() external {
+        Game storage game = gameByPlayer[msg.sender];
         require(game.status == GameStatus.PENDING, "Game already completed");
 
         uint256 randomness = randomnessGenerator.getRandomness(game.randomnessId);
@@ -55,20 +47,17 @@ contract CoinFlip {
         game.status = GameStatus.COMPLETED;
         game.won = (result == game.playerChoice);
 
-        emit GameCompleted(_gameId, game.player, game.won);
+        emit GameCompleted(msg.sender, game.won);
     }
 
-    function getGameResult(uint256 _gameId) external view returns (
-        address player,
+    function getPlayerLastGameResult() external view returns (
         CoinSide playerChoice,
         GameStatus status,
         bool won
     ) {
-        Game storage game = games[_gameId];
-        require(game.player != address(0), "Game does not exist");
+        Game storage game = gameByPlayer[msg.sender];
 
         return (
-            game.player,
             game.playerChoice,
             game.status,
             game.won
