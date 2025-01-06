@@ -46,16 +46,9 @@ func migrateHubGenesis(ctx sdk.Context, k hubgenkeeper.Keeper) error {
 		Channel: "channel-0",
 	}
 	k.SetState(ctx, s)
-
-	/*
-		We set PopulateGenesisInfo because the state it writes is used by GetBaseDenom
-
-
-		We need to set a dummy checksum otherwise PopulateGenesisInfo complains.
-		It's not actually used anywhere.
-	*/
-	k.SetGenesisInfo(ctx, hubgenesistypes.GenesisInfo{GenesisChecksum: "This is a placeholder - only exists for nim and mande due to migration - not real checksum"})
-	return k.PopulateGenesisInfo(ctx, nil)
+	// Note: we won't populate genesis info. It has difficulties, such as missing checksum and denom metadata.
+	// It isn't needed for established chains.
+	return nil
 }
 
 func migrateRollappParams(ctx sdk.Context, k rollappparamskeeper.Keeper) error {
