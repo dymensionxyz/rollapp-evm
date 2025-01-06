@@ -23,11 +23,17 @@ func CreateUpgradeHandler(
 			return nil, fmt.Errorf("migrate hub genesis: %w", err)
 		}
 
+		vmap, err := mm.RunMigrations(ctx, configurator, fromVM)
+		if err != nil {
+			return nil, fmt.Errorf("run migrations: %w", err)
+		}
+
+		// rollappparams is a new module so needs to go after RunMigrations to go after InitGenesis
 		if err := migrateRollappParams(ctx, kk.RpKeeper); err != nil {
 			return nil, fmt.Errorf("migrate rollapp params: %w", err)
 		}
 
-		return mm.RunMigrations(ctx, configurator, fromVM)
+		return vmap, nil
 	}
 }
 
