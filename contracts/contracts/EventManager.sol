@@ -52,7 +52,7 @@ abstract contract EventManager {
         delete entries.dataIdxByEventId[eventId];
     }
 
-    function pollEvents(uint16 eventType) external view returns (Event[] memory) {
+    function getEvents(uint16 eventType) public view returns (Event[] memory) {
         EventEntries storage entries = _eventsByType[eventType];
         return entries.data;
     }

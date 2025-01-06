@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package contractapi
+package contract
 
 import (
 	"errors"
@@ -36,9 +36,14 @@ type EventManagerEvent struct {
 	Data      []byte
 }
 
+// RandomnessGeneratorUnprocessedRandomness is an auto generated low-level Go binding around an user-defined struct.
+type RandomnessGeneratorUnprocessedRandomness struct {
+	RandomnessId uint64
+}
+
 // ContractMetaData contains all meta data concerning the Contract contract.
 var ContractMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_writer\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"getRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"}],\"name\":\"pollEvents\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"eventId\",\"type\":\"uint64\"},{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structEventManager.Event[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"uint256\",\"name\":\"randomness\",\"type\":\"uint256\"}],\"name\":\"postRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"randomnessId\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomnessJobs\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"requestRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"writer\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_writer\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"}],\"name\":\"getEvents\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"eventId\",\"type\":\"uint64\"},{\"internalType\":\"uint16\",\"name\":\"eventType\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structEventManager.Event[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"getRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getUnprocessedRandomness\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"randomnessId\",\"type\":\"uint64\"}],\"internalType\":\"structRandomnessGenerator.UnprocessedRandomness[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"uint256\",\"name\":\"randomness\",\"type\":\"uint256\"}],\"name\":\"postRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"randomnessId\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomnessJobs\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"requestRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"writer\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // ContractABI is the input ABI used to generate the binding from.
@@ -187,6 +192,37 @@ func (_Contract *ContractTransactorRaw) Transact(opts *bind.TransactOpts, method
 	return _Contract.Contract.contract.Transact(opts, method, params...)
 }
 
+// GetEvents is a free data retrieval call binding the contract method 0x22ac1500.
+//
+// Solidity: function getEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_Contract *ContractCaller) GetEvents(opts *bind.CallOpts, eventType uint16) ([]EventManagerEvent, error) {
+	var out []interface{}
+	err := _Contract.contract.Call(opts, &out, "getEvents", eventType)
+
+	if err != nil {
+		return *new([]EventManagerEvent), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]EventManagerEvent)).(*[]EventManagerEvent)
+
+	return out0, err
+
+}
+
+// GetEvents is a free data retrieval call binding the contract method 0x22ac1500.
+//
+// Solidity: function getEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_Contract *ContractSession) GetEvents(eventType uint16) ([]EventManagerEvent, error) {
+	return _Contract.Contract.GetEvents(&_Contract.CallOpts, eventType)
+}
+
+// GetEvents is a free data retrieval call binding the contract method 0x22ac1500.
+//
+// Solidity: function getEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
+func (_Contract *ContractCallerSession) GetEvents(eventType uint16) ([]EventManagerEvent, error) {
+	return _Contract.Contract.GetEvents(&_Contract.CallOpts, eventType)
+}
+
 // GetRandomness is a free data retrieval call binding the contract method 0x453f4f62.
 //
 // Solidity: function getRandomness(uint256 id) view returns(uint256)
@@ -218,35 +254,35 @@ func (_Contract *ContractCallerSession) GetRandomness(id *big.Int) (*big.Int, er
 	return _Contract.Contract.GetRandomness(&_Contract.CallOpts, id)
 }
 
-// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
+// GetUnprocessedRandomness is a free data retrieval call binding the contract method 0x98cee726.
 //
-// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
-func (_Contract *ContractCaller) PollEvents(opts *bind.CallOpts, eventType uint16) ([]EventManagerEvent, error) {
+// Solidity: function getUnprocessedRandomness() view returns((uint64)[])
+func (_Contract *ContractCaller) GetUnprocessedRandomness(opts *bind.CallOpts) ([]RandomnessGeneratorUnprocessedRandomness, error) {
 	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "pollEvents", eventType)
+	err := _Contract.contract.Call(opts, &out, "getUnprocessedRandomness")
 
 	if err != nil {
-		return *new([]EventManagerEvent), err
+		return *new([]RandomnessGeneratorUnprocessedRandomness), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]EventManagerEvent)).(*[]EventManagerEvent)
+	out0 := *abi.ConvertType(out[0], new([]RandomnessGeneratorUnprocessedRandomness)).(*[]RandomnessGeneratorUnprocessedRandomness)
 
 	return out0, err
 
 }
 
-// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
+// GetUnprocessedRandomness is a free data retrieval call binding the contract method 0x98cee726.
 //
-// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
-func (_Contract *ContractSession) PollEvents(eventType uint16) ([]EventManagerEvent, error) {
-	return _Contract.Contract.PollEvents(&_Contract.CallOpts, eventType)
+// Solidity: function getUnprocessedRandomness() view returns((uint64)[])
+func (_Contract *ContractSession) GetUnprocessedRandomness() ([]RandomnessGeneratorUnprocessedRandomness, error) {
+	return _Contract.Contract.GetUnprocessedRandomness(&_Contract.CallOpts)
 }
 
-// PollEvents is a free data retrieval call binding the contract method 0xcae62d3e.
+// GetUnprocessedRandomness is a free data retrieval call binding the contract method 0x98cee726.
 //
-// Solidity: function pollEvents(uint16 eventType) view returns((uint64,uint16,bytes)[])
-func (_Contract *ContractCallerSession) PollEvents(eventType uint16) ([]EventManagerEvent, error) {
-	return _Contract.Contract.PollEvents(&_Contract.CallOpts, eventType)
+// Solidity: function getUnprocessedRandomness() view returns((uint64)[])
+func (_Contract *ContractCallerSession) GetUnprocessedRandomness() ([]RandomnessGeneratorUnprocessedRandomness, error) {
+	return _Contract.Contract.GetUnprocessedRandomness(&_Contract.CallOpts)
 }
 
 // RandomnessId is a free data retrieval call binding the contract method 0xa13e993f.

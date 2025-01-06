@@ -38,4 +38,23 @@ contract RandomnessGenerator is EventManager {
         require(storedRandomness != 0, "Randomness not posted");
         return storedRandomness;
     }
+
+    struct UnprocessedRandomness {
+        uint64 randomnessId;
+    }
+
+    function decodeUnprocessedRandomness(bytes memory data) internal pure returns (UnprocessedRandomness memory) {
+        uint64 id;
+        (id) = abi.decode(data, (uint64));
+        return UnprocessedRandomness(id);
+    }
+
+    function getUnprocessedRandomness() external view returns (UnprocessedRandomness[] memory) {
+        Event[] memory events = getEvents(uint16(EventType.RandomnessRequested));
+        UnprocessedRandomness[] memory res = new UnprocessedRandomness[](events.length);
+        for (uint64 i = 0; i < events.length; i++) {
+            res[i] = decodeUnprocessedRandomness(events[i].data);
+        }
+        return res;
+    }
 }
