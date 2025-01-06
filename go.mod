@@ -369,6 +369,6 @@ replace (
 
 // TODO: cleanup after rdk is merged
 //replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
-replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250106124930-592d75f2ff0f
+replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250106130345-02ca863760b8
 
 replace github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.3.0-rc02.0.20250106124459-756b49ffdf0c
