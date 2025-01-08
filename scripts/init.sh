@@ -54,7 +54,7 @@ if [ "$CELESTIA_HOME_DIR" = "" ]; then
   exit 1
 fi
 
-if [[ $CELESTIA_NETWORK == "mock" ]]; then
+if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
   mkdir -p "$CELESTIA_HOME_DIR"
 fi
 
@@ -142,11 +142,14 @@ set_consensus_params() {
     "mock")
     DA="mock"
     ;;
+    "grpc")
+    DA="grpc"
+    ;;
 
     *) 
     DA="mock"
     ;;
-  esac 
+  esac
 
   VERSION=$(rollapp-evm version --long | grep DRS-)
   DRS_VERSION="${VERSION#*-}"
@@ -181,7 +184,7 @@ set_EVM_params() {
 }
 
 update_configuration() {
-  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+  if [[ $CELESTIA_NETWORK != "mock" && $CELESTIA_NETWORK != "grpc"  ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
     if [ ! -d "$CELESTIA_HOME_DIR" ]; then
       echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
