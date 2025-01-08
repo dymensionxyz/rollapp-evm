@@ -1,6 +1,6 @@
 #!/bin/bash
 EXECUTABLE=$(which rollapp-evm)
- 
+
 if ! command -v "$EXECUTABLE" >/dev/null; then
   echo "$EXECUTABLE does not exist"
   echo "please run make install"
@@ -8,14 +8,14 @@ if ! command -v "$EXECUTABLE" >/dev/null; then
 fi
 
 if [ "$ROLLAPP_CHAIN_ID" = "" ]; then
-  echo "ROLLAPP_CHAIN_ID is not set" exit 1
+  echo "ROLLAPP_CHAIN_ID is not set"
+  exit 1
 fi
-
 
 if [ "$BASE_DENOM" = "" ]; then
-  echo "BASE_DENOM is not set" exit 1
+  echo "BASE_DENOM is not set"
+  exit 1
 fi
-
 
 # ---------------------------- initial parameters ---------------------------- #
 CONFIG_DIRECTORY="$ROLLAPP_HOME_DIR/config"
@@ -24,16 +24,16 @@ GENESIS_FILE="$CONFIG_DIRECTORY/genesis.json"
 
 # ---------------------------- check variables ---------------------------- #
 if [ "$MONIKER" = "" ]; then
-    MONIKER="${ROLLAPP_CHAIN_ID}-sequencer" # Default moniker value
+  MONIKER="${ROLLAPP_CHAIN_ID}-sequencer" # Default moniker value
 fi
 
 if [ "$KEY_NAME_ROLLAPP" = "" ]; then
-    KEY_NAME_ROLLAPP="rol-user" # Default key name value
+  KEY_NAME_ROLLAPP="rol-user" # Default key name value
 fi
 
 # Default to 1,000,000,000 tokens
 if [ "$TOTAL_SUPPLY" = "" ]; then
-    TOTAL_SUPPLY="1000000000000000000000000000"
+  TOTAL_SUPPLY="1000000000000000000000000000"
 fi
 
 if [ "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" = "" ]; then
@@ -41,6 +41,11 @@ if [ "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH" = "" ]; then
   # configuration files for RollApp initialization, such as denom metadata and genesis account
   # json files
   ROLLAPP_SETTLEMENT_INIT_DIR_PATH="${ROLLAPP_HOME_DIR}/init"
+fi
+
+if [ "$DA_CLIENT" = "" ]; then
+  echo "DA_CLIENT type is not set"
+  exit 1
 fi
 
 # FIXME: rename to DA_NETWORK
@@ -81,7 +86,7 @@ update_genesis_params() {
   dasel put -f "$GENESIS_FILE" '.app_state.gov.voting_params.voting_period' -v "300s" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.gov.tally_params.threshold' -v "0.490000000000000000" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.sequencers.params.unbonding_time' -v "1814400s" || success=false # 2 weeks
-  dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1814400s" || success=false # 2 weeks
+  dasel put -f "$GENESIS_FILE" '.app_state.staking.params.unbonding_time' -v "1814400s" || success=false    # 2 weeks
 
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
@@ -119,8 +124,8 @@ add_denom_metadata_to_genesis() {
 
   #denom_metadata=$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)
   #dasel put -f "$GENESIS_FILE" '.app_state.bank.denom_metadata' -v "$denom_metadata" || success=false
-  jq --argjson metadata "$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)" '.app_state.bank.denom_metadata = $metadata' "$GENESIS_FILE" > temp.json && mv temp.json "$GENESIS_FILE"
-  
+  jq --argjson metadata "$(cat "$ROLLAPP_SETTLEMENT_INIT_DIR_PATH"/denommetadata.json)" '.app_state.bank.denom_metadata = $metadata' "$GENESIS_FILE" >temp.json && mv temp.json "$GENESIS_FILE"
+
   if [ "$success" = false ]; then
     echo "An error occurred. Please refer to README.md"
     return 1
@@ -133,20 +138,24 @@ set_consensus_params() {
   BLOCK_SIZE="500000"
   COMMIT=$(git log -1 --format='%H')
 
-  DA="mock"
-  case $CELESTIA_NETWORK in
-
+  case $DA_CLIENT in
+  "celestia")
+    case $CELESTIA_NETWORK in
     "celestia" | "mocha")
-    DA="celestia"
+      DA="celestia"
+      ;;
+    "mock" | *)
+      DA="mock"
+      ;;
+    esac
     ;;
-    "mock")
+  "weavevm")
+    DA="weavevm"
+    ;;
+  "mock" | *)
     DA="mock"
     ;;
-
-    *) 
-    DA="mock"
-    ;;
-  esac 
+  esac
 
   VERSION=$(rollapp-evm version --long | grep DRS-)
   DRS_VERSION="${VERSION#*-}"
@@ -179,8 +188,19 @@ set_EVM_params() {
     return 1
   fi
 }
+update_configuration_weavevm_da() {
+  weavevm_config="{\"endpoint\":\"https:\/\/testnet-rpc.wvm.dev\",\"chain_id\":9496,\"timeout\":60000000000,\"web3_signer_endpoint\":\"http:\/\/localhost:9000\"}"
 
-update_configuration() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/da_layer =.*/da_layer = \"weavevm\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s/da_config .*/da_config = \"${weavevm_config}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    sed -i "s/da_layer =.*/da_layer = \"weavevm\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s/da_config .*/da_config = \"${weavevm_config}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_celestia_da() {
   if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
     if [ ! -d "$CELESTIA_HOME_DIR" ]; then
@@ -222,7 +242,17 @@ update_configuration() {
     sed -i '/rollapp_id =/c\rollapp_id = '\""$ROLLAPP_CHAIN_ID"\" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '/minimum-gas-prices =/c\minimum-gas-prices = '\"1000000000"$BASE_DENOM"\" "${CONFIG_DIRECTORY}/app.toml"
   fi
+}
 
+update_configuration() {
+  case $DA_CLIENT in
+  "weavevm")
+    update_configuration_weavevm_da
+    ;;
+  "celestia")
+    update_configuration_celestia_da
+    ;;
+  esac
 }
 
 # --------------------------------- run init --------------------------------- #
@@ -274,7 +304,7 @@ update_configuration
 # Ask if to include a governor on genesis
 echo "Do you want to include a governor on genesis? (Y/n) "
 read -r answer
-if [ ! "$answer" != "${answer#[Nn]}" ] ;then
+if [ ! "$answer" != "${answer#[Nn]}" ]; then
   STAKING_AMOUNT="500000000000000000000000$BASE_DENOM"
   "$EXECUTABLE" gentx "$KEY_NAME_ROLLAPP" "$STAKING_AMOUNT" --chain-id "$ROLLAPP_CHAIN_ID" --keyring-backend test --home "$ROLLAPP_HOME_DIR" --fees 4000000000000"$BASE_DENOM"
   "$EXECUTABLE" collect-gentxs --home "$ROLLAPP_HOME_DIR"
