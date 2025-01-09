@@ -1,0 +1,39 @@
+name: Build RollApp with Dymint
+
+on:
+  workflow_call: # Makes this workflow reusable
+    inputs:
+      commit_hash:
+        description: "Commit hash for updating dymint version"
+        required: true
+        type: string
+
+jobs:
+  build-evm-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update dymint module version
+        run: |
+          echo "Updating dymint to version ${{ inputs.commit_hash }}"
+          go mod edit -require github.com/dymensionxyz/dymint@${{ inputs.commit_hash }}
+          go mod tidy
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build RollApp EVM Image
+        run: |
+          docker buildx build \
+            --file Dockerfile \
+            --platform linux/amd64 \
+            --output type=docker,dest=/tmp/rollapp-evm.tar \
+            --tag ghcr.io/dymensionxyz/rollapp-evm:e2e .
+
+      - name: Upload EVM artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rollapp-evm
+          path: /tmp/rollapp-evm.tar
