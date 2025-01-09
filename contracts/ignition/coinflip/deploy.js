@@ -16,7 +16,8 @@ async function main() {
 
         // Deploy CoinFlip contract
         const CoinFlip = await ethers.getContractFactory("CoinFlip", deployer);
-        const coinFlip = await CoinFlip.deploy(randomnessGeneratorAddress, deployOptions);
+        const writerAddress = deployer.address; // assuming deployer is the writer for testing
+        const coinFlip = await CoinFlip.deploy(writerAddress, randomnessGeneratorAddress, deployOptions);
         await coinFlip.waitForDeployment();
         console.log("CoinFlip deployed at:", coinFlip.target);
 
