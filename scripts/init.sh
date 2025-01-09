@@ -59,7 +59,7 @@ if [ "$CELESTIA_HOME_DIR" = "" ]; then
   exit 1
 fi
 
-if [[ $CELESTIA_NETWORK == "mock" ]]; then
+if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
   mkdir -p "$CELESTIA_HOME_DIR"
 fi
 
@@ -152,7 +152,10 @@ set_consensus_params() {
   "weavevm")
     DA="weavevm"
     ;;
-  "mock" | *)
+  "grpc")
+    DA="grpc"
+    ;;
+  *)
     DA="mock"
     ;;
   esac
@@ -188,20 +191,21 @@ set_EVM_params() {
     return 1
   fi
 }
-update_configuration_weavevm_da() {
-  weavevm_config="{\"endpoint\":\"https:\/\/testnet-rpc.wvm.dev\",\"chain_id\":9496,\"timeout\":60000000000,\"web3_signer_endpoint\":\"http:\/\/localhost:9000\"}"
 
+update_configuration_weavevm_da() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/da_layer =.*/da_layer = \"weavevm\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '' "s/da_config .*/da_config = \"${weavevm_config}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = \"weavevm\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"web3_signer_endpoint\\\\\":\\\\\"http:\/\/localhost:9000\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
   else
-    sed -i "s/da_layer =.*/da_layer = \"weavevm\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i "s/da_config .*/da_config = \"${weavevm_config}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = \"weavevm\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"web3_signer_endpoint\\\\\":\\\\\"http:\/\/localhost:9000\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
   fi
 }
 
 update_configuration_celestia_da() {
-  if [[ ! $CELESTIA_NETWORK == "mock" ]]; then
+  if [[ $CELESTIA_NETWORK != "mock" && $CELESTIA_NETWORK != "grpc" ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
     if [ ! -d "$CELESTIA_HOME_DIR" ]; then
       echo "Celestia light client is expected to be initialized in this directory: $CELESTIA_HOME_DIR"
