@@ -368,5 +368,3 @@ replace (
 )
 
 replace github.com/dymensionxyz/dymint => /Users/nilmedvedev/Projects/DLL/dymint
-
-replace github.com/dymensionxyz/dymension-rdk => /Users/nilmedvedev/Projects/opensource/dymension-rdk
