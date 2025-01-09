@@ -9,7 +9,7 @@ on:
         type: string
 
 jobs:
-  build-wasm-image:
+  build-evm-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,7 +28,6 @@ jobs:
         run: |
           docker buildx build \
             --file Dockerfile \
-            --target rollapp-evm \
             --platform linux/amd64 \
             --output type=docker,dest=/tmp/rollapp-evm.tar \
             --tag ghcr.io/dymensionxyz/rollapp-evm:e2e .
