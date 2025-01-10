@@ -12,7 +12,7 @@ async function main() {
 
     try {
         // Address of already deployed RandomnessGenerator contract
-        const randomnessGeneratorAddress = "0x676E400d0200Ac8f3903A3CDC7cc3feaF21004d0"; // Replace with actual address
+        const randomnessGeneratorAddress = "0xf3911f024f42Ee885bD79c7fc4858909D3312cc1"; // Replace with actual address
 
         // Deploy CoinFlip contract
         const CoinFlip = await ethers.getContractFactory("CoinFlip", deployer);

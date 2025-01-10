@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const contractAddress = "0x09d0647B434e6315f20AB0D6Cc87E1A274299b69";
+    const contractAddress = "0xB8c4Ec444AD59a8f7Cc2c3e3F78bb0c367d2cE1d";
 
     const coinFlip = await ethers.getContractAt("CoinFlip", contractAddress);
 
@@ -11,12 +11,17 @@ async function main() {
     const deployOptions = {
         maxFeePerGas: ethers.parseUnits('300000', 'gwei'),
         maxPriorityFeePerGas: ethers.parseUnits('200000', 'gwei'),
+        value: ethers.parseEther("100000000.0")
     };
 
     try {
-
-        const res = await coinFlip.getPlayerLastGameResult()
-        console.log(res)
+        const tx = await coinFlip.depositSupply(deployOptions)
+        await tx.wait()
+        // const tx = await coinFlip.startGame(0, deployOptions)
+        // await tx.wait()
+        // const tx1 = await coinFlip.completeGame()
+        // await tx1.wait()
+        // console.log(await coinFlip.getPlayerLastGameResult())
     } catch (error) {
         console.error("Error:", error.message);
     }
