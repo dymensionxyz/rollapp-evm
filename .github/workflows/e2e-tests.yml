@@ -27,7 +27,7 @@ jobs:
           tags: |
               ghcr.io/dymensionxyz/rollapp-evm:e2e
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e
           path: /tmp/e2e.tar  
