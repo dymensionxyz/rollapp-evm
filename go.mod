@@ -360,15 +360,11 @@ replace (
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241030112051-a7a3a5be5422
 	github.com/dymensionxyz/cosmosclient => github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20250110140627-2a26ee51f5b9
+	github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02-3d-migration-00
+	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.3.0-rc03-3d-migration.0.20250111075644-ea1114e230d2
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250109155331-3623e06ed978
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250109152600-a6a5c8d67ce8
 
 )
-
-// TODO: cleanup after rdk is merged
-//replace github.com/dymensionxyz/dymension-rdk => /Users/danwt/Documents/dym/d-dymension-rdk
-replace github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.8.0-rc02.0.20250106141106-c4bf86e13eaf
-
-replace github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.3.0-rc02.0.20250106124459-756b49ffdf0c
