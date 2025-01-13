@@ -367,4 +367,4 @@ replace (
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20241128205759-2a9d5f015da5
 )
 
-replace github.com/dymensionxyz/dymint => /Users/nilmedvedev/Projects/DLL/dymint
+replace github.com/dymensionxyz/dymint => github.com/weaveVM/dymint v0.0.0-20250113084309-2ab5822d9a17
