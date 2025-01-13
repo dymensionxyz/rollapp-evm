@@ -1156,9 +1156,10 @@ func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 		u.Name,
 		u.CreateHandler(
 			upgrades.UpgradeKeepers{
-				RpKeeper:  app.RollappParamsKeeper,
-				EvmKeeper: app.EvmKeeper,
-				HubgenK:   app.HubGenesisKeeper,
+				RpKeeper:    app.RollappParamsKeeper,
+				EvmKeeper:   app.EvmKeeper,
+				HubgenK:     app.HubGenesisKeeper,
+				Erc20keeper: app.Erc20Keeper,
 			},
 			app.mm,
 			app.configurator,
