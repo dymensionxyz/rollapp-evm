@@ -577,8 +577,10 @@ github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 h1:A0O
 github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73/go.mod h1:VPUuzF+l+ekSGPV7VVB8m0OMQfwp3QdKWNZjvkU3A1U=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd h1:V89QyOFM84o9w0iFdctMU6So8SS/Xt32JWAXGqJduT0=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd/go.mod h1:3weqpVj/TqTFpC0LjEB3H+HZSpm7BrQ1QkEg1Ahy6KY=
-github.com/dymensionxyz/dymension-rdk v1.8.0-rc01.0.20250108162603-5198f720fca4 h1:c6IGW+r7jWZ6+TYKxmjv9C+vAgqeq1dI1Yklh+fb1HU=
-github.com/dymensionxyz/dymension-rdk v1.8.0-rc01.0.20250108162603-5198f720fca4/go.mod h1:6wbfP9JIoQQaL3Dlyj4GD+Z2axQAptp0wWac2HFIZSA=
+github.com/dymensionxyz/dymension-rdk v1.8.0-rc01.0.20250113104911-7fe0f886c502 h1:1go3SXCGVG6N51zdWEObDMKQO3Rmszfboo8M1e5IxFk=
+github.com/dymensionxyz/dymension-rdk v1.8.0-rc01.0.20250113104911-7fe0f886c502/go.mod h1:6wbfP9JIoQQaL3Dlyj4GD+Z2axQAptp0wWac2HFIZSA=
+github.com/dymensionxyz/dymint v1.3.0-rc02.0.20250113111506-bd2214e0dbb0 h1:+i43fr8f/6FcyQhYOCPr2Ep14bdYKGnedJv+dc7qYto=
+github.com/dymensionxyz/dymint v1.3.0-rc02.0.20250113111506-bd2214e0dbb0/go.mod h1:sqE+4imdASE9lm63jv+K2zmOnclLJNZLPYbL9m6vR3o=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.5.0-rc02 h1:G6rtzFNnzeYOHN33rkw0kMQX+xRantRLTip1AMXYmBg=
 github.com/dymensionxyz/evmos/v12 v12.1.6-dymension-v0.5.0-rc02/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=
@@ -1622,8 +1624,6 @@ github.com/warpfork/go-testmark v0.12.1 h1:rMgCpJfwy1sJ50x0M0NgyphxYYPMOODIJHhsX
 github.com/warpfork/go-testmark v0.12.1/go.mod h1:kHwy7wfvGSPh1rQJYKayD4AbtNaeyZdcGi9tNJTaa5Y=
 github.com/warpfork/go-wish v0.0.0-20220906213052-39a1cc7a02d0 h1:GDDkbFiaK8jsSDJfjId/PEGEShv6ugrt4kYsC5UIDaQ=
 github.com/warpfork/go-wish v0.0.0-20220906213052-39a1cc7a02d0/go.mod h1:x6AKhvSSexNrVSrViXSHUEbICjmGXhtgABaHIySUSGw=
-github.com/weaveVM/dymint v0.0.0-20250113084309-2ab5822d9a17 h1:928nCjOOz/xyVQPDIDt+scfT8CFsefBN9dt2/FSCfXE=
-github.com/weaveVM/dymint v0.0.0-20250113084309-2ab5822d9a17/go.mod h1:Rl/G4SyIhWAmOXNGxc+54tASCl6WMpMEbrd25U0ukoI=
 github.com/whyrusleeping/chunker v0.0.0-20181014151217-fe64bd25879f h1:jQa4QT2UP9WYv2nzyawpKMOCl+Z/jW7djv2/J50lj9E=
 github.com/whyrusleeping/chunker v0.0.0-20181014151217-fe64bd25879f/go.mod h1:p9UJB6dDgdPgMJZs7UjUOdulKyRr9fqkS+6JKAInPy8=
 github.com/whyrusleeping/go-keyspace v0.0.0-20160322163242-5b898ac5add1 h1:EKhdznlJHPMoKr0XTrX+IlJs1LH3lyx2nfr1dOlZ79k=

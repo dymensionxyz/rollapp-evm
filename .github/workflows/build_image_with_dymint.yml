@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+            repository: dymensionxyz/rollapp-evm
+            ref: main
 
       - name: Update dymint module version
         run: |
@@ -33,7 +36,7 @@ jobs:
             --tag ghcr.io/dymensionxyz/rollapp-evm:e2e .
 
       - name: Upload EVM artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rollapp-evm
           path: /tmp/rollapp-evm.tar
