@@ -226,6 +226,17 @@ update_configuration_celestia_da() {
       sed -i "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
     fi
   fi
+}
+
+update_configuration() {
+  case $DA_CLIENT in
+  "weavevm")
+    update_configuration_weavevm_da
+    ;;
+  "celestia")
+    update_configuration_celestia_da
+    ;;
+  esac
 
   if [[ ! $SETTLEMENT_LAYER == "mock" ]]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -246,17 +257,6 @@ update_configuration_celestia_da() {
     sed -i '/rollapp_id =/c\rollapp_id = '\""$ROLLAPP_CHAIN_ID"\" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i '/minimum-gas-prices =/c\minimum-gas-prices = '\"1000000000"$BASE_DENOM"\" "${CONFIG_DIRECTORY}/app.toml"
   fi
-}
-
-update_configuration() {
-  case $DA_CLIENT in
-  "weavevm")
-    update_configuration_weavevm_da
-    ;;
-  "celestia")
-    update_configuration_celestia_da
-    ;;
-  esac
 }
 
 # --------------------------------- run init --------------------------------- #

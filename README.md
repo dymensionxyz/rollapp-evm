@@ -33,6 +33,8 @@ export EXECUTABLE="rollapp-evm"
 export the following variables:
 
 ```shell
+export DA_CLIENT="" # choose DA client: celestia, weavevm, next configuration can depends on it
+
 export CELESTIA_NETWORK="mock" # for a testnet RollApp use "mocha", for mainnet - "celestia"
 export CELESTIA_HOME_DIR="${HOME}/.da"
 
