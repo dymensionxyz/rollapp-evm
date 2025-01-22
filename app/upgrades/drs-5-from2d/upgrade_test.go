@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	up "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-from2d"
+	erc20types "github.com/evmos/evmos/v12/x/erc20/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -52,4 +53,10 @@ func TestBeginBlocker(t *testing.T) {
 	p := app.RollappParamsKeeper.GetParams(ctx)
 	require.Equal(t, up.DRS, p.DrsVersion, "Version should be set to DRS")
 	require.Equal(t, up.DA, p.Da, "Version should be set to DRS")
+
+	evmParams := app.EvmKeeper.GetParams(ctx)
+	require.Equal(t, evmParams.GasDenom, evmParams.EvmDenom, "GasDenom should be set to EvmDenom")
+
+	erc20Params := app.Erc20Keeper.GetParams(ctx)
+	require.Equal(t, erc20Params.RegistrationFee, erc20types.DefaultRegistrationFee, "RegistrationFee should be set to DefaultRegistrationFee")
 }
