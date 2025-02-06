@@ -70,6 +70,9 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
+	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
+	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -183,7 +186,7 @@ var (
 		ibchost.StoreKey, upgradetypes.StoreKey,
 		epochstypes.StoreKey, hubtypes.StoreKey, hubgentypes.StoreKey,
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		rollappparamstypes.StoreKey,
+		rollappparamstypes.StoreKey, grouptypes.StoreKey,
 		timeupgradetypes.ModuleName,
 		// evmos keys
 		evmtypes.StoreKey,
@@ -240,6 +243,7 @@ var (
 		hub.AppModuleBasic{},
 		timeupgrade.AppModuleBasic{},
 		rollappparams.AppModuleBasic{},
+		groupmodule.AppModuleBasic{},
 
 		// Evmos moudles
 		evm.AppModuleBasic{},
@@ -254,6 +258,7 @@ var (
 		authz.ModuleName:               nil,
 		distrtypes.ModuleName:          nil,
 		rollappparamstypes.ModuleName:  nil,
+		grouptypes.ModuleName:          nil,
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -325,6 +330,7 @@ type App struct {
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	TimeUpgradeKeeper   timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
+	GroupKeeper         groupkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -611,6 +617,17 @@ func NewRollapp(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
+	groupConfig := grouptypes.DefaultConfig()
+	groupConfig.MaxMetadataLen = 5500
+
+	app.GroupKeeper = groupkeeper.NewKeeper(
+		app.keys[grouptypes.StoreKey],
+		appCodec,
+		bApp.MsgServiceRouter(),
+		app.AccountKeeper,
+		groupConfig,
+	)
+
 	// create IBC module from top to bottom of stack
 	var transferStack ibcporttypes.IBCModule
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
@@ -665,6 +682,7 @@ func NewRollapp(
 		hub.NewAppModule(appCodec, app.HubKeeper),
 		timeupgrade.NewAppModule(app.TimeUpgradeKeeper, app.UpgradeKeeper),
 		rollappparams.NewAppModule(appCodec, app.RollappParamsKeeper),
+		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, encodingConfig.InterfaceRegistry),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -705,6 +723,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		grouptypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -733,6 +752,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		grouptypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -767,6 +787,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		grouptypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
