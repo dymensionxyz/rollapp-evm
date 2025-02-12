@@ -166,6 +166,7 @@ import (
 	drs4 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-4"
 	drs5 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5"
 	drs5from2d "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-5-from2d"
+	drs6 "github.com/dymensionxyz/rollapp-evm/app/upgrades/drs-6"
 )
 
 const (
@@ -191,7 +192,7 @@ var (
 		erc20types.StoreKey,
 	}
 	// Upgrades contains the upgrade handlers for the application
-	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5from2d.Upgrade}
+	Upgrades = []upgrades.Upgrade{drs2.Upgrade, drs3.Upgrade, drs4.Upgrade, drs5.Upgrade, drs5from2d.Upgrade, drs6.Upgrade}
 )
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -1156,10 +1157,11 @@ func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 		u.Name,
 		u.CreateHandler(
 			upgrades.UpgradeKeepers{
-				RpKeeper:    app.RollappParamsKeeper,
-				EvmKeeper:   app.EvmKeeper,
-				HubgenK:     app.HubGenesisKeeper,
-				Erc20keeper: app.Erc20Keeper,
+				RpKeeper:      app.RollappParamsKeeper,
+				EvmKeeper:     app.EvmKeeper,
+				HubgenK:       app.HubGenesisKeeper,
+				Erc20keeper:   app.Erc20Keeper,
+				AccountKeeper: app.AccountKeeper,
 			},
 			app.mm,
 			app.configurator,
