@@ -18,15 +18,14 @@ import (
 //  2. If the denom is a ERC20 denom (starts with 'erc20' prefix), start ERC20 flow
 //  3. Get the token pair of this denom from x/erc20 module
 //  4. Using the token pair, get the respective ERC20 balance of the gauge address
-//  5. Convert all the ERC20 tokens to cosmos address of the gauge
-//  6. Return the cosmos balance of the gauge
-//  7. Distribute the rewards from the gauge address. Later, users will need to convert
+//  5. Convert all the ERC20 tokens and send to cosmos address of the gauge
+//  6. Distribute the rewards from the gauge address. Later, users will need to convert
 //     the cosmos balance to ERC20 balance after claiming the rewards
-//  8. If the denom is a native denom, return the native balance of the gauge address
 func GetGaugeBalanceFunc(
 	erc20Keeper erc20keeper.Keeper,
 	dividendsKeeper dividendskeeper.Keeper,
 ) dividendskeeper.GetGaugeBalanceFunc {
+	fn := dividendsKeeper.GetBalanceFunc()
 	return func(ctx sdk.Context, address sdk.AccAddress, denoms []string) sdk.Coins {
 		for _, denom := range denoms {
 			erc20Addr, err := ParseERC20Denom(denom)
@@ -63,20 +62,24 @@ func GetGaugeBalanceFunc(
 			}
 
 			// Convert all the ERC20 tokens to cosmos address of the gauge
-			err = erc20Keeper.TryConvertErc20Sdk(ctx, address, address, erc20Addr.Hex(), math.NewIntFromBigInt(balanceToken))
+			// Execute it in a cache context to avoid writing to the store in case of an error
+			cacheCtx, write := ctx.CacheContext()
+			err = erc20Keeper.TryConvertErc20Sdk(cacheCtx, address, address, erc20Addr.Hex(), math.NewIntFromBigInt(balanceToken))
 			if err != nil {
 				// If the conversion fails, continue to the next denom
 				dividendsKeeper.Logger(ctx).
 					With("address", address.String()).
 					With("denom", denom).
+					With("error", err).
 					Error("failed to convert ERC20 to cosmos")
 				continue
 			}
+			write()
 
 			// Now the gauge has ERC20 tokens as cosmos coins on its balance
 		}
 
-		return dividendsKeeper.GetBalanceFunc()(ctx, address, denoms)
+		return fn(ctx, address, denoms)
 	}
 }
 

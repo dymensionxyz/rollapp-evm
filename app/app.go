@@ -477,7 +477,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-			// insert mint hooks receivers here
+		// insert mint hooks receivers here
 		),
 	)
 
@@ -583,7 +583,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
@@ -962,44 +962,6 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(fmt.Errorf("failed to marshal genesis bridge data on InitChain: %w", err))
 	}
 	res.GenesisBridgeDataBytes = bz
-
-	metadataIbc := banktypes.Metadata{
-		Description: "USDC",
-		Base:        "USDC",
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    "USDC",
-				Exponent: 18,
-			},
-		},
-		Name:    "USDC",
-		Symbol:  "USDC",
-		Display: "USDC",
-	}
-	address, err := app.Erc20Keeper.DeployERC20Contract(ctx, metadataIbc)
-	if err != nil {
-		panic(fmt.Errorf("failed to deploy erc20 contract: %w", err))
-	}
-
-	tp, err := app.Erc20Keeper.RegisterERC20(ctx, address)
-	if err != nil {
-		panic(fmt.Errorf("failed to register erc20 coin: %w", err))
-	}
-
-	app.Logger().Info("ERC20 contract deployed", "address", address.String(), "denom", tp.GetDenom())
-
-	coin := sdk.NewCoins(sdk.NewCoin(tp.GetDenom(), sdk.NewInt(1000000000000000000)))
-	err = app.BankKeeper.MintCoins(ctx, erc20types.ModuleName, coin)
-	if err != nil {
-		panic(fmt.Errorf("failed to mint coins: %w", err))
-	}
-
-	addr := sdk.MustAccAddressFromBech32("ethm19hu34t8z34s93t9n20n056kahw67nywaankx7m")
-	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, addr, coin)
-	if err != nil {
-		panic(fmt.Errorf("failed to send coins: %w", err))
-	}
 
 	return res
 }
