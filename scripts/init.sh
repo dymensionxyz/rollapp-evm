@@ -155,6 +155,9 @@ set_consensus_params() {
   "grpc")
     DA="grpc"
     ;;
+  "avail")
+    DA="avail"
+    ;;
   *)
     DA="mock"
     ;;
