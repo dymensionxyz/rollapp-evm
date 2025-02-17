@@ -42,7 +42,7 @@ func (svd sigCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate boo
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "invalid number of signer;  expected: %d, got %d", len(signerAddrs), len(sigs))
 	}
 
-	ibcRelayerMsg := rdkante.IsIBCRelayerMsg(tx.GetMsgs())
+	ibcRelayerMsg := rdkante.IbcOnly(tx.GetMsgs()...)
 
 	for i, sig := range sigs {
 		acc, err := authante.GetSignerAcc(ctx, svd.ak, signerAddrs[i])

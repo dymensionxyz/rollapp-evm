@@ -5,6 +5,7 @@ import (
 	"runtime/debug"
 
 	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
+	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
 	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 
@@ -81,9 +82,10 @@ func MustCreateHandler(codec codec.BinaryCodec,
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	evmosante.HandlerOptions
-	hasPermission    HasPermission
-	DistrKeeper      distrkeeper.Keeper
-	SequencersKeeper seqkeeper.Keeper
+	hasPermission       HasPermission
+	DistrKeeper         distrkeeper.Keeper
+	SequencersKeeper    seqkeeper.Keeper
+	RollappParamsKeeper rollappparamskeeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {

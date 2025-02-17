@@ -40,7 +40,7 @@ func (cad CreateAccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 		return ctx, err
 	}
 
-	ibcRelayerMsg := rdkante.IsIBCRelayerMsg(tx.GetMsgs())
+	ibcRelayerMsg := rdkante.IbcOnly(tx.GetMsgs()...)
 
 	for i, pk := range pubkeys {
 		if pk == nil {
