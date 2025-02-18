@@ -155,6 +155,9 @@ set_consensus_params() {
   "grpc")
     DA="grpc"
     ;;
+  "avail")
+    DA="avail"
+    ;;
   *)
     DA="mock"
     ;;
@@ -201,6 +204,18 @@ update_configuration_weavevm_da() {
     # Linux/Other OS-specific sed
     sed -i "s|da_layer =.*|da_layer = \"weavevm\"|" "${CONFIG_DIRECTORY}/dymint.toml"
     sed -i "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"private_key_hex\\\\\":\\\\\"${WVM_PRIV_KEY}\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_avail_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = \"avail\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/turing-rpc.avail.so\/rpc"\\\\\",\\\\\"app_id\\\\\":1,\\\\\"seed\\\\\":\\\\\"${MNEMONIC}\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = \"avail\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/turing-rpc.avail.so\/rpc"\\\\\",\\\\\"app_id\\\\\":1,\\\\\"seed\\\\\":\\\\\"${MNEMONIC}\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
   fi
 }
 
