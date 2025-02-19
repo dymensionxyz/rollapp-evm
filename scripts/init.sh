@@ -155,6 +155,9 @@ set_consensus_params() {
   "grpc")
     DA="grpc"
     ;;
+  "avail")
+    DA="avail"
+    ;;
   *)
     DA="mock"
     ;;
@@ -195,12 +198,24 @@ set_EVM_params() {
 update_configuration_weavevm_da() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS-specific sed
-    sed -i '' "s|da_layer =.*|da_layer = \"weavevm\"|" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i '' "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"private_key_hex\\\\\":\\\\\"${WVM_PRIV_KEY}\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_layer =.*|da_layer = [\"weavevm\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"private_key_hex\\\\\":\\\\\"${WVM_PRIV_KEY}\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
   else
     # Linux/Other OS-specific sed
     sed -i "s|da_layer =.*|da_layer = \"weavevm\"|" "${CONFIG_DIRECTORY}/dymint.toml"
-    sed -i "s|da_config =.*|da_config = \"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"private_key_hex\\\\\":\\\\\"${WVM_PRIV_KEY}\\\\\"}\"|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/testnet-rpc.wvm.dev\\\\\",\\\\\"chain_id\\\\\":9496,\\\\\"timeout\\\\\":60000000000,\\\\\"private_key_hex\\\\\":\\\\\"${WVM_PRIV_KEY}\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_avail_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"avail\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/turing-rpc.avail.so\/rpc\\\\\",\\\\\"app_id\\\\\":1,\\\\\"seed\\\\\":\\\\\"${MNEMONIC}\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"avail\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"endpoint\\\\\":\\\\\"https:\/\/turing-rpc.avail.so\/rpc\\\\\",\\\\\"app_id\\\\\":1,\\\\\"seed\\\\\":\\\\\"${MNEMONIC}\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
   fi
 }
 
@@ -217,13 +232,11 @@ update_configuration_celestia_da() {
     celestia_token=$(celestia light auth admin --p2p.network "$CELESTIA_NETWORK" --node.store "$CELESTIA_HOME_DIR")
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-      sed -i '' "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-      sed -i '' "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' "s/da_layer =.*/da_layer = [\"celestia\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i '' "s/da_config .*/da_config =[\"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
     else
-      sed -i "s/da_layer =.*/da_layer = \"celestia\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-      sed -i "s/namespace_id .*/namespace_id = \"${celestia_namespace_id}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
-      sed -i "s/da_config .*/da_config = \"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i "s/da_layer =.*/da_layer = [\"celestia\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+      sed -i "s/da_config .*/da_config = [\"{\\\\\"base_url\\\\\": \\\\\"http:\/\/localhost:26658\\\\\", \\\\\"timeout\\\\\": 60000000000, \\\\\"gas_prices\\\\\":1.0, \\\\\"gas_adjustment\\\\\": 1.3, \\\\\"namespace_id\\\\\": \\\\\"${celestia_namespace_id}\\\\\", \\\\\"auth_token\\\\\":\\\\\"${celestia_token}\\\\\"}\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
     fi
   fi
 }
@@ -235,6 +248,9 @@ update_configuration() {
     ;;
   "celestia")
     update_configuration_celestia_da
+    ;;
+  "avail")
+    update_configuration_avail_da
     ;;
   esac
 

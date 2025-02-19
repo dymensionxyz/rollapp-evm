@@ -48,10 +48,10 @@ func HandleUpgrade(ctx sdk.Context, rpKeeper rollappparamskeeper.Keeper, evmKeep
 			return err
 		}
 	}
-	// upgrade drs to 6
 	if err := rpKeeper.SetVersion(ctx, DRS); err != nil {
 		return err
 	}
+	rpKeeper.SetFreeIBC(ctx, true)
 	return nil
 }
 
