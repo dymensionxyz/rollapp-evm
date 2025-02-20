@@ -76,6 +76,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 			cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 			options.DistrKeeper,
 			options.SequencersKeeper,
+			options.
 		),
 		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),

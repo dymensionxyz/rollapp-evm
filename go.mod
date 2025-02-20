@@ -6,11 +6,12 @@ toolchain go1.23.3
 
 require (
 	cosmossdk.io/errors v1.0.1
+	cosmossdk.io/math v1.4.0
 	github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.4
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.8.0-rc01.0.20250113104911-7fe0f886c502
+	github.com/dymensionxyz/dymension-rdk v1.9.0-rc01.0.20250219140726-6583a5a31946
 	github.com/dymensionxyz/dymint v1.3.0-rc04
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
@@ -37,7 +38,6 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.12.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/math v1.4.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -366,5 +366,3 @@ replace (
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250109171128-0ea81b630cbc
 )
-
-replace github.com/dymensionxyz/dymension-rdk => ../dymension-rdk
