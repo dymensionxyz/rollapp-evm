@@ -3,6 +3,7 @@ package upgrades
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	hubgenkeeper "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/keeper"
 	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
@@ -11,10 +12,11 @@ import (
 )
 
 type UpgradeKeepers struct {
-	RpKeeper    rollappparamskeeper.Keeper
-	EvmKeeper   *evmkeeper.Keeper
-	Erc20keeper erc20keeper.Keeper
-	HubgenK     hubgenkeeper.Keeper
+	RpKeeper      rollappparamskeeper.Keeper
+	EvmKeeper     *evmkeeper.Keeper
+	Erc20keeper   erc20keeper.Keeper
+	HubgenK       hubgenkeeper.Keeper
+	AccountKeeper authkeeper.AccountKeeper
 }
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal

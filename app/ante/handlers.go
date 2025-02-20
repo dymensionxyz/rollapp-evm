@@ -76,7 +76,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 			cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 			options.DistrKeeper,
 			options.SequencersKeeper,
-			options.
+			options.RollappParamsKeeper,
 		),
 		NewCreateAccountDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
@@ -84,6 +84,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.ERC20Keeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
 			options.DistrKeeper,
 			options.SequencersKeeper,
+			options.RollappParamsKeeper,
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
