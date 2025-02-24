@@ -46,6 +46,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	sequencerKeeper seqkeeper.Keeper,
 	feeGrantKeeper authante.FeegrantKeeper,
 	authzKeeper evmosanteevm.AuthzKeeper,
+	rollappparamsKeeper rollappparamskeeper.Keeper,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                codec,
@@ -66,10 +67,11 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	}
 
 	opts := HandlerOptions{
-		HandlerOptions:   ethOpts,
-		hasPermission:    hasPermission,
-		DistrKeeper:      distrKeeper,
-		SequencersKeeper: sequencerKeeper,
+		HandlerOptions:      ethOpts,
+		hasPermission:       hasPermission,
+		DistrKeeper:         distrKeeper,
+		SequencersKeeper:    sequencerKeeper,
+		RollappParamsKeeper: rollappparamsKeeper,
 	}
 
 	h, err := NewHandler(opts)
