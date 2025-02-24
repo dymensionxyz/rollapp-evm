@@ -10,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
 
@@ -179,6 +181,7 @@ func initRootCmd(
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		config.Cmd(),
+		pruning.Cmd(ac.newApp, app.DefaultNodeHome),
 	)
 
 	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport)
