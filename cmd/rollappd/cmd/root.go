@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/crypto/hd"
 
@@ -132,20 +133,20 @@ func initTendermintConfig() *tmcfg.Config {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-    customAppTemplate, customAppConfig := evmconfig.AppConfig("")
-    
-    srvCfg, ok := customAppConfig.(evmconfig.Config)
-    if !ok {
-        panic(fmt.Errorf("unknown app config type %T", customAppConfig))
-    }
-    
-    rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
-    
-    // Changing the default address to global instead of localhost
-    srvCfg.JSONRPC.Address = "0.0.0.0:8545"
-    srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
-    
-    return customAppTemplate, srvCfg
+	customAppTemplate, customAppConfig := evmconfig.AppConfig("")
+
+	srvCfg, ok := customAppConfig.(evmconfig.Config)
+	if !ok {
+		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+	}
+
+	rdkserverconfig.SetDefaultPruningSettings(&srvCfg.Config)
+
+	// Changing the default address to global instead of localhost
+	srvCfg.JSONRPC.Address = "0.0.0.0:8545"
+	srvCfg.JSONRPC.WsAddress = "0.0.0.0:8546"
+
+	return customAppTemplate, srvCfg
 }
 
 func initRootCmd(
@@ -172,6 +173,8 @@ func initRootCmd(
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		config.Cmd(),
+		SnapCmd(ac.newApp),
+		snapshot.Cmd(ac.newApp),
 	)
 
 	rdkserver.AddRollappCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, nil)
