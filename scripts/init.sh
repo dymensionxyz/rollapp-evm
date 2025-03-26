@@ -241,6 +241,18 @@ update_configuration_celestia_da() {
   fi
 }
 
+update_configuration_walrus_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"walrus\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"publisher_url\\\\\":\\\\\"https:\/\/publisher.walrus-testnet.walrus.space\\\\\",\\\\\"aggregator_url\\\\\":\\\\\"https:\/\/aggregator.walrus-testnet.walrus.space\\\\\",\\\\\"blob_owner_addr\\\\\":\\\\\"0xcc7f20e6ca6d5b9076068bf9b40421218fdf2cfa6316f48c428c8b6716db9c05\\\\\",\\\\\"store_duration_epochs\\\\\":180}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"walrus\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"publisher_url\\\\\":\\\\\"https:\/\/publisher.walrus-testnet.walrus.space\\\\\",\\\\\"aggregator_url\\\\\":\\\\\"https:\/\/aggregator.walrus-testnet.walrus.space\\\\\",\\\\\"blob_owner_addr\\\\\":\\\\\"0xcc7f20e6ca6d5b9076068bf9b40421218fdf2cfa6316f48c428c8b6716db9c05\\\\\",\\\\\"store_duration_epochs\\\\\":180}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
 update_configuration() {
   case $DA_CLIENT in
   "weavevm")
@@ -251,6 +263,9 @@ update_configuration() {
     ;;
   "avail")
     update_configuration_avail_da
+    ;;
+  "walrus")
+    update_configuration_walrus_da
     ;;
   esac
 
