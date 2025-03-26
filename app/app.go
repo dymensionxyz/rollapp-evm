@@ -12,6 +12,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/proposal"
+	dividends2 "github.com/dymensionxyz/rollapp-evm/x/dividends"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -98,6 +99,10 @@ import (
 	hubgenesis "github.com/dymensionxyz/dymension-rdk/x/hub-genesis"
 	hubgenkeeper "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/keeper"
 	hubgentypes "github.com/dymensionxyz/dymension-rdk/x/hub-genesis/types"
+
+	"github.com/dymensionxyz/dymension-rdk/x/dividends"
+	dividendskeeper "github.com/dymensionxyz/dymension-rdk/x/dividends/keeper"
+	dividendstypes "github.com/dymensionxyz/dymension-rdk/x/dividends/types"
 
 	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
@@ -186,6 +191,7 @@ var (
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		rollappparamstypes.StoreKey,
 		timeupgradetypes.ModuleName,
+		dividendstypes.StoreKey,
 		// evmos keys
 		evmtypes.StoreKey,
 		feemarkettypes.StoreKey,
@@ -241,6 +247,7 @@ var (
 		hub.AppModuleBasic{},
 		timeupgrade.AppModuleBasic{},
 		rollappparams.AppModuleBasic{},
+		dividends.AppModuleBasic{},
 
 		// Evmos moudles
 		evm.AppModuleBasic{},
@@ -263,6 +270,7 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		hubgentypes.ModuleName:         {authtypes.Minter},
+		dividendstypes.ModuleName:      nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -326,6 +334,7 @@ type App struct {
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	TimeUpgradeKeeper   timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
+	DividendsKeeper     dividendskeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -495,6 +504,16 @@ func NewRollapp(
 		app.GetSubspace(rollappparamstypes.ModuleName),
 	)
 
+	app.DividendsKeeper = dividendskeeper.NewKeeper(
+		appCodec,
+		keys[dividendstypes.StoreKey],
+		app.StakingKeeper,
+		app.AccountKeeper,
+		app.DistrKeeper,
+		app.BankKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	app.SequencersKeeper = *seqkeeper.NewKeeper(
 		appCodec,
 		keys[seqtypes.StoreKey],
@@ -535,6 +554,9 @@ func NewRollapp(
 		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
 	)
+
+	// Register a custom balance getter to handle ERC20 tokens sent as dividends
+	app.DividendsKeeper.SetGetBalanceFunc(dividends2.GetGaugeBalanceFunc(app.Erc20Keeper, app.DividendsKeeper))
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -666,6 +688,7 @@ func NewRollapp(
 		hub.NewAppModule(appCodec, app.HubKeeper),
 		timeupgrade.NewAppModule(app.TimeUpgradeKeeper, app.UpgradeKeeper),
 		rollappparams.NewAppModule(appCodec, app.RollappParamsKeeper),
+		dividends.NewAppModule(app.DividendsKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -706,6 +729,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		dividendstypes.ModuleName,
 	}
 	app.mm.SetOrderBeginBlockers(beginBlockersList...)
 
@@ -734,6 +758,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		dividendstypes.ModuleName,
 	}
 	app.mm.SetOrderEndBlockers(endBlockersList...)
 
@@ -768,6 +793,7 @@ func NewRollapp(
 		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
+		dividendstypes.ModuleName,
 	}
 	app.mm.SetOrderInitGenesis(initGenesisList...)
 
@@ -1123,6 +1149,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(hubgentypes.ModuleName)
 	paramsKeeper.Subspace(rollappparamstypes.ModuleName)
+	paramsKeeper.Subspace(dividendstypes.ModuleName)
 
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
