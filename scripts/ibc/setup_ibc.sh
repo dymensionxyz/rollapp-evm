@@ -119,8 +119,6 @@ if [ "$SEQUENCER_KEY_NAME" = "" ]; then
   SEQUENCER_KEY_NAME=$DEFAULT_SEQUENCER_KEY_NAME
 fi
 
-# hub tx sequencer update-whitelisted-relayers $(rly keys show rollappevm_1234-1)
-#  --from sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test -y --fees 1dym
 $SETTLEMENT_EXECUTABLE tx sequencer update-whitelisted-relayers $RLY_ROLLAPP_ADDR\
  --from $SEQUENCER_KEY_NAME --keyring-dir $SEQUENCER_KEY_PATH --keyring-backend test -y --fees 1dym
 
