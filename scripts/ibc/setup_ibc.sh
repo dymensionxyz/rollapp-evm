@@ -105,6 +105,25 @@ rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
 RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
+echo -e '--------------------------------- Whitelisting relayer --------------------------------'
+
+if [ "$SEQUENCER_KEY_PATH" = "" ]; then
+  DEFAULT_SEQUENCER_KEY_PATH="${ROLLAPP_HOME_DIR}/sequencer_keys"
+  echo "SEQUENCER_KEY_PATH is not set, using '${DEFAULT_SEQUENCER_KEY_PATH}'"
+  SEQUENCER_KEY_PATH=$DEFAULT_SEQUENCER_KEY_PATH
+fi
+
+if [ "$SEQUENCER_KEY_NAME" = "" ]; then
+  DEFAULT_SEQUENCER_KEY_NAME="sequencer"
+  echo "SEQUENCER_KEY_PATH is not set, using '${DEFAULT_SEQUENCER_KEY_PATH}'"
+  SEQUENCER_KEY_NAME=$DEFAULT_SEQUENCER_KEY_NAME
+fi
+
+# hub tx sequencer update-whitelisted-relayers $(rly keys show rollappevm_1234-1)
+#  --from sequencer --keyring-dir ~/.rollapp_evm/sequencer_keys --keyring-backend test -y --fees 1dym
+$SETTLEMENT_EXECUTABLE tx sequencer update-whitelisted-relayers $RLY_ROLLAPP_ADDR\
+ --from $SEQUENCER_KEY_NAME --keyring-dir $SEQUENCER_KEY_PATH --keyring-backend test -y --fees 1dym
+
 echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
 DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
 
