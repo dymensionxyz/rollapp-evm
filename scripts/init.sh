@@ -241,6 +241,16 @@ update_configuration_celestia_da() {
   fi
 }
 
+update_configuration_mock_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    sed -i "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
 update_configuration() {
   case $DA_CLIENT in
   "weavevm")
@@ -251,6 +261,9 @@ update_configuration() {
     ;;
   "avail")
     update_configuration_avail_da
+    ;;
+  "mock")
+    update_configuration_mock_da
     ;;
   esac
 
