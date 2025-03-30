@@ -41,8 +41,8 @@ RELAYER_EXECUTABLE="rly"
 
 # settlement config
 SETTLEMENT_EXECUTABLE="dymd"
-SETTLEMENT_CHAIN_ID=$("$SETTLEMENT_EXECUTABLE" config | jq -r '."chain-id"')
-SETTLEMENT_RPC_FOR_RELAYER=$("$SETTLEMENT_EXECUTABLE" config | jq -r '."node"')
+SETTLEMENT_CHAIN_ID=$("$SETTLEMENT_EXECUTABLE" config get client chain-id --log_format json | jq . -r)
+SETTLEMENT_RPC_FOR_RELAYER=$("$SETTLEMENT_EXECUTABLE" config get client node --log_format json | jq . -r)
 
 SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
 
