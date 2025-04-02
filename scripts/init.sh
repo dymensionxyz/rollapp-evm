@@ -48,21 +48,6 @@ if [ "$DA_CLIENT" = "" ]; then
   exit 1
 fi
 
-# FIXME: rename to DA_NETWORK
-if [ "$CELESTIA_NETWORK" = "" ]; then
-  echo "CELESTIA_NETWORK is not set"
-  exit 1
-fi
-
-if [ "$CELESTIA_HOME_DIR" = "" ]; then
-  echo "CELESTIA_HOME_DIR is not set"
-  exit 1
-fi
-
-if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
-  mkdir -p "$CELESTIA_HOME_DIR"
-fi
-
 set_denom() {
   local denom=$1
   local success=true
@@ -220,6 +205,20 @@ update_configuration_avail_da() {
 }
 
 update_configuration_celestia_da() {
+  if [ "$CELESTIA_NETWORK" = "" ]; then
+    echo "CELESTIA_NETWORK is not set"
+    exit 1
+  fi
+
+  if [ "$CELESTIA_HOME_DIR" = "" ]; then
+    echo "CELESTIA_HOME_DIR is not set"
+    exit 1
+  fi
+
+  if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
+    mkdir -p "$CELESTIA_HOME_DIR"
+  fi
+
   if [[ $CELESTIA_NETWORK != "mock" && $CELESTIA_NETWORK != "grpc" ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
     if [ ! -d "$CELESTIA_HOME_DIR" ]; then
