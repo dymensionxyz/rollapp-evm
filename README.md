@@ -33,7 +33,7 @@ export EXECUTABLE="rollapp-evm"
 export the following variables:
 
 ```shell
-export DA_CLIENT="" # choose DA client: celestia, loadnetwork, sui, aptos; next configuration can depends on it
+export DA_CLIENT="mock" # choose DA client: mock(local db), celestia, loadnetwork, sui, aptos, walrus
 
 # For Sui DA, one more env variable is needed: Sui wallet mnemonic.
 # export SUI_MNEMONIC="$MNEMONIC"
@@ -41,8 +41,9 @@ export DA_CLIENT="" # choose DA client: celestia, loadnetwork, sui, aptos; next 
 # For Aptos DA, one more env variable is needed: hex-encoded Aptos wallet private key.
 # export APT_PRIVATE_KEY="$PRIVATE_KEY"
 
-export CELESTIA_NETWORK="mock" # for a testnet RollApp use "mocha", for mainnet - "celestia"
-export CELESTIA_HOME_DIR="${HOME}/.da"
+# For Celestia DA, one more env variable is needed:
+#export CELESTIA_NETWORK="mocha" # for a testnet RollApp use "mocha", for mainnet - "celestia"
+#export CELESTIA_HOME_DIR="${HOME}/.da" # Celestia light client home directory
 
 export ROLLAPP_CHAIN_ID="rollappevm_1234-1"
 export KEY_NAME_ROLLAPP="rol-user"
