@@ -41,8 +41,8 @@ RELAYER_EXECUTABLE="rly"
 
 # settlement config
 SETTLEMENT_EXECUTABLE="dymd"
-SETTLEMENT_CHAIN_ID=$("$SETTLEMENT_EXECUTABLE" config | jq -r '."chain-id"')
-SETTLEMENT_RPC_FOR_RELAYER=$("$SETTLEMENT_EXECUTABLE" config | jq -r '."node"')
+SETTLEMENT_CHAIN_ID=$("$SETTLEMENT_EXECUTABLE" config get client chain-id --log_format json | jq . -r)
+SETTLEMENT_RPC_FOR_RELAYER=$("$SETTLEMENT_EXECUTABLE" config get client node --log_format json | jq . -r)
 
 SETTLEMENT_KEY_NAME_GENESIS="$HUB_KEY_WITH_FUNDS"
 
@@ -104,6 +104,23 @@ rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 
 RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
 RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
+
+echo -e '--------------------------------- Whitelisting relayer --------------------------------'
+
+if [ "$SEQUENCER_KEY_PATH" = "" ]; then
+  DEFAULT_SEQUENCER_KEY_PATH="${ROLLAPP_HOME_DIR}/sequencer_keys"
+  echo "SEQUENCER_KEY_PATH is not set, using '${DEFAULT_SEQUENCER_KEY_PATH}'"
+  SEQUENCER_KEY_PATH=$DEFAULT_SEQUENCER_KEY_PATH
+fi
+
+if [ "$SEQUENCER_KEY_NAME" = "" ]; then
+  DEFAULT_SEQUENCER_KEY_NAME="sequencer"
+  echo "SEQUENCER_KEY_PATH is not set, using '${DEFAULT_SEQUENCER_KEY_PATH}'"
+  SEQUENCER_KEY_NAME=$DEFAULT_SEQUENCER_KEY_NAME
+fi
+
+$SETTLEMENT_EXECUTABLE tx sequencer update-whitelisted-relayers $RLY_ROLLAPP_ADDR\
+ --from $SEQUENCER_KEY_NAME --keyring-dir $SEQUENCER_KEY_PATH --keyring-backend test -y --fees 1dym
 
 echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
 DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
