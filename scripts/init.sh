@@ -253,6 +253,40 @@ update_configuration_walrus_da() {
   fi
 }
 
+update_configuration_sui_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"sui\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"chain_id\\\\\":9496,\\\\\"rpc_url\\\\\":\\\\\"https:\/\/fullnode.testnet.sui.io:443\\\\\",\\\\\"noop_contract_address\\\\\":\\\\\"0xcf119583badb169bfc9a031ec16fb6a79a5151ff7aa0d229f2a35b798ddcd9d6\\\\\",\\\\\"gas_budget\\\\\":\\\\\"10000000\\\\\",\\\\\"timeout\\\\\":5000000000,\\\\\"mnemonic_env\\\\\":\\\\\"SUI_MNEMONIC\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"sui\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"chain_id\\\\\":9496,\\\\\"rpc_url\\\\\":\\\\\"https:\/\/fullnode.testnet.sui.io:443\\\\\",\\\\\"noop_contract_address\\\\\":\\\\\"0xcf119583badb169bfc9a031ec16fb6a79a5151ff7aa0d229f2a35b798ddcd9d6\\\\\",\\\\\"gas_budget\\\\\":\\\\\"10000000\\\\\",\\\\\"timeout\\\\\":5000000000,\\\\\"mnemonic_env\\\\\":\\\\\"SUI_MNEMONIC\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_aptos_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"aptos\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"network\\\\\":\\\\\"testnet\\\\\",\\\\\"pri_key_env\\\\\":\\\\\"APT_PRIVATE_KEY\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"aptos\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"network\\\\\":\\\\\"testnet\\\\\",\\\\\"pri_key_env\\\\\":\\\\\"APT_PRIVATE_KEY\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_mock_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    sed -i "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
 update_configuration() {
   case $DA_CLIENT in
   "weavevm")
@@ -266,6 +300,15 @@ update_configuration() {
     ;;
   "walrus")
     update_configuration_walrus_da
+    ;;
+  "sui")
+    update_configuration_sui_da
+    ;;
+  "aptos")
+    update_configuration_aptos_da
+    ;;
+  "mock" | *)
+    update_configuration_mock_da
     ;;
   esac
 
