@@ -48,21 +48,6 @@ if [ "$DA_CLIENT" = "" ]; then
   exit 1
 fi
 
-# FIXME: rename to DA_NETWORK
-if [ "$CELESTIA_NETWORK" = "" ]; then
-  echo "CELESTIA_NETWORK is not set"
-  exit 1
-fi
-
-if [ "$CELESTIA_HOME_DIR" = "" ]; then
-  echo "CELESTIA_HOME_DIR is not set"
-  exit 1
-fi
-
-if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
-  mkdir -p "$CELESTIA_HOME_DIR"
-fi
-
 set_denom() {
   local denom=$1
   local success=true
@@ -220,6 +205,20 @@ update_configuration_avail_da() {
 }
 
 update_configuration_celestia_da() {
+  if [ "$CELESTIA_NETWORK" = "" ]; then
+    echo "CELESTIA_NETWORK is not set"
+    exit 1
+  fi
+
+  if [ "$CELESTIA_HOME_DIR" = "" ]; then
+    echo "CELESTIA_HOME_DIR is not set"
+    exit 1
+  fi
+
+  if [[ $CELESTIA_NETWORK == "mock" || $CELESTIA_NETWORK == "grpc" ]]; then
+    mkdir -p "$CELESTIA_HOME_DIR"
+  fi
+
   if [[ $CELESTIA_NETWORK != "mock" && $CELESTIA_NETWORK != "grpc" ]]; then
     celestia_namespace_id=$(openssl rand -hex 10)
     if [ ! -d "$CELESTIA_HOME_DIR" ]; then
@@ -241,6 +240,52 @@ update_configuration_celestia_da() {
   fi
 }
 
+update_configuration_walrus_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"walrus\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"publisher_url\\\\\":\\\\\"https:\/\/publisher.walrus-testnet.walrus.space\\\\\",\\\\\"aggregator_url\\\\\":\\\\\"https:\/\/aggregator.walrus-testnet.walrus.space\\\\\",\\\\\"blob_owner_addr\\\\\":\\\\\"0xcc7f20e6ca6d5b9076068bf9b40421218fdf2cfa6316f48c428c8b6716db9c05\\\\\",\\\\\"store_duration_epochs\\\\\":180}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"walrus\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"publisher_url\\\\\":\\\\\"https:\/\/publisher.walrus-testnet.walrus.space\\\\\",\\\\\"aggregator_url\\\\\":\\\\\"https:\/\/aggregator.walrus-testnet.walrus.space\\\\\",\\\\\"blob_owner_addr\\\\\":\\\\\"0xcc7f20e6ca6d5b9076068bf9b40421218fdf2cfa6316f48c428c8b6716db9c05\\\\\",\\\\\"store_duration_epochs\\\\\":180}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_sui_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"sui\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"chain_id\\\\\":9496,\\\\\"rpc_url\\\\\":\\\\\"https:\/\/fullnode.testnet.sui.io:443\\\\\",\\\\\"noop_contract_address\\\\\":\\\\\"0xcf119583badb169bfc9a031ec16fb6a79a5151ff7aa0d229f2a35b798ddcd9d6\\\\\",\\\\\"gas_budget\\\\\":\\\\\"10000000\\\\\",\\\\\"timeout\\\\\":5000000000,\\\\\"mnemonic_env\\\\\":\\\\\"SUI_MNEMONIC\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"sui\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"chain_id\\\\\":9496,\\\\\"rpc_url\\\\\":\\\\\"https:\/\/fullnode.testnet.sui.io:443\\\\\",\\\\\"noop_contract_address\\\\\":\\\\\"0xcf119583badb169bfc9a031ec16fb6a79a5151ff7aa0d229f2a35b798ddcd9d6\\\\\",\\\\\"gas_budget\\\\\":\\\\\"10000000\\\\\",\\\\\"timeout\\\\\":5000000000,\\\\\"mnemonic_env\\\\\":\\\\\"SUI_MNEMONIC\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_aptos_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific sed
+    sed -i '' "s|da_layer =.*|da_layer = [\"aptos\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s|da_config =.*|da_config = [\"{\\\\\"network\\\\\":\\\\\"testnet\\\\\",\\\\\"pri_key_env\\\\\":\\\\\"APT_PRIVATE_KEY\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    # Linux/Other OS-specific sed
+    sed -i "s|da_layer =.*|da_layer = [\"aptos\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s|da_config =.*|da_config = [\"{\\\\\"network\\\\\":\\\\\"testnet\\\\\",\\\\\"pri_key_env\\\\\":\\\\\"APT_PRIVATE_KEY\\\\\"}\"]|" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
+update_configuration_mock_da() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i '' "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  else
+    sed -i "s/da_layer =.*/da_layer = [\"mock\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+    sed -i "s/da_config .*/da_config =[\"\"]/" "${CONFIG_DIRECTORY}/dymint.toml"
+  fi
+}
+
 update_configuration() {
   case $DA_CLIENT in
   "weavevm")
@@ -251,6 +296,18 @@ update_configuration() {
     ;;
   "avail")
     update_configuration_avail_da
+    ;;
+  "walrus")
+    update_configuration_walrus_da
+    ;;
+  "sui")
+    update_configuration_sui_da
+    ;;
+  "aptos")
+    update_configuration_aptos_da
+    ;;
+  "mock" | *)
+    update_configuration_mock_da
     ;;
   esac
 
