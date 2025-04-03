@@ -1,4 +1,4 @@
-package drs10
+package drs7
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package drs10
+package drs7
 
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	UpgradeName        = "drs-10"
-	DRS         uint32 = 10
+	UpgradeName        = "drs-7"
+	DRS         uint32 = 7
 )
 
 var Upgrade = upgrades.Upgrade{
