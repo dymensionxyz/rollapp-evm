@@ -12,7 +12,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/dymensionxyz/dymension-rdk/server/proposal"
-	dividends2 "github.com/dymensionxyz/rollapp-evm/x/dividends"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -478,7 +477,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-		// insert mint hooks receivers here
+			// insert mint hooks receivers here
 		),
 	)
 
@@ -556,7 +555,8 @@ func NewRollapp(
 	)
 
 	// Register a custom balance getter to handle ERC20 tokens sent as dividends
-	app.DividendsKeeper.SetGetBalanceFunc(dividends2.GetGaugeBalanceFunc(app.Erc20Keeper, app.DividendsKeeper))
+	app.DividendsKeeper.SetErc20Keeper(app.Erc20Keeper)
+	app.DividendsKeeper.SetGetBalanceFunc(app.DividendsKeeper.GetEVMGaugeBalanceFunc())
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -584,7 +584,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 
