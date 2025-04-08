@@ -839,8 +839,9 @@ func NewRollapp(
 	app.SetAnteHandler(h)
 
 	postHandler := ante.NewPostHandler(ante.PostHandlerOptions{
-		ERC20Keeper: app.Erc20Keeper,
-		BankKeeper:  app.BankKeeper,
+		ERC20Keeper:        app.Erc20Keeper,
+		BankKeeper:         app.BankKeeper,
+		DistributionKeeper: app.DistrKeeper,
 	})
 	app.SetPostHandler(postHandler)
 

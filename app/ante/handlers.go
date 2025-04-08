@@ -100,7 +100,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 
 func NewPostHandler(options PostHandlerOptions) sdk.AnteHandler {
 	postDecorators := []sdk.AnteDecorator{
-		rdkante.NewERC20ConversionPostHandlerDecorator(options.ERC20Keeper, options.BankKeeper),
+		rdkante.NewERC20ConversionPostHandlerDecorator(options.ERC20Keeper, options.BankKeeper, options.DistributionKeeper),
 	}
 
 	return sdk.ChainAnteDecorators(postDecorators...)
