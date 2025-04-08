@@ -217,6 +217,7 @@ func Recover(logger tmlog.Logger, err *error) {
 }
 
 type PostHandlerOptions struct {
-	ERC20Keeper erc20keeper.Keeper
-	BankKeeper  bankkeeper.Keeper
+	ERC20Keeper        erc20keeper.Keeper
+	BankKeeper         bankkeeper.Keeper
+	DistributionKeeper distrkeeper.Keeper
 }
