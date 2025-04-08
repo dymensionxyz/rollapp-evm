@@ -4,23 +4,20 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
-	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
-	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
-	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
-
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-
 	errorsmod "cosmossdk.io/errors"
-
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	distrkeeper "github.com/dymensionxyz/dymension-rdk/x/dist/keeper"
+	rollappparamskeeper "github.com/dymensionxyz/dymension-rdk/x/rollappparams/keeper"
+	seqkeeper "github.com/dymensionxyz/dymension-rdk/x/sequencers/keeper"
 	evmosante "github.com/evmos/evmos/v12/app/ante"
+	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
 	evmosanteevm "github.com/evmos/evmos/v12/app/ante/evm"
 	evmostypes "github.com/evmos/evmos/v12/types"
 	erc20keeper "github.com/evmos/evmos/v12/x/erc20/keeper"
@@ -37,7 +34,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	hasPermission HasPermission,
 	accountKeeper evmtypes.AccountKeeper,
 	stakingKeeper evmosvestingtypes.StakingKeeper,
-	bankKeeper evmtypes.BankKeeper,
+	bankKeeper bankkeeper.Keeper,
 	feeMarketKeeper evmosanteevm.FeeMarketKeeper,
 	evmKeeper evmosanteevm.EVMKeeper,
 	erc20Keeper erc20keeper.Keeper,
@@ -72,6 +69,8 @@ func MustCreateHandler(codec codec.BinaryCodec,
 		DistrKeeper:         distrKeeper,
 		SequencersKeeper:    sequencerKeeper,
 		RollappParamsKeeper: rollappparamsKeeper,
+		BankKeeper:          bankKeeper,
+		ERC20Keeper:         erc20Keeper,
 	}
 
 	h, err := NewHandler(opts)
@@ -88,6 +87,8 @@ type HandlerOptions struct {
 	DistrKeeper         distrkeeper.Keeper
 	SequencersKeeper    seqkeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
+	BankKeeper          bankkeeper.Keeper
+	ERC20Keeper         erc20keeper.Keeper
 }
 
 func (o HandlerOptions) validate() error {
@@ -108,9 +109,6 @@ func (o HandlerOptions) validate() error {
 	}
 	if o.EvmKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "evm keeper missing")
-	}
-	if o.ERC20Keeper == nil {
-		return errorsmod.Wrap(sdkerrors.ErrLogic, "erc20 keeper missing")
 	}
 	if o.DistributionKeeper == nil {
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "distribution keeper missing")
@@ -216,4 +214,9 @@ func Recover(logger tmlog.Logger, err *error) {
 			)
 		}
 	}
+}
+
+type PostHandlerOptions struct {
+	ERC20Keeper erc20keeper.Keeper
+	BankKeeper  bankkeeper.Keeper
 }
