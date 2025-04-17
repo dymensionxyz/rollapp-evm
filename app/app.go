@@ -556,7 +556,6 @@ func NewRollapp(
 
 	// Register a custom balance getter to handle ERC20 tokens sent as dividends
 	app.DividendsKeeper.SetErc20Keeper(app.Erc20Keeper)
-	app.DividendsKeeper.SetGetBalanceFunc(app.DividendsKeeper.GetEVMGaugeBalanceFunc())
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
