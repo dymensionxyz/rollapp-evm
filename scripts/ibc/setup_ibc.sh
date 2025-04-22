@@ -80,23 +80,23 @@ HUB_IBC_CONF_FILE="$BASEDIR/hub.json"
 
 # --------------------- Initilize relayer config function -------------------- #
 config_ibc() {
-echo '--------------------------------- Initializing rly config... --------------------------------'
-rly config init
+  echo '--------------------------------- Initializing rly config... --------------------------------'
+  rly config init
 
-echo '--------------------------------- Adding chains to rly config.. --------------------------------'
+  echo '--------------------------------- Adding chains to rly config.. --------------------------------'
 
-dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
-dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
-dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.account-prefix' -v "$BECH32_PREFIX"
-dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.rpc-addr' -v "$ROLLAPP_RPC_FOR_RELAYER"
-dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.gas-prices' -v "1000000000$BASE_DENOM"
+  dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.key' -v "$RELAYER_KEY_FOR_ROLLAPP"
+  dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.chain-id' -v "$ROLLAPP_CHAIN_ID"
+  dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.account-prefix' -v "$BECH32_PREFIX"
+  dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.rpc-addr' -v "$ROLLAPP_RPC_FOR_RELAYER"
+  dasel put -f "$ROLLAPP_IBC_CONF_FILE" '.value.gas-prices' -v "1000000000$BASE_DENOM"
 
-dasel put -f "$HUB_IBC_CONF_FILE"  '.value.key' -v "$RELAYER_KEY_FOR_HUB"
-dasel put -f "$HUB_IBC_CONF_FILE"  '.value.chain-id' -v "$SETTLEMENT_CHAIN_ID"
-dasel put -f "$HUB_IBC_CONF_FILE"  '.value.rpc-addr' -v "$SETTLEMENT_RPC_FOR_RELAYER"
+  dasel put -f "$HUB_IBC_CONF_FILE"  '.value.key' -v "$RELAYER_KEY_FOR_HUB"
+  dasel put -f "$HUB_IBC_CONF_FILE"  '.value.chain-id' -v "$SETTLEMENT_CHAIN_ID"
+  dasel put -f "$HUB_IBC_CONF_FILE"  '.value.rpc-addr' -v "$SETTLEMENT_RPC_FOR_RELAYER"
 
-rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
-rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
+  rly chains add --file "$ROLLAPP_IBC_CONF_FILE" "$ROLLAPP_CHAIN_ID"
+  rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
 
   dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.http-addr" -v "$HUB_REST_URL";
   dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$SETTLEMENT_CHAIN_ID.value.is-dym-hub" -v true -t bool;
@@ -106,34 +106,34 @@ rly chains add --file "$HUB_IBC_CONF_FILE" "$SETTLEMENT_CHAIN_ID"
   dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.trust-period" -v "1179360s"; # 10 days
   dasel put -r yaml -f "$RLY_CONFIG_FILE" "chains.$ROLLAPP_CHAIN_ID.value.min-loop-duration" -v "100ms";
 
-echo -e '--------------------------------- Creating keys for rly... --------------------------------'
-rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAPP" --coin-type 60
-rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
+  echo -e '--------------------------------- Creating keys for rly... --------------------------------'
+  rly keys add "$ROLLAPP_CHAIN_ID" "$RELAYER_KEY_FOR_ROLLAPP" --coin-type 60
+  rly keys add "$SETTLEMENT_CHAIN_ID" "$RELAYER_KEY_FOR_HUB" --coin-type 60
 
-RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
-RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
+  RLY_HUB_ADDR=$(rly keys show "$SETTLEMENT_CHAIN_ID")
+  RLY_ROLLAPP_ADDR=$(rly keys show "$ROLLAPP_CHAIN_ID")
 
-echo -e '--------------------------------- Whitelisting relayer --------------------------------'
-$SETTLEMENT_EXECUTABLE tx sequencer update-whitelisted-relayers $RLY_ROLLAPP_ADDR\
- --from $SEQUENCER_KEY_NAME --keyring-dir $SEQUENCER_KEY_PATH --keyring-backend test -y --fees 1dym
+  echo -e '--------------------------------- Whitelisting relayer --------------------------------'
+  $SETTLEMENT_EXECUTABLE tx sequencer update-whitelisted-relayers $RLY_ROLLAPP_ADDR\
+  --from $SEQUENCER_KEY_NAME --keyring-dir $SEQUENCER_KEY_PATH --keyring-backend test -y --fees 1dym
 
-echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
-DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
+  echo '--------------------------------- Funding rly account on hub ['"$RLY_HUB_ADDR"']... --------------------------------'
+  DYM_BALANCE=$("$SETTLEMENT_EXECUTABLE" q bank balances "$RLY_HUB_ADDR" -o json | jq -r '.balances[0].amount')
 
-if [ "$(echo "$DYM_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
-  echo "${RLY_HUB_ADDR} already funded"
-else
-  "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y || exit 1
-fi
+  if [ "$(echo "$DYM_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
+    echo "${RLY_HUB_ADDR} already funded"
+  else
+    "$SETTLEMENT_EXECUTABLE" tx bank send "$SETTLEMENT_KEY_NAME_GENESIS" "$RLY_HUB_ADDR" 100dym --keyring-backend test --fees 1dym --node "$SETTLEMENT_RPC_FOR_RELAYER" -y || exit 1
+  fi
 
-echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"']... --------------------------------'
-ROLLAPP_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '.balances[0].amount')
+  echo '--------------------------------- Funding rly account on rollapp ['"$RLY_ROLLAPP_ADDR"']... --------------------------------'
+  ROLLAPP_BALANCE=$("$EXECUTABLE" q bank balances "$RLY_ROLLAPP_ADDR" -o json | jq -r '.balances[0].amount')
 
-if [ "$(echo "$ROLLAPP_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
-  echo "${RLY_ROLLAPP_ADDR} already funded"
-else
-  "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" "100000000000000000000$BASE_DENOM" --keyring-backend test --fees "10000000000000000$BASE_DENOM" --node "$ROLLAPP_RPC_FOR_RELAYER" -y || exit 1
-fi
+  if [ "$(echo "$ROLLAPP_BALANCE >= 100000000000000000000" | bc)" -eq 1 ]; then
+    echo "${RLY_ROLLAPP_ADDR} already funded"
+  else
+    "$EXECUTABLE" tx bank send "$KEY_NAME_ROLLAPP" "$RLY_ROLLAPP_ADDR" "100000000000000000000$BASE_DENOM" --keyring-backend test --fees "10000000000000000$BASE_DENOM" --node "$ROLLAPP_RPC_FOR_RELAYER" -y || exit 1
+  fi
 }
 
 
@@ -176,3 +176,8 @@ echo -e '--------------------------------- Set channel-filter ------------------
 sed -i.bak '/rule:/s/.*/            rule: "allowlist"/' "$RLY_CONFIG_FILE"
 sed -i.bak '/channel-list:/s/.*/            channel-list: ["'"$rollapp_channel"'","'"$hub_channel"'"]/' "$RLY_CONFIG_FILE"
 echo "Config file updated successfully."
+
+
+# ------------------------- send the genesis transfer ------------------------ #
+echo '--------------------------------- Sending genesis transfer... --------------------------------'
+rly tx rollapp-send-genesis-transfer hub-rollapp
