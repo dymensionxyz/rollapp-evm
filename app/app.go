@@ -45,7 +45,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -463,6 +462,7 @@ func NewRollapp(
 		keys[stakingtypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
+		&app.Erc20Keeper,
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
@@ -483,7 +483,7 @@ func NewRollapp(
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, &app.SequencersKeeper, authtypes.FeeCollectorName,
+		&stakingKeeper, &app.SequencersKeeper, &app.Erc20Keeper, authtypes.FeeCollectorName,
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
@@ -551,12 +551,11 @@ func NewRollapp(
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 	)
 
 	// Register a custom balance getter to handle ERC20 tokens sent as dividends
 	app.DividendsKeeper.SetErc20Keeper(app.Erc20Keeper)
-	app.DividendsKeeper.SetGetBalanceFunc(app.DividendsKeeper.GetEVMGaugeBalanceFunc())
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -660,6 +659,9 @@ func NewRollapp(
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/**** Module Options ****/
+	// used for x/mint v2 migrator. it's a direct access to the params store for x/mint
+	// this required as we need to access same subspace with different KeyTable
+	mintParamsDirectSubspace := paramstypes.NewSubspace(appCodec, cdc, keys[paramstypes.StoreKey], keys[paramstypes.TStoreKey], minttypes.ModuleName)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -676,7 +678,7 @@ func NewRollapp(
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
-		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, app.BankKeeper, mintParamsDirectSubspace),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		sequencers.NewAppModule(app.SequencersKeeper),
@@ -860,7 +862,13 @@ func NewRollapp(
 		app.RollappParamsKeeper,
 	)
 	app.SetAnteHandler(h)
-	app.setPostHandler()
+
+	postHandler := ante.NewPostHandler(ante.PostHandlerOptions{
+		ERC20Keeper:        app.Erc20Keeper,
+		BankKeeper:         app.BankKeeper,
+		DistributionKeeper: app.DistrKeeper,
+	})
+	app.SetPostHandler(postHandler)
 
 	// Admission handler for consensus messages
 	app.setAdmissionHandler(consensus.AllowedMessagesHandler([]string{
@@ -880,17 +888,6 @@ func NewRollapp(
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
 	return app
-}
-
-func (app *App) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	app.SetPostHandler(postHandler)
 }
 
 func (app *App) setAdmissionHandler(handler consensus.AdmissionHandler) {
