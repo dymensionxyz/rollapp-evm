@@ -1,2 +1,2 @@
-// Package drs10 (3D) provides an upgrade for adding the dividends module.
+// Package drs7 provides an upgrade for adding the dividends module.
 package drs7
