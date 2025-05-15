@@ -379,6 +379,7 @@ replace (
 replace (
 	// github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 <- main-dym
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20250515091629-5a173ca15384 // main-dym with fake crypto
+	github.com/dymensionxyz/cosmosclient => github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20250110140627-2a26ee51f5b9
 	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250515113931-9fc821f266c8
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
