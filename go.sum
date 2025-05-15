@@ -595,8 +595,8 @@ github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250420064344-3d5468dc64ae
 github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250420064344-3d5468dc64ae/go.mod h1:ppUiKmZWzYuaE4Hmhc4lW9uAT7Lta4PYQac3jlDtuqo=
 github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250515113931-9fc821f266c8 h1:ylnr8rvd+pWKAZMBGkdSfVZkTpcw9/606tklZzbfnpI=
 github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250515113931-9fc821f266c8/go.mod h1:HZR9qGYSP5lbUwoOMhQ6KxTUjW3G5TQbzohjw7qLav4=
-github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4 h1:BIA7+aPOmBTm9lJBph3ZYUZsc9I5JdwyyQ596xS8mKw=
-github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
+github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250515135623-2b44c7159623 h1:v554wqkCW1lrfjxwHhPZQCWjfT+W+3ph70CqJ92LiAU=
+github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250515135623-2b44c7159623/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=
 github.com/dymensionxyz/gerr-cosmos v1.0.0/go.mod h1:n+0olxPogzWqFKba45mCpvrHLGmeS8W9UZjggHnWk6c=
 github.com/dymensionxyz/go-ethereum v0.0.0-20250326232313-18b28aa27ff2 h1:3i/sEDuDQKrBeUZDXHA6PLVgcKqmSy8CCFSNcZ7Nmok=
