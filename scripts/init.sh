@@ -52,8 +52,8 @@ set_denom() {
   local denom=$1
   local success=true
 
-  dasel put -f "$GENESIS_FILE" '.app_state.mint.params.mint_denom' -v "$denom" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.staking.params.bond_denom' -v "$denom" || success=false
+  dasel put -f "$GENESIS_FILE" '.app_state.mint.minter.mint_denom' -v "$denom" || success=false
   dasel put -t string -f "$GENESIS_FILE" '.app_state.gov.deposit_params.min_deposit.[0].denom' -v "$denom" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.evm.params.evm_denom' -v "$denom" || success=false
   dasel put -f "$GENESIS_FILE" '.app_state.evm.params.gas_denom' -v "$denom" || success=false
