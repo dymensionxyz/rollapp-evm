@@ -383,6 +383,7 @@ replace (
 	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250515113931-9fc821f266c8
 	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250515135623-2b44c7159623
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
+	github.com/ibc-go/v6 => github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc1.0.20241114115401-1ed31b730904
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250515113525-aaa69d64c5d7
 )
