@@ -11,7 +11,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
 	github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250408075532-9f34ff12fa64
-	github.com/dymensionxyz/dymint v1.4.0-rc02
+	github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250624122911-26e1d5c0c2a7
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
 	github.com/gogo/protobuf v1.3.3
@@ -367,8 +367,9 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/decentrio/wasmd v0.33.0-sdk46.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.0.12-avail-1.4.0-rc1-5e286e3
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
+	github.com/consensys/gnark-crypto => github.com/consensys/gnark-crypto v0.12.1
 	github.com/dymensionxyz/cosmosclient => github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20250110140627-2a26ee51f5b9
-	github.com/dymensionxyz/dymint => github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250515113931-9fc821f266c8
+	github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.9.0-rc02
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
@@ -379,9 +380,9 @@ replace (
 
 // Dymension Forks
 replace (
-	// github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 <- main-dymAdd commentMore actions
+	// github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 <- main-dym
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20250515091629-5a173ca15384 // main-dym with fake crypto
-	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250515135623-2b44c7159623
+	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250515102555-fe08e9f0bf76
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250515113525-aaa69d64c5d7
