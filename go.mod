@@ -373,7 +373,7 @@ replace (
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/ibc-go/v6 => github.com/dymensionxyz/ibc-go/v6 v6.0.0-rc1.0.20241114115401-1ed31b730904
+	github.com/ibc-go/v6 => github.com/dymensionxyz/ibc-go-fork/v6 v6.0.0-rc1.0.20241114115401-1ed31b730904
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
