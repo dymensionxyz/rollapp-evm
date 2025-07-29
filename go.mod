@@ -10,7 +10,7 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250420064344-3d5468dc64ae
+	github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250729123740-9dd50ad25479
 	github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250625125415-02a47d36289c
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/evmos/evmos/v12 v12.1.6
@@ -397,7 +397,7 @@ replace (
 // Dymension Forks
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73
-	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4
+	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250729124003-8e614d6efc59
 	github.com/gagliardetto/solana-go => github.com/srene/solana-go v0.0.0-20250521091951-785576f3810c
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/kaspanet/go-secp256k1 => github.com/dymensionxyz/kaspa-go-secp256k1 v0.0.0-20250430112425-a3ecc0fdaadb
