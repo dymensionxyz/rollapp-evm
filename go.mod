@@ -397,7 +397,7 @@ replace (
 // Dymension Forks
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73
-	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250729124003-8e614d6efc59
+	github.com/evmos/evmos/v12 => github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250730134306-7f162a5707af
 	github.com/gagliardetto/solana-go => github.com/srene/solana-go v0.0.0-20250521091951-785576f3810c
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/kaspanet/go-secp256k1 => github.com/dymensionxyz/kaspa-go-secp256k1 v0.0.0-20250430112425-a3ecc0fdaadb
