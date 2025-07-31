@@ -598,12 +598,12 @@ github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 h1:A0O
 github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73/go.mod h1:VPUuzF+l+ekSGPV7VVB8m0OMQfwp3QdKWNZjvkU3A1U=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd h1:V89QyOFM84o9w0iFdctMU6So8SS/Xt32JWAXGqJduT0=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd/go.mod h1:3weqpVj/TqTFpC0LjEB3H+HZSpm7BrQ1QkEg1Ahy6KY=
-github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250420064344-3d5468dc64ae h1:oa+zBW5hhA4q2i1N2DaP09KpHdLdIRqKrQnff5iyF7M=
-github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250420064344-3d5468dc64ae/go.mod h1:ppUiKmZWzYuaE4Hmhc4lW9uAT7Lta4PYQac3jlDtuqo=
+github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250731135302-811fba1be806 h1:Nx7AfLLucKeWeuav+6dBUdqMSKHO7GE4/9F9R/zNvZg=
+github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250731135302-811fba1be806/go.mod h1:ppUiKmZWzYuaE4Hmhc4lW9uAT7Lta4PYQac3jlDtuqo=
 github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250625125415-02a47d36289c h1:nn/GPTUM5kpTY1kwEQEGR9GbIH7Zv77HNYobm0VnQPo=
 github.com/dymensionxyz/dymint v1.5.0-rc02.0.20250625125415-02a47d36289c/go.mod h1:Zh/ky1hHHs1dxTGPzsHM+laLriXvhthYEOPuFzP2hls=
-github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4 h1:BIA7+aPOmBTm9lJBph3ZYUZsc9I5JdwyyQ596xS8mKw=
-github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250325172509-640e840706d4/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
+github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250603161636-a6b5fa1389fa h1:fj6QKpIEUqyMUOy5u4yV12EJGdIpuSwle2+NRWYvr2s=
+github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250603161636-a6b5fa1389fa/go.mod h1:CI6D89pkoiIm4BjoMFNnEaCLdKBEobLuwvhS0c1zh7Y=
 github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj513x8VlDAEc=
 github.com/dymensionxyz/gerr-cosmos v1.0.0/go.mod h1:n+0olxPogzWqFKba45mCpvrHLGmeS8W9UZjggHnWk6c=
 github.com/dymensionxyz/go-ethereum v0.0.0-20250326232313-18b28aa27ff2 h1:3i/sEDuDQKrBeUZDXHA6PLVgcKqmSy8CCFSNcZ7Nmok=
