@@ -477,7 +477,7 @@ func NewRollapp(
 	)
 	app.MintKeeper.SetHooks(
 		minttypes.NewMultiMintHooks(
-			// insert mint hooks receivers here
+		// insert mint hooks receivers here
 		),
 	)
 
@@ -583,7 +583,7 @@ func NewRollapp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
@@ -786,13 +786,13 @@ func NewRollapp(
 		minttypes.ModuleName,
 		ibchost.ModuleName,
 		genutiltypes.ModuleName,
+		hubgentypes.ModuleName,
 		erc20types.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		timeupgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		feegrant.ModuleName,
-		hubgentypes.ModuleName,
 		hubtypes.ModuleName,
 		rollappparamstypes.ModuleName,
 		dividendstypes.ModuleName,
