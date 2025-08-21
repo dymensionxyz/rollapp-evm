@@ -369,7 +369,7 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	github.com/consensys/gnark-crypto => github.com/consensys/gnark-crypto v0.12.1
 	github.com/cosmos/ibc-go/v6 => github.com/dymensionxyz/ibc-go-fork/v6 v6.0.0-rc1.0.20241114115401-1ed31b730904
-	github.com/dymensionxyz/cosmosclient => github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20250110140627-2a26ee51f5b9
+	github.com/dymensionxyz/cosmosclient => github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20250821112220-af8da1bb8b92
 	github.com/dymensionxyz/dymension-rdk => github.com/dymensionxyz/dymension-rdk v1.9.0-rc02
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
