@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2025-09-19T10:32:12.020268Z",
+  "genesis_time": "2025-09-19T11:11:00.102007Z",
   "chain_id": "rollappevm_1234-1",
   "initial_height": "1",
   "consensus_params": {
@@ -198,7 +198,7 @@
         "max_deposit_period": "172800s"
       },
       "voting_params": {
-        "voting_period": "300s"
+        "voting_period": "432000s"
       },
       "tally_params": {
         "quorum": "0.334000000000000000",
@@ -286,7 +286,7 @@
     },
     "staking": {
       "params": {
-        "unbonding_time": "86400s",
+        "unbonding_time": "604800s",
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 10000,
