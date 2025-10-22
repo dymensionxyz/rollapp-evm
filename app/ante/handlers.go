@@ -78,7 +78,7 @@ func cosmosHandler(options HandlerOptions, sigChecker sdk.AnteDecorator) sdk.Ant
 			options.SequencersKeeper,
 			options.RollappParamsKeeper,
 		),
-		NewCreateAccountDecorator(options.AccountKeeper),
+		NewCreateAccountDecorator(options.AccountKeeper, options.AnteTransientStoreKey),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		rdkante.NewBypassIBCFeeDecorator(
 			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.ERC20Keeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
