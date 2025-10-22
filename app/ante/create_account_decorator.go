@@ -7,7 +7,6 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	rdkante "github.com/dymensionxyz/dymension-rdk/server/ante"
 )
 
 type CreateAccountDecorator struct {
@@ -40,7 +39,7 @@ func (cad CreateAccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 		return ctx, err
 	}
 
-	ibcRelayerMsg := rdkante.IbcOnly(tx.GetMsgs()...)
+	freeMsg := isFreeMsg(tx.GetMsgs()...)
 
 	for i, pk := range pubkeys {
 		if pk == nil {
@@ -50,8 +49,9 @@ func (cad CreateAccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 		_, err := authante.GetSignerAcc(ctx, cad.ak, sigTx.GetSigners()[i])
 		if err != nil {
 			// ======= HACK =========================
-			// for IBC relayer messages, create an account if it doesn't exist
-			if ibcRelayerMsg {
+			// for free messages (IBC relayer or special non-IBC messages like authz.MsgGrant, feegrant.MsgGrantAllowance),
+			// create an account if it doesn't exist
+			if freeMsg {
 				address := sdk.AccAddress(pk.Address())
 				acc := cad.ak.NewAccountWithAddress(ctx, address)
 				// inject the new account flag into the context, in order to signal
