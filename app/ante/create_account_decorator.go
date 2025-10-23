@@ -10,6 +10,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
+const (
+	// MaxFreeAccountsPerBlock is the maximum number of free accounts that can be created per block
+	MaxFreeAccountsPerBlock = 10
+
+	// freeAccountCountKey is the key used to track the number of free accounts created in the current block
+	freeAccountCountKey = "free_account_count"
+)
+
 type CreateAccountDecorator struct {
 	ak                    accountKeeper
 	anteTransientStoreKey storetypes.StoreKey

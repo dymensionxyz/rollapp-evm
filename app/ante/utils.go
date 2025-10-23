@@ -7,16 +7,8 @@ import (
 	rdkante "github.com/dymensionxyz/dymension-rdk/server/ante"
 )
 
-const (
-	// TransientStoreKey is the transient store key for ante handler state
-	TransientStoreKey = "ante_transient"
-
-	// MaxFreeAccountsPerBlock is the maximum number of free accounts that can be created per block
-	MaxFreeAccountsPerBlock = 10
-
-	// freeAccountCountKey is the key used to track the number of free accounts created in the current block
-	freeAccountCountKey = "free_account_count"
-)
+// TransientStoreKey is the transient store key for ante handler state
+const TransientStoreKey = "ante_transient"
 
 // isFreeNonIBCMsg returns true for non-IBC messages that are allowed to bypass fees
 // unconditionally when they are the only messages in the transaction.
