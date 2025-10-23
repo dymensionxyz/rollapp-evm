@@ -36,6 +36,11 @@ func isFreeNonIBCMsg(m sdk.Msg) bool {
 // This includes both IBC-only messages and specific non-IBC messages like authz.MsgGrant
 // and feegrant.MsgGrantAllowance.
 func isFreeMsg(msgs ...sdk.Msg) bool {
+	// Empty messages should return false
+	if len(msgs) == 0 {
+		return false
+	}
+
 	// Check if it's IBC-only messages
 	if rdkante.IbcOnly(msgs...) {
 		return true
