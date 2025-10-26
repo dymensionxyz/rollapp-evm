@@ -395,7 +395,7 @@ func NewRollapp(
 	)
 
 	// Add the EVM transient store key
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey, ante.TransientStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	// load state streaming if enabled
@@ -861,6 +861,7 @@ func NewRollapp(
 		app.FeeGrantKeeper,
 		app.AuthzKeeper,
 		app.RollappParamsKeeper,
+		app.tkeys[ante.TransientStoreKey],
 	)
 	app.SetAnteHandler(h)
 

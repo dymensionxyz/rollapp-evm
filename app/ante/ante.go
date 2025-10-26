@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -44,6 +45,7 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	feeGrantKeeper authante.FeegrantKeeper,
 	authzKeeper evmosanteevm.AuthzKeeper,
 	rollappparamsKeeper rollappparamskeeper.Keeper,
+	anteTransientStoreKey storetypes.StoreKey,
 ) sdk.AnteHandler {
 	ethOpts := evmosante.HandlerOptions{
 		Cdc:                codec,
@@ -64,13 +66,14 @@ func MustCreateHandler(codec codec.BinaryCodec,
 	}
 
 	opts := HandlerOptions{
-		HandlerOptions:      ethOpts,
-		hasPermission:       hasPermission,
-		DistrKeeper:         distrKeeper,
-		SequencersKeeper:    sequencerKeeper,
-		RollappParamsKeeper: rollappparamsKeeper,
-		BankKeeper:          bankKeeper,
-		ERC20Keeper:         erc20Keeper,
+		HandlerOptions:        ethOpts,
+		hasPermission:         hasPermission,
+		DistrKeeper:           distrKeeper,
+		SequencersKeeper:      sequencerKeeper,
+		RollappParamsKeeper:   rollappparamsKeeper,
+		BankKeeper:            bankKeeper,
+		ERC20Keeper:           erc20Keeper,
+		AnteTransientStoreKey: anteTransientStoreKey,
 	}
 
 	h, err := NewHandler(opts)
@@ -83,12 +86,13 @@ func MustCreateHandler(codec codec.BinaryCodec,
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	evmosante.HandlerOptions
-	hasPermission       HasPermission
-	DistrKeeper         distrkeeper.Keeper
-	SequencersKeeper    seqkeeper.Keeper
-	RollappParamsKeeper rollappparamskeeper.Keeper
-	BankKeeper          bankkeeper.Keeper
-	ERC20Keeper         erc20keeper.Keeper
+	hasPermission         HasPermission
+	DistrKeeper           distrkeeper.Keeper
+	SequencersKeeper      seqkeeper.Keeper
+	RollappParamsKeeper   rollappparamskeeper.Keeper
+	BankKeeper            bankkeeper.Keeper
+	ERC20Keeper           erc20keeper.Keeper
+	AnteTransientStoreKey storetypes.StoreKey
 }
 
 func (o HandlerOptions) validate() error {

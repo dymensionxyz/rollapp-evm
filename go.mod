@@ -10,7 +10,6 @@ require (
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
 	github.com/cosmos/ibc-go/v6 v6.2.1
-	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd
 	github.com/dymensionxyz/dymension-rdk v1.10.0-rc01.0.20250918164737-9ce090119185
 	github.com/dymensionxyz/dymint v1.6.0-rc03
 	github.com/ethereum/go-ethereum v1.12.0
@@ -125,6 +124,7 @@ require (
 	github.com/dop251/goja v0.0.0-20230806174421-c933cf95e127 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
+	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd // indirect
 	github.com/dymensionxyz/gerr-cosmos v1.0.0 // indirect
 	github.com/dymensionxyz/go-ethereum v0.0.0-20250326232313-18b28aa27ff2 // indirect
 	github.com/dymensionxyz/sdk-utils v0.1.2-0.20240909101947-e1b483ada9c8 // indirect
