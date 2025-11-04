@@ -639,11 +639,11 @@ func NewRollapp(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
-	app.TransferKeeper = convertorkeeper.NewTransferKeeper(erc20TransferKeeper, app.HubKeeper, app.BankKeeper)
+	app.TransferKeeper = convertorkeeper.NewTransferKeeper(*erc20TransferKeeper.Keeper, erc20TransferKeeper, app.HubKeeper, app.BankKeeper)
 
 	// create IBC module from top to bottom of stack
 	var transferStack ibcporttypes.IBCModule
-	baseTransferModule := ibctransfer.NewIBCModule(*app.TransferKeeper.Keeper.Keeper)
+	baseTransferModule := ibctransfer.NewIBCModule(app.TransferKeeper.Keeper)
 	transferStack = denommetadata.NewIBCModule(
 		baseTransferModule,
 		app.BankKeeper,
