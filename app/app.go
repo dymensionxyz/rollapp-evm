@@ -643,9 +643,9 @@ func NewRollapp(
 
 	// create IBC module from top to bottom of stack
 	var transferStack ibcporttypes.IBCModule
-	baseTransferModule := ibctransfer.NewIBCModule(app.TransferKeeper.Keeper)
+	transferStack = ibctransfer.NewIBCModule(app.TransferKeeper.Keeper)
 	transferStack = denommetadata.NewIBCModule(
-		baseTransferModule,
+		transferStack,
 		app.BankKeeper,
 		app.TransferKeeper,
 		app.HubKeeper,
@@ -656,8 +656,7 @@ func NewRollapp(
 
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
-	// FIXME: add conversion middleware
-	transferStack = convertor.NewDecimalConversionMiddleware(baseTransferModule, transferStack, app.TransferKeeper)
+	transferStack = convertor.NewDecimalConversionMiddleware(transferStack, app.TransferKeeper)
 
 	transferStack = hubgenkeeper.NewIBCModule(
 		transferStack,
