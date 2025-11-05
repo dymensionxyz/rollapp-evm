@@ -1248,7 +1248,7 @@ func (app *App) HackyReplaceDenom(ctx sdk.Context) error {
 	// 2. Update hub decimal conversion pair (convertor.from_token)
 
 	pair := hubtypes.DecimalConversionPair{
-		FromToken:    oldDenom,
+		FromToken:    newDenom,
 		FromDecimals: 6,
 	}
 	if err := app.HubKeeper.SetDecimalConversionPair(ctx, pair); err != nil {
