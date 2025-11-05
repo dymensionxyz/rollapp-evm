@@ -22,7 +22,6 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/dymensionxyz/dymension-rdk/server/consensus"
 
@@ -900,11 +899,6 @@ func NewRollapp(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
-	err := app.HackyReplaceDenom(app.NewContext(false, tmproto.Header{}))
-	if err != nil {
-		panic(fmt.Errorf("failed to replace denom: %w", err))
-	}
-
 	return app
 }
 
@@ -917,6 +911,11 @@ func (app *App) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	err := app.HackyReplaceDenom(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to replace denom: %w", err))
+	}
+
 	consensusResponses := consensus.ProcessConsensusMessages(ctx, app.appCodec, app.consensusMessageAdmissionHandler, app.MsgServiceRouter(), req.ConsensusMessages)
 
 	resp := app.mm.BeginBlock(ctx, req)
