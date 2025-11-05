@@ -22,6 +22,7 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/dymensionxyz/dymension-rdk/server/consensus"
 
@@ -899,6 +900,11 @@ func NewRollapp(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 
+	err := app.HackyReplaceDenom(app.NewContext(false, tmproto.Header{}))
+	if err != nil {
+		panic(fmt.Errorf("failed to replace denom: %w", err))
+	}
+
 	return app
 }
 
@@ -1220,4 +1226,74 @@ func (app *App) setupUpgradeHandler(u upgrades.Upgrade) {
 
 func (app *App) SetDymintVersionGetter(getter func() (uint32, error)) {
 	app.dymintVersionGetter = getter
+}
+
+// HackyReplaceDenom forcefully replaces the old IBC denom with the new one
+// in evm.params.evm_denom, evm.params.fee_denom, hub.state.convertor.from_token,
+// rollappparams.min_gas_prices, and bank.denom_metadata
+func (app *App) HackyReplaceDenom(ctx sdk.Context) error {
+	const (
+		oldDenom = "ibc/89AA26DCB1B11CFBDC35B32B56C1E915ED662C872093E71D2BF2AA9032804184"
+		newDenom = "ibc/E2341B75AC852F89DF665F950D1C6F3EA57D69C4FEBF5ABC42E50F2468B7CD0F"
+	)
+
+	// 1. Update EVM params (evm_denom and fee_denom)
+	evmParams := app.EvmKeeper.GetParams(ctx)
+	if evmParams.EvmDenom == oldDenom {
+		evmParams.EvmDenom = newDenom
+		evmParams.GasDenom = newDenom
+		ctx.Logger().Info("Replaced evm_denom", "old", oldDenom, "new", newDenom)
+		app.EvmKeeper.SetParams(ctx, evmParams)
+	}
+
+	// 2. Update hub decimal conversion pair (convertor.from_token)
+	pair, err := app.HubKeeper.GetDecimalConversionPair(ctx)
+	if err != nil {
+		// If not found or error, just log and continue
+		ctx.Logger().Info("No decimal conversion pair found or error getting it", "error", err)
+	} else if pair.FromToken == oldDenom {
+		pair.FromToken = newDenom
+		ctx.Logger().Info("Replaced convertor.from_token", "old", oldDenom, "new", newDenom)
+		if err := app.HubKeeper.SetDecimalConversionPair(ctx, pair); err != nil {
+			ctx.Logger().Error("Failed to set decimal conversion pair", "error", err)
+			return err
+		}
+	}
+
+	// 3. Update rollappparams min_gas_prices
+	minGasPrice := app.RollappParamsKeeper.MinGasPrices(ctx)[0]
+
+	if minGasPrice.Denom == oldDenom {
+		minGasPrice.Denom = newDenom
+		ctx.Logger().Info("Replaced min_gas_prices denom", "old", oldDenom, "new", newDenom)
+		app.RollappParamsKeeper.SetMinGasPrices(ctx, sdk.DecCoins{minGasPrice})
+	}
+
+	// 4. Update bank denom metadata
+	metadata, found := app.BankKeeper.GetDenomMetaData(ctx, newDenom)
+	if found {
+		decimals := metadata.DenomUnits[len(metadata.DenomUnits)-1].Exponent
+		if decimals != 18 {
+			metadata.DenomUnits[len(metadata.DenomUnits)-1].Exponent = 18
+			ctx.Logger().Info("Replaced denom in bank metadata", "old", oldDenom, "new", newDenom)
+
+			// Set the updated metadata with the new denom
+			app.BankKeeper.SetDenomMetaData(ctx, metadata)
+		}
+	}
+
+	// 5. Update ERC20 token pairs
+	// Get the token pair ID using the old denom
+	tokenPairID := app.Erc20Keeper.GetTokenPairID(ctx, oldDenom)
+	if tokenPairID != nil {
+		// Get the token pair
+		tokenPair, found := app.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
+		if found && tokenPair.Denom == oldDenom {
+			// Delete old denom mapping
+			app.Erc20Keeper.DeleteTokenPair(ctx, tokenPair)
+		}
+	}
+
+	ctx.Logger().Info("HackyReplaceDenom completed successfully")
+	return nil
 }
