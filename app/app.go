@@ -1246,17 +1246,13 @@ func (app *App) HackyReplaceDenom(ctx sdk.Context) error {
 	}
 
 	// 2. Update hub decimal conversion pair (convertor.from_token)
-	pair, err := app.HubKeeper.GetDecimalConversionPair(ctx)
-	if err != nil {
-		// If not found or error, just log and continue
-		ctx.Logger().Info("No decimal conversion pair found or error getting it", "error", err)
-	} else if pair.FromToken == oldDenom {
-		pair.FromToken = newDenom
-		ctx.Logger().Info("Replaced convertor.from_token", "old", oldDenom, "new", newDenom)
-		if err := app.HubKeeper.SetDecimalConversionPair(ctx, pair); err != nil {
-			ctx.Logger().Error("Failed to set decimal conversion pair", "error", err)
-			return err
-		}
+
+	pair := hubtypes.DecimalConversionPair{
+		FromToken:    oldDenom,
+		FromDecimals: 6,
+	}
+	if err := app.HubKeeper.SetDecimalConversionPair(ctx, pair); err != nil {
+		return err
 	}
 
 	// 3. Update rollappparams min_gas_prices
