@@ -148,8 +148,6 @@ import (
 	"github.com/evmos/evmos/v12/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
-
-	// "github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
@@ -250,12 +248,12 @@ var (
 		timeupgrade.AppModuleBasic{},
 		rollappparams.AppModuleBasic{},
 		dividends.AppModuleBasic{},
+		converter.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 
 		// Evmos moudles
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
-		converter.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 	)
 
 	// module account permissions
@@ -622,7 +620,6 @@ func NewRollapp(
 		app.BankKeeper,
 		app.HubGenesisKeeper.GetState,
 	)
-
 	// - genesis bridge - IBC transfer disabled until genesis bridge protocol completes
 	ics4Wrapper = hubgenkeeper.NewICS4Wrapper(ics4Wrapper, app.HubGenesisKeeper)
 
