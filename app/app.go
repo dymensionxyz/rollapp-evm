@@ -82,6 +82,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	"github.com/dymensionxyz/dymension-rdk/x/converter"
+	converterkeeper "github.com/dymensionxyz/dymension-rdk/x/converter/keeper"
 	"github.com/dymensionxyz/dymension-rdk/x/mint"
 	mintkeeper "github.com/dymensionxyz/dymension-rdk/x/mint/keeper"
 	minttypes "github.com/dymensionxyz/dymension-rdk/x/mint/types"
@@ -146,7 +148,6 @@ import (
 	"github.com/evmos/evmos/v12/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
-	"github.com/evmos/evmos/v12/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
 	"github.com/dymensionxyz/dymension-rdk/x/denommetadata"
@@ -247,12 +248,12 @@ var (
 		timeupgrade.AppModuleBasic{},
 		rollappparams.AppModuleBasic{},
 		dividends.AppModuleBasic{},
+		converter.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 
 		// Evmos moudles
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
-		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 	)
 
 	// module account permissions
@@ -329,7 +330,7 @@ type App struct {
 	UpgradeKeeper       upgradekeeper.Keeper
 	ParamsKeeper        paramskeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper      transferkeeper.Keeper
+	TransferKeeper      converterkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	TimeUpgradeKeeper   timeupgradekeeper.Keeper
 	RollappParamsKeeper rollappparamskeeper.Keeper
@@ -607,6 +608,7 @@ func NewRollapp(
 	app.HubKeeper = hubkeeper.NewKeeper(
 		appCodec,
 		keys[hubtypes.StoreKey],
+		app.BankKeeper,
 	)
 
 	var ics4Wrapper ibcporttypes.ICS4Wrapper
@@ -621,7 +623,7 @@ func NewRollapp(
 	// - genesis bridge - IBC transfer disabled until genesis bridge protocol completes
 	ics4Wrapper = hubgenkeeper.NewICS4Wrapper(ics4Wrapper, app.HubGenesisKeeper)
 
-	app.TransferKeeper = transferkeeper.NewKeeper(
+	erc20TransferKeeper := transferkeeper.NewKeeper(
 		appCodec,
 		keys[ibctransfertypes.StoreKey],
 		app.GetSubspace(ibctransfertypes.ModuleName),
@@ -634,9 +636,11 @@ func NewRollapp(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
+	app.TransferKeeper = converterkeeper.NewTransferKeeper(*erc20TransferKeeper.Keeper, erc20TransferKeeper, app.HubKeeper, app.BankKeeper)
+
 	// create IBC module from top to bottom of stack
 	var transferStack ibcporttypes.IBCModule
-	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = ibctransfer.NewIBCModule(app.TransferKeeper.Keeper)
 	transferStack = denommetadata.NewIBCModule(
 		transferStack,
 		app.BankKeeper,
@@ -648,6 +652,9 @@ func NewRollapp(
 	)
 
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
+
+	transferStack = converter.NewDecimalConversionMiddleware(transferStack, app.TransferKeeper)
+
 	transferStack = hubgenkeeper.NewIBCModule(
 		transferStack,
 		app.HubGenesisKeeper,
@@ -692,11 +699,11 @@ func NewRollapp(
 		timeupgrade.NewAppModule(app.TimeUpgradeKeeper, app.UpgradeKeeper),
 		rollappparams.NewAppModule(appCodec, app.RollappParamsKeeper),
 		dividends.NewAppModule(app.DividendsKeeper),
+		converter.NewAppModule(app.TransferKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
-		transfer.NewAppModule(app.TransferKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 	}
 
