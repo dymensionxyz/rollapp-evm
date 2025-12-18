@@ -142,6 +142,9 @@ set_consensus_params() {
   "avail")
     DA="avail"
     ;;
+  "kaspa")
+    DA="kaspa"
+    ;;
   *)
     DA="mock"
     ;;
