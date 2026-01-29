@@ -9,7 +9,7 @@ require (
 	github.com/bcdevtools/block-explorer-rpc-cosmos v1.2.4
 	github.com/bcdevtools/evm-block-explorer-rpc-cosmos v1.1.4
 	github.com/cosmos/cosmos-sdk v0.46.16
-	github.com/cosmos/ibc-go/v6 v6.2.1
+	github.com/cosmos/ibc-go/v6 v6.3.0
 	github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd
 	github.com/dymensionxyz/dymension-rdk v1.9.0-rc02
 	github.com/dymensionxyz/dymint v1.5.3-rc02
@@ -382,4 +382,6 @@ replace (
 	github.com/gorilla/rpc => github.com/dymensionxyz/rpc v1.3.1
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250109171128-0ea81b630cbc
+	// ibc-go fork with ASA-2025-004 fix
+	github.com/cosmos/ibc-go/v6 => github.com/dymensionxyz/ibc-go/v6 v6.3.1
 )
