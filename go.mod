@@ -403,4 +403,5 @@ replace (
 	github.com/kaspanet/go-secp256k1 => github.com/dymensionxyz/kaspa-go-secp256k1 v0.0.0-20250430112425-a3ecc0fdaadb
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.0-dymension-v1.1.2
 	github.com/tendermint/tendermint => github.com/dymensionxyz/cometbft v0.34.29-0.20250109171128-0ea81b630cbc
+	github.com/cosmos/ibc-go => github.com/dymensionxyz/ibc-go v6.3.1
 )
