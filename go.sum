@@ -488,8 +488,6 @@ github.com/cosmos/gorocksdb v1.2.0 h1:d0l3jJG8M4hBouIZq0mDUHZ+zjOx044J3nGRskwTb4
 github.com/cosmos/gorocksdb v1.2.0/go.mod h1:aaKvKItm514hKfNJpUJXnnOWeBnk2GL4+Qw9NHizILw=
 github.com/cosmos/iavl v0.19.6 h1:XY78yEeNPrEYyNCKlqr9chrwoeSDJ0bV2VjocTk//OU=
 github.com/cosmos/iavl v0.19.6/go.mod h1:X9PKD3J0iFxdmgNLa7b2LYWdsGd90ToV5cAONApkEPw=
-github.com/cosmos/ibc-go/v6 v6.2.1 h1:NiaDXTRhKwf3n9kELD4VRIe5zby1yk1jBvaz9tXTQ6k=
-github.com/cosmos/ibc-go/v6 v6.2.1/go.mod h1:XLsARy4Y7+GtAqzMcxNdlQf6lx+ti1e8KcMGv5NIK7A=
 github.com/cosmos/interchain-accounts v0.4.3 h1:WedxEa/Hj/2GY7AF6CafkEPJ/Z9rhl3rT1mRwNHsdts=
 github.com/cosmos/interchain-accounts v0.4.3/go.mod h1:qibHB6y/R2YsuuZdamI2BcIUBPMyhyELDWAr8Nk8x4g=
 github.com/cosmos/ledger-cosmos-go v0.12.4 h1:drvWt+GJP7Aiw550yeb3ON/zsrgW0jgh5saFCr7pDnw=
@@ -598,8 +596,8 @@ github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73 h1:A0O
 github.com/dymensionxyz/cosmos-sdk v0.46.17-0.20241128210616-e9dfe47b8c73/go.mod h1:VPUuzF+l+ekSGPV7VVB8m0OMQfwp3QdKWNZjvkU3A1U=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd h1:V89QyOFM84o9w0iFdctMU6So8SS/Xt32JWAXGqJduT0=
 github.com/dymensionxyz/cosmosclient v0.4.2-beta.0.20241121093220-e0d7ad456fbd/go.mod h1:3weqpVj/TqTFpC0LjEB3H+HZSpm7BrQ1QkEg1Ahy6KY=
-github.com/dymensionxyz/dymension-rdk v1.10.0-rc02 h1:3S2VsOfDxwBHg3YRsp3TpKvaqnieOVqTBb5ReHu+J9Q=
-github.com/dymensionxyz/dymension-rdk v1.10.0-rc02/go.mod h1:9ZEKvfMIxU5iUfBBAVLpxb/j+KFSdgur4jeoT2bO+M0=
+github.com/dymensionxyz/dymension-rdk v1.10.1-rc01 h1:N2oVQB4xMHXFPLadHAQ/JTsklgs+oy/rOj0Sk2BcrAM=
+github.com/dymensionxyz/dymension-rdk v1.10.1-rc01/go.mod h1:XRI4cC/k2t4LliZqvBZxmbjJiWovVYXF0SnFnNndJpY=
 github.com/dymensionxyz/dymint v1.6.0-rc04 h1:hi2zFE/f792gaAUb7kUMQBe1sSn+ik+UWcY7J9VurFw=
 github.com/dymensionxyz/dymint v1.6.0-rc04/go.mod h1:egFViAvdBJxCdHP/L5AyU1GHnLL7zP5obnT7It8RVO4=
 github.com/dymensionxyz/evmos/v12 v12.1.7-0.20250914060644-204f1a342cd0 h1:Swwr6CluxSL0nbBkGm7qX50TUAcDua7QeVuSoOSZfHM=
@@ -608,6 +606,8 @@ github.com/dymensionxyz/gerr-cosmos v1.0.0 h1:oi91rgOkpJWr41oX9JOyjvvBnhGY54tj51
 github.com/dymensionxyz/gerr-cosmos v1.0.0/go.mod h1:n+0olxPogzWqFKba45mCpvrHLGmeS8W9UZjggHnWk6c=
 github.com/dymensionxyz/go-ethereum v0.0.0-20250326232313-18b28aa27ff2 h1:3i/sEDuDQKrBeUZDXHA6PLVgcKqmSy8CCFSNcZ7Nmok=
 github.com/dymensionxyz/go-ethereum v0.0.0-20250326232313-18b28aa27ff2/go.mod h1:zG7++f5PmzY2yJVjMthMNuFN3CHgesi3NW7oEUVe0kU=
+github.com/dymensionxyz/ibc-go/v6 v6.3.1 h1:ZUgVz5qq/LMPYjp8XD4ssoSa/wbnzgiAXr2LnxWAtLk=
+github.com/dymensionxyz/ibc-go/v6 v6.3.1/go.mod h1:Dm14j9s094bGyCEE8W4fD+2t8IneHv+cz+80Mvwjr1w=
 github.com/dymensionxyz/kaspa-go-secp256k1 v0.0.0-20250430112425-a3ecc0fdaadb h1:HujsXbaVB5cYGPghP9tslrp1NQukrbI1W1Jfjs3BUY0=
 github.com/dymensionxyz/kaspa-go-secp256k1 v0.0.0-20250430112425-a3ecc0fdaadb/go.mod h1:cFbxhxKkxqHX5eIwUGKARkph19PehipDPJejWB+H0jM=
 github.com/dymensionxyz/rpc v1.3.1 h1:7EXWIobaBes5zldRvTIg7TmNsEKjicrWA/OjCc0NaGs=
